@@ -38,12 +38,14 @@
 
     /* ── 플래너 ── */
     #view-planner { padding-bottom: 30px; }
-    .pln-topbar { display: flex; align-items: center; justify-content: space-between; background: #1a1a1a; border-radius: 16px; padding: 18px 24px; margin-bottom: 18px; color: white; box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+    .pln-topbar { display: flex; align-items: center; justify-content: space-between; background: #1a1a1a; border-radius: 20px; padding: 16px 24px; margin-bottom: 18px; color: white; box-shadow: 0 4px 20px rgba(0,0,0,0.18); position: relative; overflow: hidden; }
+    .pln-topbar::before { content: '♡ ✦ ♡ ✦ ♡ ✦ ♡ ✦ ♡ ✦ ♡'; position: absolute; top: 5px; left: 0; right: 0; text-align: center; font-size: 0.6rem; opacity: 0.2; letter-spacing: 0.3em; pointer-events: none; }
+    .pln-topbar::after { content: '♡ ✦ ♡ ✦ ♡ ✦ ♡ ✦ ♡ ✦ ♡'; position: absolute; bottom: 5px; left: 0; right: 0; text-align: center; font-size: 0.6rem; opacity: 0.2; letter-spacing: 0.3em; pointer-events: none; }
     .pln-date-center { text-align: center; }
-    .pln-date-big { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
-    .pln-date-tag { font-size: 0.78rem; opacity: 0.6; margin-top: 3px; }
-    .pnav { background: rgba(255,255,255,0.12); border: none; border-radius: 8px; padding: 7px 15px; cursor: pointer; font-size: 1rem; color: white; }
-    .pnav:hover { background: rgba(255,255,255,0.22); }
+    .pln-date-big { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.02em; font-family: 'Gowun Dodum', sans-serif; }
+    .pln-date-tag { font-size: 0.82rem; opacity: 0.65; margin-top: 4px; font-family: 'Gaegu', cursive; letter-spacing: 0.05em; }
+    .pnav { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 1.2rem; color: white; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .pnav:hover { background: rgba(255,255,255,0.25); }
 
     .pln-grid { display: grid; grid-template-columns: 260px 1fr; gap: 16px; align-items: start; }
 
@@ -185,10 +187,10 @@
     .event-date-label { font-size: 0.77rem; color: #9ca3af; margin-top: 2px; }
 
     /* 캘린더 */
-    .cal-nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .cal-nav { background: none; border: 1px solid #d1d5db; border-radius: 8px; padding: 6px 14px; cursor: pointer; font-size: 0.9rem; }
-    .cal-nav:hover { background: #f3f4f6; }
-    .cal-title { font-weight: 600; font-size: 1.05rem; }
+    .cal-nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; background: #1a1a1a; border-radius: 14px; padding: 10px 16px; }
+    .cal-nav { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 1.1rem; color: white; display: flex; align-items: center; justify-content: center; }
+    .cal-nav:hover { background: rgba(255,255,255,0.25); }
+    .cal-title { font-weight: 700; font-size: 1.05rem; color: white; font-family: 'Gowun Dodum', sans-serif; letter-spacing: 0.05em; }
     .cal-days-header { display: grid; grid-template-columns: repeat(7,1fr); background: #f9fafb; border-radius: 8px 8px 0 0; border-bottom: 1px solid #e5e7eb; }
     .cal-day-name { text-align: center; padding: 9px; font-size: 0.78rem; font-weight: 600; color: #6b7280; }
     .cal-day-name:first-child { color: #888; }
@@ -360,7 +362,7 @@
 
       <!-- 텍스트 -->
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:2">
-        <div id="live-clock" style="font-family:'DM Mono',monospace;font-size:2.6rem;font-weight:400;color:white;letter-spacing:0.08em;text-shadow:0 0 20px rgba(255,255,255,0.3)"></div>
+        <div id="live-clock" style="font-family:'Gowun Dodum','Nunito',sans-serif;font-size:2.8rem;font-weight:700;color:white;letter-spacing:0.04em;text-shadow:0 0 20px rgba(255,255,255,0.3)"></div>
         <div id="daily-quote" style="font-size:0.9rem;color:rgba(255,255,255,0.55);letter-spacing:0.08em;font-family:'Gaegu',cursive;text-shadow:0 0 10px rgba(255,255,255,0.2)"></div>
       </div>
     </div>
@@ -381,8 +383,26 @@
     <!-- 메인 그리드 (3컬럼) -->
     <div style="display:grid;grid-template-columns:240px 1fr 280px;gap:16px;align-items:start">
 
-      <!-- 왼쪽: 시간표 -->
+      <!-- 왼쪽: 미니 캘린더 + 시간표 -->
       <div class="pln-left">
+        <!-- 미니 캘린더 -->
+        <div class="pln-card" style="margin-bottom:12px;padding:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <button onclick="miniCalPrev()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#555;padding:2px 6px">‹</button>
+            <div id="mini-cal-title" style="font-size:0.85rem;font-weight:700;color:#1a1a1a;font-family:'Gowun Dodum',sans-serif"></div>
+            <button onclick="miniCalNext()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#555;padding:2px 6px">›</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:1px">
+            <div style="font-size:0.65rem;color:#aaa;padding:2px">일</div>
+            <div style="font-size:0.65rem;color:#aaa;padding:2px">월</div>
+            <div style="font-size:0.65rem;color:#aaa;padding:2px">화</div>
+            <div style="font-size:0.65rem;color:#aaa;padding:2px">수</div>
+            <div style="font-size:0.65rem;color:#aaa;padding:2px">목</div>
+            <div style="font-size:0.65rem;color:#aaa;padding:2px">금</div>
+            <div style="font-size:0.65rem;color:#aaa;padding:2px">토</div>
+          </div>
+          <div id="mini-cal-cells" style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:1px"></div>
+        </div>
         <div class="pln-section-label">🗓 시간표</div>
         <div class="timetable" id="timetable"></div>
       </div>
@@ -439,23 +459,7 @@
   <div id="view-dash">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char"><svg width="90" height="78" viewBox="0 0 90 78">
-        <path d="M18,24 L13,5 L30,17 Z" fill="#1a1a1a"/>
-        <path d="M72,24 L77,5 L60,17 Z" fill="#1a1a1a"/>
-        <ellipse cx="45" cy="31" rx="26" ry="24" fill="#1a1a1a"/>
-        <ellipse cx="45" cy="60" rx="28" ry="18" fill="#1a1a1a"/>
-        <circle cx="33" cy="29" r="8" fill="white"/>
-        <circle cx="57" cy="29" r="8" fill="white"/>
-        <circle cx="34" cy="30" r="4" fill="#1a1a1a"/>
-        <circle cx="58" cy="30" r="4" fill="#1a1a1a"/>
-        <circle cx="32" cy="27" r="2" fill="white"/>
-        <circle cx="56" cy="27" r="2" fill="white"/>
-        <path d="M38,42 Q45,47 52,42" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <ellipse cx="22" cy="72" rx="10" ry="6" fill="#1a1a1a"/>
-        <ellipse cx="68" cy="72" rx="10" ry="6" fill="#1a1a1a"/>
-        <text x="6" y="14" font-size="12" fill="#1a1a1a" opacity="0.4">✦</text>
-        <text x="72" y="12" font-size="10" fill="#1a1a1a" opacity="0.35">♡</text>
-      </svg></div>
+      <div class="tab-char"><img src="/todo-app/cat1.png" style="height:90px;object-fit:contain"></div>
       <div class="tab-header-title">♡ DASHBOARD ♡</div>
       <div class="tab-header-sub">오늘 하루도 수고했어요 🐾</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -473,26 +477,7 @@
   <div id="view-todo" style="display:none">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char"><svg width="90" height="78" viewBox="0 0 90 78">
-        <path d="M18,24 L13,5 L30,17 Z" fill="#1a1a1a"/>
-        <path d="M72,24 L77,5 L60,17 Z" fill="#1a1a1a"/>
-        <ellipse cx="45" cy="31" rx="26" ry="24" fill="#1a1a1a"/>
-        <ellipse cx="45" cy="60" rx="28" ry="18" fill="#1a1a1a"/>
-        <circle cx="33" cy="28" r="7" fill="white"/>
-        <circle cx="57" cy="28" r="7" fill="white"/>
-        <circle cx="35" cy="29" r="4" fill="#1a1a1a"/>
-        <circle cx="59" cy="29" r="4" fill="#1a1a1a"/>
-        <circle cx="32" cy="26" r="2" fill="white"/>
-        <circle cx="56" cy="26" r="2" fill="white"/>
-        <path d="M38,38 L38,45" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M42,36 L42,44" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M46,37 L46,43" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-        <ellipse cx="22" cy="72" rx="10" ry="6" fill="#1a1a1a"/>
-        <ellipse cx="68" cy="72" rx="10" ry="6" fill="#1a1a1a"/>
-        <line x1="64" y1="55" x2="78" y2="30" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
-        <polygon points="78,27 74,32 80,31" fill="#1a1a1a"/>
-        <text x="6" y="14" font-size="10" fill="#1a1a1a" opacity="0.4">✦</text>
-      </svg></div>
+      <div class="tab-char"><img src="/todo-app/cat2.png" style="height:90px;object-fit:contain"></div>
       <div class="tab-header-title">✎ TO-DO LIST ✎</div>
       <div class="tab-header-sub">하나씩 해치워 봐요 ˘ᵕ˘</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -523,26 +508,7 @@
   <div id="view-cal" style="display:none">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char"><svg width="90" height="78" viewBox="0 0 90 78">
-        <path d="M18,24 L13,5 L30,17 Z" fill="#1a1a1a"/>
-        <path d="M72,24 L77,5 L60,17 Z" fill="#1a1a1a"/>
-        <ellipse cx="45" cy="31" rx="26" ry="24" fill="#1a1a1a"/>
-        <ellipse cx="45" cy="60" rx="28" ry="18" fill="#1a1a1a"/>
-        <!-- sleepy half-eyes -->
-        <circle cx="33" cy="29" r="8" fill="white"/>
-        <circle cx="57" cy="29" r="8" fill="white"/>
-        <ellipse cx="33" cy="32" rx="8" ry="6" fill="#1a1a1a"/>
-        <ellipse cx="57" cy="32" rx="8" ry="6" fill="#1a1a1a"/>
-        <circle cx="31" cy="27" r="2" fill="white"/>
-        <circle cx="55" cy="27" r="2" fill="white"/>
-        <!-- zzz -->
-        <text x="62" y="10" font-size="11" fill="#1a1a1a" opacity="0.7" font-family="Nunito" font-weight="bold">zzz</text>
-        <!-- moon -->
-        <path d="M6,18 Q2,8 10,4 Q4,10 8,18 Z" fill="#1a1a1a" opacity="0.5" transform="translate(2,0)"/>
-        <ellipse cx="22" cy="72" rx="10" ry="6" fill="#1a1a1a"/>
-        <ellipse cx="68" cy="72" rx="10" ry="6" fill="#1a1a1a"/>
-        <path d="M38,42 Q45,46 52,42" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      </svg></div>
+      <div class="tab-char"><img src="/todo-app/cat3.png" style="height:90px;object-fit:contain"></div>
       <div class="tab-header-title">🗓 CALENDAR 🗓</div>
       <div class="tab-header-sub">소중한 날들을 기록해요 ₊˚ʚ</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -569,24 +535,7 @@
   <div id="view-goal" style="display:none">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char"><svg width="90" height="84" viewBox="0 0 90 84">
-        <path d="M18,24 L13,5 L30,17 Z" fill="#1a1a1a"/>
-        <path d="M72,24 L77,5 L60,17 Z" fill="#1a1a1a"/>
-        <ellipse cx="45" cy="31" rx="26" ry="24" fill="#1a1a1a"/>
-        <ellipse cx="45" cy="62" rx="28" ry="18" fill="#1a1a1a"/>
-        <circle cx="33" cy="29" r="8" fill="white"/>
-        <circle cx="57" cy="29" r="8" fill="white"/>
-        <circle cx="34" cy="30" r="4" fill="#1a1a1a"/>
-        <circle cx="58" cy="30" r="4" fill="#1a1a1a"/>
-        <circle cx="32" cy="27" r="2" fill="white"/>
-        <circle cx="56" cy="27" r="2" fill="white"/>
-        <!-- crown -->
-        <path d="M28,14 L32,6 L38,12 L45,4 L52,12 L58,6 L62,14 Z" fill="#1a1a1a" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-        <path d="M38,42 Q45,47 52,42" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <ellipse cx="22" cy="74" rx="10" ry="6" fill="#1a1a1a"/>
-        <ellipse cx="68" cy="74" rx="10" ry="6" fill="#1a1a1a"/>
-        <text x="70" y="24" font-size="11" fill="#1a1a1a" opacity="0.45">✦</text>
-      </svg></div>
+      <div class="tab-char"><img src="/todo-app/cat4.png" style="height:90px;object-fit:contain"></div>
       <div class="tab-header-title">🎯 GOALS 🎯</div>
       <div class="tab-header-sub">꿈을 향해 한 걸음씩 ⋆·˚</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -617,25 +566,7 @@
   <div id="view-habit" style="display:none">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char"><svg width="90" height="82" viewBox="0 0 90 82">
-        <path d="M18,24 L13,5 L30,17 Z" fill="#1a1a1a"/>
-        <path d="M72,24 L77,5 L60,17 Z" fill="#1a1a1a"/>
-        <ellipse cx="45" cy="31" rx="26" ry="24" fill="#1a1a1a"/>
-        <ellipse cx="45" cy="62" rx="28" ry="18" fill="#1a1a1a"/>
-        <circle cx="33" cy="29" r="8" fill="white"/>
-        <circle cx="57" cy="29" r="8" fill="white"/>
-        <circle cx="34" cy="30" r="4" fill="#1a1a1a"/>
-        <circle cx="58" cy="30" r="4" fill="#1a1a1a"/>
-        <circle cx="32" cy="27" r="2" fill="white"/>
-        <circle cx="56" cy="27" r="2" fill="white"/>
-        <path d="M38,42 Q45,47 52,42" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <!-- heart above head -->
-        <path d="M45,8 C45,5 41,2 39,5 C37,2 33,5 33,8 C33,12 39,16 45,20 C51,16 57,12 57,8 C57,5 53,2 51,5 C49,2 45,5 45,8 Z" fill="#1a1a1a" opacity="0.5" transform="translate(0,-2) scale(0.7) translate(19,0)"/>
-        <ellipse cx="22" cy="74" rx="10" ry="6" fill="#1a1a1a"/>
-        <ellipse cx="68" cy="74" rx="10" ry="6" fill="#1a1a1a"/>
-        <text x="68" y="14" font-size="10" fill="#1a1a1a" opacity="0.4">♡</text>
-        <text x="10" y="12" font-size="9" fill="#1a1a1a" opacity="0.35">✦</text>
-      </svg></div>
+      <div class="tab-char"><img src="/todo-app/cat5.png" style="height:90px;object-fit:contain"></div>
       <div class="tab-header-title">🌱 HABITS 🌱</div>
       <div class="tab-header-sub">매일 조금씩, 꾸준히 ♡ˎˊ˗</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -657,22 +588,7 @@
   <div id="view-stats" style="display:none">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char"><svg width="90" height="78" viewBox="0 0 90 78">
-        <path d="M18,24 L13,5 L30,17 Z" fill="#1a1a1a"/>
-        <path d="M72,24 L77,5 L60,17 Z" fill="#1a1a1a"/>
-        <ellipse cx="45" cy="31" rx="26" ry="24" fill="#1a1a1a"/>
-        <ellipse cx="45" cy="60" rx="28" ry="18" fill="#1a1a1a"/>
-        <!-- star eyes -->
-        <circle cx="33" cy="29" r="8" fill="white"/>
-        <circle cx="57" cy="29" r="8" fill="white"/>
-        <path d="M33,22 L34.5,27 L40,28 L34.5,29 L33,34 L31.5,29 L26,28 L31.5,27 Z" fill="#1a1a1a" transform="scale(0.6) translate(21,18)"/>
-        <path d="M57,22 L58.5,27 L64,28 L58.5,29 L57,34 L55.5,29 L50,28 L55.5,27 Z" fill="#1a1a1a" transform="scale(0.6) translate(46,18)"/>
-        <path d="M38,42 Q45,47 52,42" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <ellipse cx="22" cy="72" rx="10" ry="6" fill="#1a1a1a"/>
-        <ellipse cx="68" cy="72" rx="10" ry="6" fill="#1a1a1a"/>
-        <text x="6" y="14" font-size="10" fill="#1a1a1a" opacity="0.4">✦</text>
-        <text x="72" y="16" font-size="9" fill="#1a1a1a" opacity="0.35">✦</text>
-      </svg></div>
+      <div class="tab-char"><img src="/todo-app/cat6.png" style="height:90px;object-fit:contain"></div>
       <div class="tab-header-title">📊 STATS 📊</div>
       <div class="tab-header-sub">나의 성장을 눈으로 확인해요 ✨</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -837,6 +753,28 @@
     events = events.filter(e=>e.id!==id);
     save(); renderCalendar(); renderCalDayEvents(selectedDate); renderDash();
   }
+  // 미니 캘린더
+  let miniCalYear = new Date().getFullYear(), miniCalMonth = new Date().getMonth();
+  function renderMiniCal() {
+    const months=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+    document.getElementById('mini-cal-title').textContent=`${miniCalYear}년 ${months[miniCalMonth]}`;
+    const cells = document.getElementById('mini-cal-cells');
+    cells.innerHTML='';
+    const first=new Date(miniCalYear,miniCalMonth,1).getDay();
+    const last=new Date(miniCalYear,miniCalMonth+1,0).getDate();
+    const today=new Date(); const todayStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    for(let i=0;i<first;i++) cells.innerHTML+=`<div></div>`;
+    for(let d=1;d<=last;d++){
+      const ds=`${miniCalYear}-${String(miniCalMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday=ds===todayStr;
+      const hasEvent=(events||[]).some(e=>e.date===ds);
+      cells.innerHTML+=`<div onclick="window.showView&&showView('planner');changePlannerToDate&&changePlannerToDate('${ds}')" style="font-size:0.7rem;padding:3px 1px;cursor:pointer;border-radius:50%;${isToday?'background:#1a1a1a;color:white;font-weight:700;':'color:#333;'}${hasEvent&&!isToday?'text-decoration:underline;':''}">${d}</div>`;
+    }
+  }
+  function miniCalPrev(){miniCalMonth--;if(miniCalMonth<0){miniCalMonth=11;miniCalYear--;}renderMiniCal();}
+  function miniCalNext(){miniCalMonth++;if(miniCalMonth>11){miniCalMonth=0;miniCalYear++;}renderMiniCal();}
+  window.miniCalPrev=miniCalPrev; window.miniCalNext=miniCalNext;
+
   function changeMonth(d) {
     calMonth+=d;
     if(calMonth>11){calMonth=0;calYear++;} if(calMonth<0){calMonth=11;calYear--;}
@@ -1367,7 +1305,7 @@
     if(v==='habit') renderHabits();
     if(v==='goal') renderGoals();
     if(v==='dash') renderDash();
-    if(v==='planner') renderPlanner();
+    if(v==='planner') { renderPlanner(); renderMiniCal(); }
   }
 
   // ─── 검색 ───
