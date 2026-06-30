@@ -307,50 +307,58 @@
   <div id="view-planner" style="display:none">
 
     <!-- 배너 -->
-    <div style="position:relative;width:100%;height:220px;border-radius:20px;overflow:hidden;margin-bottom:18px;background:linear-gradient(135deg,#0d0d0d 0%,#1c1c1c 50%,#0a0a0a 100%)">
+    <style>
+      .banner-wrap { position:relative;width:100%;height:220px;border-radius:20px;overflow:hidden;margin-bottom:18px; }
+      .banner-bg { position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,#2a2a2a 0%,#0a0a0a 60%),radial-gradient(ellipse at 80% 30%,#1e1e1e,transparent); background-blend-mode:screen; }
+      .banner-blob { position:absolute;border-radius:50%;filter:blur(40px);pointer-events:none; }
+      .glow-h { position:absolute;color:rgba(255,255,255,0.12);-webkit-text-stroke:1.2px rgba(255,255,255,0.85);text-shadow:0 0 8px rgba(255,255,255,0.9),0 0 20px rgba(255,255,255,0.5),0 0 40px rgba(255,255,255,0.2);pointer-events:none;animation:floatH 3s ease-in-out infinite; }
+      .glow-s { position:absolute;color:white;text-shadow:0 0 6px #fff,0 0 14px rgba(255,255,255,0.8);pointer-events:none;animation:twinkleS 2s ease-in-out infinite; }
+      @keyframes floatH { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+      @keyframes twinkleS { 0%,100%{opacity:0.3;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }
+    </style>
+    <div class="banner-wrap">
+      <div class="banner-bg"></div>
+      <div class="banner-blob" style="width:200px;height:200px;background:rgba(80,80,80,0.25);top:-60px;left:10%"></div>
+      <div class="banner-blob" style="width:250px;height:250px;background:rgba(60,60,60,0.2);bottom:-80px;left:40%"></div>
+      <div class="banner-blob" style="width:180px;height:180px;background:rgba(70,70,70,0.22);top:-40px;right:5%"></div>
 
-      <!-- 큰 하트들 (흐릿하게) -->
-      <div style="position:absolute;inset:0;color:white;pointer-events:none">
-        <span style="position:absolute;font-size:9rem;top:-30px;left:-10px;opacity:0.07">♥</span>
-        <span style="position:absolute;font-size:11rem;bottom:-40px;left:15%;opacity:0.06">♥</span>
-        <span style="position:absolute;font-size:8rem;top:-20px;right:5%;opacity:0.07">♥</span>
-        <span style="position:absolute;font-size:10rem;bottom:-35px;right:20%;opacity:0.06">♥</span>
-        <span style="position:absolute;font-size:7rem;top:10px;left:42%;opacity:0.05">♥</span>
-      </div>
+      <!-- 글로우 하트들 -->
+      <span class="glow-h" style="font-size:2.2rem;top:12px;left:4%;animation-delay:0s">♡</span>
+      <span class="glow-h" style="font-size:1.3rem;top:50px;left:11%;animation-delay:0.4s">♡</span>
+      <span class="glow-h" style="font-size:2.8rem;top:8px;left:20%;animation-delay:0.8s">♡</span>
+      <span class="glow-h" style="font-size:1.6rem;top:70px;left:28%;animation-delay:0.2s">♡</span>
+      <span class="glow-h" style="font-size:3.2rem;top:5px;left:38%;animation-delay:1s">♡</span>
+      <span class="glow-h" style="font-size:1.4rem;top:55px;left:48%;animation-delay:0.6s">♡</span>
+      <span class="glow-h" style="font-size:2.5rem;top:10px;left:57%;animation-delay:0.3s">♡</span>
+      <span class="glow-h" style="font-size:1.8rem;top:65px;left:66%;animation-delay:0.9s">♡</span>
+      <span class="glow-h" style="font-size:3rem;top:6px;left:75%;animation-delay:0.5s">♡</span>
+      <span class="glow-h" style="font-size:1.2rem;top:48px;left:84%;animation-delay:0.7s">♡</span>
+      <span class="glow-h" style="font-size:2rem;top:14px;left:92%;animation-delay:0.1s">♡</span>
+      <span class="glow-h" style="font-size:1.8rem;bottom:14px;left:7%;animation-delay:0.5s">♡</span>
+      <span class="glow-h" style="font-size:2.6rem;bottom:8px;left:17%;animation-delay:0.2s">♡</span>
+      <span class="glow-h" style="font-size:1.3rem;bottom:40px;left:26%;animation-delay:0.8s">♡</span>
+      <span class="glow-h" style="font-size:2rem;bottom:12px;left:35%;animation-delay:0.4s">♡</span>
+      <span class="glow-h" style="font-size:1.5rem;bottom:38px;left:52%;animation-delay:1s">♡</span>
+      <span class="glow-h" style="font-size:2.4rem;bottom:10px;left:62%;animation-delay:0.3s">♡</span>
+      <span class="glow-h" style="font-size:1.6rem;bottom:42px;left:72%;animation-delay:0.7s">♡</span>
+      <span class="glow-h" style="font-size:2.8rem;bottom:6px;left:81%;animation-delay:0.6s">♡</span>
+      <span class="glow-h" style="font-size:1.4rem;bottom:36px;left:91%;animation-delay:0.9s">♡</span>
 
-      <!-- 작은 하트+별 흩뿌리기 -->
-      <div style="position:absolute;inset:0;color:white;pointer-events:none">
-        <span style="position:absolute;font-size:1.1rem;top:14px;left:7%;opacity:0.5">♡</span>
-        <span style="position:absolute;font-size:0.7rem;top:30px;left:13%;opacity:0.35">✦</span>
-        <span style="position:absolute;font-size:1.4rem;top:8px;left:24%;opacity:0.45">♡</span>
-        <span style="position:absolute;font-size:0.9rem;top:22px;left:34%;opacity:0.3">✦</span>
-        <span style="position:absolute;font-size:1.2rem;top:12px;left:55%;opacity:0.45">♡</span>
-        <span style="position:absolute;font-size:0.8rem;top:28px;left:65%;opacity:0.35">✦</span>
-        <span style="position:absolute;font-size:1.5rem;top:6px;left:76%;opacity:0.5">♡</span>
-        <span style="position:absolute;font-size:0.7rem;top:32px;left:86%;opacity:0.3">✦</span>
-        <span style="position:absolute;font-size:1rem;top:16px;left:94%;opacity:0.4">♡</span>
-
-        <span style="position:absolute;font-size:1.3rem;bottom:16px;left:4%;opacity:0.45">♡</span>
-        <span style="position:absolute;font-size:0.8rem;bottom:28px;left:18%;opacity:0.3">✦</span>
-        <span style="position:absolute;font-size:1.1rem;bottom:10px;left:30%;opacity:0.5">♡</span>
-        <span style="position:absolute;font-size:0.9rem;bottom:24px;left:46%;opacity:0.35">✦</span>
-        <span style="position:absolute;font-size:1.4rem;bottom:14px;left:60%;opacity:0.45">♡</span>
-        <span style="position:absolute;font-size:0.7rem;bottom:30px;left:72%;opacity:0.3">✦</span>
-        <span style="position:absolute;font-size:1.2rem;bottom:8px;left:82%;opacity:0.5">♡</span>
-        <span style="position:absolute;font-size:0.8rem;bottom:22px;left:93%;opacity:0.35">✦</span>
-      </div>
-
-      <!-- 상단 레이스 라인 -->
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),rgba(255,255,255,0.3),rgba(255,255,255,0.15),transparent)"></div>
-      <!-- 하단 레이스 라인 -->
-      <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),rgba(255,255,255,0.3),rgba(255,255,255,0.15),transparent)"></div>
+      <!-- 반짝이 별 -->
+      <span class="glow-s" style="font-size:0.9rem;top:38px;left:15%;animation-delay:0s">✦</span>
+      <span class="glow-s" style="font-size:1.1rem;top:44px;left:33%;animation-delay:0.5s">✦</span>
+      <span class="glow-s" style="font-size:0.8rem;top:36px;left:53%;animation-delay:1s">✦</span>
+      <span class="glow-s" style="font-size:1rem;top:42px;left:71%;animation-delay:0.3s">✦</span>
+      <span class="glow-s" style="font-size:0.9rem;top:40px;left:89%;animation-delay:0.7s">✦</span>
+      <span class="glow-s" style="font-size:1.2rem;bottom:28px;left:22%;animation-delay:0.4s">✦</span>
+      <span class="glow-s" style="font-size:0.8rem;bottom:30px;left:44%;animation-delay:0.9s">✦</span>
+      <span class="glow-s" style="font-size:1rem;bottom:26px;left:67%;animation-delay:0.2s">✦</span>
+      <span class="glow-s" style="font-size:0.9rem;bottom:32px;left:87%;animation-delay:0.6s">✦</span>
 
       <!-- 텍스트 -->
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
-        <div style="color:rgba(255,255,255,0.4);font-size:0.75rem;letter-spacing:0.4em;font-family:'DM Mono',monospace">♥ · · · ♥ · · · ♥</div>
-        <div id="live-clock" style="font-family:'DM Mono',monospace;font-size:2.8rem;font-weight:400;color:white;letter-spacing:0.08em"></div>
-        <div id="daily-quote" style="font-size:0.9rem;color:rgba(255,255,255,0.5);letter-spacing:0.08em;font-family:'Gaegu',cursive"></div>
-        <div style="color:rgba(255,255,255,0.4);font-size:0.75rem;letter-spacing:0.4em;font-family:'DM Mono',monospace">♥ · · · ♥ · · · ♥</div>
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:2">
+        <div id="live-clock" style="font-family:'DM Mono',monospace;font-size:2.6rem;font-weight:400;color:white;letter-spacing:0.08em;text-shadow:0 0 20px rgba(255,255,255,0.3)"></div>
+        <div id="daily-quote" style="font-size:0.9rem;color:rgba(255,255,255,0.55);letter-spacing:0.08em;font-family:'Gaegu',cursive;text-shadow:0 0 10px rgba(255,255,255,0.2)"></div>
       </div>
     </div>
 
