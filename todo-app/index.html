@@ -7,10 +7,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&family=Gaegu:wght@300;400;700&family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
   <style>
+    :root { --accent: var(--accent); --accent-hover: #333; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Gowun Dodum', 'Nunito', sans-serif; background: #f4f4f4; color: #1a1a1a; min-height: 100vh; }
+    body { font-family: 'Gowun Dodum', 'Nunito', sans-serif; background: #f4f4f4; color: var(--accent); min-height: 100vh; }
 
-    header { background: #1a1a1a; color: white; padding: 16px 30px; display: flex; align-items: center; gap: 12px; }
+    header { background: var(--accent); color: white; padding: 16px 30px; display: flex; align-items: center; gap: 12px; }
     header h1 { font-size: 1.3rem; flex: 1; font-family: 'DM Mono', monospace; font-weight: 500; letter-spacing: 0.05em; }
     .search-btn { background: rgba(255,255,255,0.12); border: none; border-radius: 8px; color: white; padding: 7px 14px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
     .search-btn:hover { background: rgba(255,255,255,0.22); }
@@ -19,7 +20,7 @@
     .search-box { background: white; border-radius: 16px; width: 560px; max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,0.25); overflow: hidden; }
     .search-input-wrap { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; gap: 10px; }
     .search-input-wrap span { font-size: 1.1rem; }
-    .search-input-wrap input { flex: 1; border: none; outline: none; font-size: 1rem; font-family: inherit; color: #1a1a1a; }
+    .search-input-wrap input { flex: 1; border: none; outline: none; font-size: 1rem; font-family: inherit; color: var(--accent); }
     .search-close { background: none; border: 1px solid #e0e0e0; border-radius: 6px; cursor: pointer; padding: 4px 10px; color: #666; font-size: 0.82rem; }
     .search-results { max-height: 420px; overflow-y: auto; padding: 10px 0; }
     .search-empty { text-align: center; color: #999; padding: 30px; font-size: 0.9rem; }
@@ -28,17 +29,17 @@
     .search-item:hover { background: #f5f5f5; }
     .search-item-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
     .search-item-info { flex: 1; }
-    .search-item-title { font-size: 0.9rem; font-weight: 500; color: #1a1a1a; }
+    .search-item-title { font-size: 0.9rem; font-weight: 500; color: var(--accent); }
     .search-item-sub { font-size: 0.77rem; color: #999; margin-top: 1px; }
     mark { background: #e0e0e0; border-radius: 2px; padding: 0 1px; }
 
     .tabs { display: flex; background: white; border-bottom: 2px solid #e8e8e8; overflow-x: auto; }
     .tab { padding: 13px 20px; cursor: pointer; font-weight: 500; color: #888; border-bottom: 3px solid transparent; margin-bottom: -2px; font-size: 0.9rem; white-space: nowrap; }
-    .tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
     /* ── 플래너 ── */
     #view-planner { padding-bottom: 30px; }
-    .pln-topbar { display: flex; align-items: center; justify-content: space-between; background: #1a1a1a; border-radius: 20px; padding: 16px 24px; margin-bottom: 18px; color: white; box-shadow: 0 4px 20px rgba(0,0,0,0.18); position: relative; overflow: hidden; }
+    .pln-topbar { display: flex; align-items: center; justify-content: space-between; background: var(--accent); border-radius: 20px; padding: 16px 24px; margin-bottom: 18px; color: white; box-shadow: 0 4px 20px rgba(0,0,0,0.18); position: relative; overflow: hidden; }
     .pln-topbar::before { content: '♡ ✦ ♡ ✦ ♡ ✦ ♡ ✦ ♡ ✦ ♡'; position: absolute; top: 5px; left: 0; right: 0; text-align: center; font-size: 0.6rem; opacity: 0.2; letter-spacing: 0.3em; pointer-events: none; }
     .pln-topbar::after { content: '♡ ✦ ♡ ✦ ♡ ✦ ♡ ✦ ♡ ✦ ♡'; position: absolute; bottom: 5px; left: 0; right: 0; text-align: center; font-size: 0.6rem; opacity: 0.2; letter-spacing: 0.3em; pointer-events: none; }
     .pln-date-center { text-align: center; }
@@ -94,7 +95,7 @@
     .pln-card { background: white; border-radius: 14px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
     .pln-card-header { display: flex; align-items: center; margin-bottom: 12px; }
 
-    .pln-add-btn { background: #1a1a1a; color: white; border: none; border-radius: 7px; padding: 6px 12px; cursor: pointer; font-size: 1rem; font-weight: 600; }
+    .pln-add-btn { background: var(--accent); color: white; border: none; border-radius: 7px; padding: 6px 12px; cursor: pointer; font-size: 1rem; font-weight: 600; }
     .pln-add-btn:hover { background: #333; }
 
     /* 시간표 */
@@ -104,7 +105,7 @@
     .timetable td.td-hour { font-size: 0.65rem; color: #aaa; text-align: center; padding: 0; border: 1px solid #e5e7eb; background: #fafafa; white-space: nowrap; }
     .timetable td.td-cell { border: 1px dashed #e8e8e8; height: 22px; cursor: pointer; transition: background 0.1s; position: relative; }
     .timetable td.td-cell:hover { background: #f5f5f5; }
-    .timetable td.td-cell.has-note { background: #1a1a1a10; }
+    .timetable td.td-cell.has-note { background: var(--accent)10; }
     .tt-note { position: absolute; inset: 0; font-size: 0.58rem; color: #333; overflow: hidden; padding: 1px 2px; line-height: 1.2; }
     .td-cell.drag-select { outline: 2px solid #888; background: #e8e8e8 !important; }
     .tt-color-popup { position: fixed; background: white; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); padding: 14px; z-index: 9999; min-width: 220px; }
@@ -141,7 +142,7 @@
     /* 탭 헤더 */
     .tab-header { text-align: center; padding: 20px 0 20px; }
     .tab-header-deco { font-size: 0.9rem; color: #bbb; letter-spacing: 0.2em; margin: 6px 0; }
-    .tab-header-title { font-size: 1.6rem; font-weight: 800; letter-spacing: 0.08em; color: #1a1a1a; font-family: 'Nunito', sans-serif; margin: 6px 0; }
+    .tab-header-title { font-size: 1.6rem; font-weight: 800; letter-spacing: 0.08em; color: var(--accent); font-family: 'Nunito', sans-serif; margin: 6px 0; }
     .tab-header-sub { font-size: 1rem; color: #888; font-family: 'Gaegu', cursive; margin-top: 4px; }
     .tab-char { display: flex; justify-content: center; margin-bottom: 4px; }
     .frill { display: flex; justify-content: center; margin: 4px 0; }
@@ -153,25 +154,25 @@
     input[type="text"], input[type="date"], input[type="time"], input[type="number"], select, textarea {
       padding: 9px 13px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.9rem; outline: none; font-family: inherit;
     }
-    input:focus, select:focus, textarea:focus { border-color: #1a1a1a; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
     .flex1 { flex: 1; min-width: 150px; }
 
     .btn { padding: 9px 18px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 500; border: none; }
-    .btn-primary { background: #1a1a1a; color: white; }
-    .btn-primary:hover { background: #333; }
-    .btn-outline { background: white; color: #1a1a1a; border: 1px solid #ccc; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-outline { background: white; color: var(--accent); border: 1px solid #ccc; }
     .btn-outline:hover { background: #f5f5f5; }
 
     .pill-group { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
     .pill { padding: 5px 14px; border-radius: 20px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 0.82rem; color: #666; }
-    .pill.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+    .pill.active { background: var(--accent); color: white; border-color: var(--accent); }
 
     /* 할일 */
     .todo-item { display: flex; align-items: center; gap: 12px; padding: 13px 16px; background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 8px; }
     .todo-item.done { opacity: 0.5; }
     .todo-item.done .item-text { text-decoration: line-through; }
     .check-circle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #d1d5db; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.2s; }
-    .check-circle.on { background: #1a1a1a; border-color: #1a1a1a; color: white; }
+    .check-circle.on { background: var(--accent); border-color: var(--accent); color: white; }
     .item-info { flex: 1; }
     .item-text { font-size: 0.93rem; margin-bottom: 3px; }
     .item-meta { display: flex; gap: 8px; font-size: 0.77rem; color: #9ca3af; align-items: center; }
@@ -187,7 +188,7 @@
     /* 대시보드 */
     .period-btns { display: flex; gap: 8px; margin-bottom: 18px; }
     .period-btn { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #d1d5db; background: white; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: #6b7280; text-align: center; }
-    .period-btn.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+    .period-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
     .dash-section { margin-bottom: 18px; }
     .dash-section-title { font-size: 0.82rem; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
@@ -198,7 +199,7 @@
     .event-date-label { font-size: 0.77rem; color: #9ca3af; margin-top: 2px; }
 
     /* 캘린더 */
-    .cal-nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; background: #1a1a1a; border-radius: 14px; padding: 10px 16px; }
+    .cal-nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; background: var(--accent); border-radius: 14px; padding: 10px 16px; }
     .cal-nav { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 1.1rem; color: white; display: flex; align-items: center; justify-content: center; }
     .cal-nav:hover { background: rgba(255,255,255,0.25); }
     .cal-title { font-weight: 700; font-size: 1.05rem; color: white; font-family: 'Gowun Dodum', sans-serif; letter-spacing: 0.05em; }
@@ -216,14 +217,17 @@
     .cal-plus-btn:hover { background:#e5e7eb; color:#555; }
     .banner-pos-btn, .banner-size-btn { padding:7px 4px; border:1px solid #e5e7eb; border-radius:8px; background:white; cursor:pointer; font-size:0.8rem; font-family:inherit; color:#6b7280; transition:all 0.15s; }
     .banner-pos-btn:hover, .banner-size-btn:hover { border-color:#a3a3a3; color:#111; }
-    .banner-pos-btn.active, .banner-size-btn.active { background:#1a1a1a; color:white; border-color:#1a1a1a; }
+    .banner-pos-btn.active, .banner-size-btn.active { background:var(--accent); color:white; border-color:var(--accent); }
     .deco-shape-btn { padding:6px 10px; border:2px solid #e5e7eb; border-radius:20px; background:white; cursor:pointer; font-size:0.82rem; font-family:inherit; color:#374151; transition:all 0.15s; }
     .deco-shape-btn:hover { border-color:#9ca3af; }
-    .deco-shape-btn.active { border-color:#1a1a1a; background:#1a1a1a; color:white; }
+    .deco-shape-btn.active { border-color:var(--accent); background:var(--accent); color:white; }
     .deco-color-btn { padding:6px 12px; border-radius:20px; cursor:pointer; font-size:0.78rem; font-family:inherit; color:#374151; transition:all 0.15s; position:relative; }
-    .deco-color-btn.active { box-shadow:0 0 0 3px #1a1a1a; }
+    .deco-color-btn.active { box-shadow:0 0 0 3px var(--accent); }
+    .theme-btn { width:34px;height:34px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:all 0.15s;position:relative;flex-shrink:0;display:flex;align-items:center;justify-content:center; }
+    .theme-btn:hover { transform:scale(1.12); }
+    .theme-btn.active { border-color:#fff;box-shadow:0 0 0 3px var(--accent); }
     .cal-ev-pill { font-size:0.68rem; padding:2px 5px; margin-bottom:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.4; color:#444; }
-    .cal-cell.today .cal-date-num { background: #1a1a1a; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+    .cal-cell.today .cal-date-num { background: var(--accent); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
     .cal-date { font-size: 0.82rem; font-weight: 500; margin-bottom: 4px; }
     .cal-dot { font-size: 0.68rem; background: #e8e8e8; color: #444; border-radius: 4px; padding: 1px 4px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .cal-dot.todo-dot { background: #e0e0e0; color: #555; }
@@ -255,7 +259,7 @@
     /* 습관 */
     .habit-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 8px; }
     .check-sq { width: 26px; height: 26px; border-radius: 7px; border: 2px solid #d1d5db; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; transition: all 0.2s; }
-    .check-sq.on { background: #1a1a1a; border-color: #1a1a1a; color: white; }
+    .check-sq.on { background: var(--accent); border-color: var(--accent); color: white; }
     .habit-name { flex: 1; font-size: 0.93rem; font-weight: 500; }
     .habit-streak { font-size: 0.78rem; color: #888; }
     .habit-rate-wrap { width: 80px; }
@@ -266,7 +270,7 @@
     /* 통계 */
     .stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 18px; }
     .stat-box { background: white; border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-    .stat-num { font-size: 1.8rem; font-weight: 700; color: #1a1a1a; }
+    .stat-num { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
     .stat-label { font-size: 0.75rem; color: #6b7280; margin-top: 3px; }
     .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 100px; }
     .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; height: 100%; justify-content: flex-end; }
@@ -283,7 +287,7 @@
 <body>
 
 <!-- 로그인 화면 -->
-<div id="login-screen" style="display:flex;position:fixed;inset:0;z-index:9999;background:#1a1a1a;align-items:center;justify-content:center;flex-direction:column;gap:24px">
+<div id="login-screen" style="display:flex;position:fixed;inset:0;z-index:9999;background:var(--accent);align-items:center;justify-content:center;flex-direction:column;gap:24px">
   <div style="text-align:center;color:white">
     <h1 style="font-size:2.2rem;font-weight:500;margin-bottom:8px;font-family:'DM Mono',monospace;letter-spacing:0.08em">Mono</h1>
     <p style="opacity:0.8;font-size:0.95rem">로그인하면 모든 기기에서 동기화돼요</p>
@@ -384,7 +388,7 @@
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
             <button onclick="miniCalPrev()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#555;padding:0 4px">‹</button>
             <div style="display:flex;align-items:center;gap:5px">
-              <div id="mini-cal-title" style="font-size:0.82rem;font-weight:700;color:#1a1a1a;font-family:'Gowun Dodum',sans-serif"></div>
+              <div id="mini-cal-title" style="font-size:0.82rem;font-weight:700;color:var(--accent);font-family:'Gowun Dodum',sans-serif"></div>
               <button id="mini-cal-today-btn" onclick="miniCalGoToday()" style="display:none;font-size:0.6rem;padding:1px 6px;border-radius:20px;border:1px solid #ddd;background:#f5f5f5;cursor:pointer;color:#666;font-family:inherit">오늘</button>
             </div>
             <button onclick="miniCalNext()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#555;padding:0 4px">›</button>
@@ -471,11 +475,11 @@
           </div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
             <button onclick="mpPrev()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#555;padding:0">⏮</button>
-            <button id="mp-play-btn" onclick="mpToggle()" style="width:32px;height:32px;border-radius:50%;background:#1a1a1a;color:white;border:none;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">▶</button>
+            <button id="mp-play-btn" onclick="mpToggle()" style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:white;border:none;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">▶</button>
             <button onclick="mpNext()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#555;padding:0">⏭</button>
             <div style="flex:1;min-width:0">
               <div id="mp-title" style="font-size:0.78rem;color:#374151;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">—</div>
-              <input id="mp-progress" type="range" value="0" min="0" step="0.1" oninput="mpSeek(this.value)" style="width:100%;margin-top:3px;accent-color:#1a1a1a;height:3px;cursor:pointer">
+              <input id="mp-progress" type="range" value="0" min="0" step="0.1" oninput="mpSeek(this.value)" style="width:100%;margin-top:3px;accent-color:var(--accent);height:3px;cursor:pointer">
             </div>
             <span id="mp-time" style="font-size:0.7rem;color:#aaa;white-space:nowrap">0:00</span>
           </div>
@@ -490,7 +494,7 @@
           <div id="dday-add-form" style="display:none;gap:5px;margin-bottom:8px;flex-wrap:wrap">
             <input id="dday-name" type="text" placeholder="이름..." style="flex:1;min-width:70px;padding:5px 8px;font-size:0.8rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
             <input id="dday-date" type="date" style="padding:5px 7px;font-size:0.8rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
-            <button onclick="addDday()" style="background:#1a1a1a;color:white;border:none;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:0.82rem">+</button>
+            <button onclick="addDday()" style="background:var(--accent);color:white;border:none;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:0.82rem">+</button>
           </div>
           <div id="dday-list"></div>
         </div>
@@ -765,9 +769,9 @@
     <div class="card" style="margin-bottom:16px">
       <div class="card-title">👤 계정</div>
       <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid #f0f0f0;margin-bottom:14px">
-        <div style="width:46px;height:46px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:white;font-size:1.3rem">🐾</div>
+        <div style="width:46px;height:46px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-size:1.3rem">🐾</div>
         <div>
-          <div id="settings-user-name" style="font-weight:700;font-size:0.95rem;color:#1a1a1a"></div>
+          <div id="settings-user-name" style="font-weight:700;font-size:0.95rem;color:var(--accent)"></div>
           <div id="settings-user-email" style="font-size:0.8rem;color:#aaa;margin-top:2px"></div>
         </div>
       </div>
@@ -797,7 +801,7 @@
           </div>
           <input type="range" id="banner-zoom" min="100" max="300" step="5" value="100"
             oninput="updateBannerZoom(this.value)"
-            style="width:100%;accent-color:#1a1a1a">
+            style="width:100%;accent-color:var(--accent)">
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px">
@@ -809,6 +813,27 @@
           <span>✕</span> 기본 배경으로 되돌리기
         </button>
       </div>
+    </div>
+
+    <!-- 색 테마 -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">🎨 색 테마</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <button class="theme-btn" data-accent="#1a1a1a" data-hover="#333"     onclick="applyTheme('#1a1a1a','#333')"     style="background:#1a1a1a" title="모노 블랙"></button>
+        <button class="theme-btn" data-accent="#7c3aed" data-hover="#6d28d9"  onclick="applyTheme('#7c3aed','#6d28d9')"  style="background:#7c3aed" title="퍼플"></button>
+        <button class="theme-btn" data-accent="#db2777" data-hover="#be185d"  onclick="applyTheme('#db2777','#be185d')"  style="background:#db2777" title="핑크"></button>
+        <button class="theme-btn" data-accent="#b45309" data-hover="#92400e"  onclick="applyTheme('#b45309','#92400e')"  style="background:#b45309" title="브라운"></button>
+        <button class="theme-btn" data-accent="#0369a1" data-hover="#075985"  onclick="applyTheme('#0369a1','#075985')"  style="background:#0369a1" title="블루"></button>
+        <button class="theme-btn" data-accent="#0f766e" data-hover="#0d6560"  onclick="applyTheme('#0f766e','#0d6560')"  style="background:#0f766e" title="틸"></button>
+        <button class="theme-btn" data-accent="#15803d" data-hover="#166534"  onclick="applyTheme('#15803d','#166534')"  style="background:#15803d" title="그린"></button>
+        <button class="theme-btn" data-accent="#c2410c" data-hover="#9a3412"  onclick="applyTheme('#c2410c','#9a3412')"  style="background:#c2410c" title="코랄"></button>
+        <button class="theme-btn" data-accent="#475569" data-hover="#334155"  onclick="applyTheme('#475569','#334155')"  style="background:#475569" title="슬레이트"></button>
+        <label class="theme-btn" style="background:linear-gradient(135deg,#f9a,#c9f,#9cf);cursor:pointer" title="직접 선택">
+          <span style="color:white;font-size:0.75rem;font-weight:700">+</span>
+          <input type="color" id="custom-theme-color" oninput="applyTheme(this.value, shadeColor(this.value,-20))" style="opacity:0;position:absolute;width:0;height:0">
+        </label>
+      </div>
+      <div id="theme-current-label" style="font-size:0.78rem;color:#9ca3af"></div>
     </div>
 
     <!-- 배너 장식 -->
@@ -925,7 +950,7 @@
           <div class="ev-color-swatch" data-color="#FFE5CC" style="width:22px;height:22px;border-radius:50%;background:#FFE5CC;border:2px solid transparent;cursor:pointer"></div>
           <div class="ev-color-swatch" data-color="#d1fae5" style="width:22px;height:22px;border-radius:50%;background:#d1fae5;border:2px solid transparent;cursor:pointer"></div>
           <div class="ev-color-swatch" data-color="#fee2e2" style="width:22px;height:22px;border-radius:50%;background:#fee2e2;border:2px solid transparent;cursor:pointer"></div>
-          <div class="ev-color-swatch" data-color="#1a1a1a" style="width:22px;height:22px;border-radius:50%;background:#1a1a1a;border:2px solid transparent;cursor:pointer"></div>
+          <div class="ev-color-swatch" data-color="var(--accent)" style="width:22px;height:22px;border-radius:50%;background:var(--accent);border:2px solid transparent;cursor:pointer"></div>
         </div>
       </div>
       <div style="display:flex;gap:6px;align-items:center">
@@ -1037,7 +1062,7 @@
       <div id="cat-list">${renderList()}</div>
       <div style="display:flex;gap:8px;margin-bottom:14px">
         <input id="cat-new-input" type="text" placeholder="새 카테고리..." style="flex:1;padding:8px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:0.88rem;font-family:inherit">
-        <button onclick="addCat()" style="padding:8px 14px;background:#1a1a1a;color:white;border:none;border-radius:10px;cursor:pointer;font-size:0.88rem">추가</button>
+        <button onclick="addCat()" style="padding:8px 14px;background:var(--accent);color:white;border:none;border-radius:10px;cursor:pointer;font-size:0.88rem">추가</button>
       </div>
       <button onclick="document.getElementById('cat-editor-overlay').remove()" style="width:100%;padding:9px;border:1px solid #e5e7eb;border-radius:10px;cursor:pointer;background:white;font-size:0.88rem;font-family:inherit">닫기</button>
     </div>`;
@@ -1267,7 +1292,7 @@
       const ds=`${miniCalYear}-${String(miniCalMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const isToday=ds===todayStr;
       const hasEvent=(events||[]).some(e=>e.date===ds);
-      cells.innerHTML+=`<div onclick="window.showView&&showView('planner');changePlannerToDate&&changePlannerToDate('${ds}')" style="font-size:0.7rem;padding:3px 1px;cursor:pointer;border-radius:50%;${isToday?'background:#1a1a1a;color:white;font-weight:700;':'color:#333;'}${hasEvent&&!isToday?'text-decoration:underline;':''}">${d}</div>`;
+      cells.innerHTML+=`<div onclick="window.showView&&showView('planner');changePlannerToDate&&changePlannerToDate('${ds}')" style="font-size:0.7rem;padding:3px 1px;cursor:pointer;border-radius:50%;${isToday?'background:var(--accent);color:white;font-weight:700;':'color:#333;'}${hasEvent&&!isToday?'text-decoration:underline;':''}">${d}</div>`;
     }
   }
   function miniCalPrev(){miniCalMonth--;if(miniCalMonth<0){miniCalMonth=11;miniCalYear--;}renderMiniCal();}
@@ -1284,7 +1309,7 @@
     {name:'피치', bg:'#FFE5CC', text:'#c07838'},
     {name:'노랑', bg:'#FFF3CC', text:'#b89430'},
     {name:'하늘', bg:'#CCE8FF', text:'#3878c0'},
-    {name:'검정', bg:'#1a1a1a', text:'#ffffff'},
+    {name:'검정', bg:'var(--accent)', text:'#ffffff'},
   ];
   // 시간표 드래그 + 모달 입력
   let ttDragging = false, ttSelKeys = [], ttSelDate = '', ttSelBg = '', ttSelTextColor = '';
@@ -1308,7 +1333,7 @@
       </div>
       <div style="display:flex;gap:8px">
         <button id="tt-m-del" style="flex:1;padding:9px;border:1px solid #e5e7eb;border-radius:10px;cursor:pointer;background:white;font-size:0.85rem;font-family:inherit">지우기</button>
-        <button id="tt-m-ok" style="flex:2;padding:9px;background:#1a1a1a;color:white;border:none;border-radius:10px;cursor:pointer;font-size:0.85rem;font-family:inherit">확인</button>
+        <button id="tt-m-ok" style="flex:2;padding:9px;background:var(--accent);color:white;border:none;border-radius:10px;cursor:pointer;font-size:0.85rem;font-family:inherit">확인</button>
       </div>
     </div>`;
     document.body.appendChild(overlay);
@@ -1401,9 +1426,9 @@
       const dd = calcDday(d.date);
       const isPast = dd.startsWith('D+');
       return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0">
-        <div style="font-size:1.1rem;font-weight:800;color:${isPast?'#aaa':'#1a1a1a'};min-width:60px;font-family:'DM Mono',monospace">${dd}</div>
+        <div style="font-size:1.1rem;font-weight:800;color:${isPast?'#aaa':'var(--accent)'};min-width:60px;font-family:'DM Mono',monospace">${dd}</div>
         <div style="flex:1">
-          <div style="font-size:0.9rem;font-weight:600;color:#1a1a1a">${d.name}</div>
+          <div style="font-size:0.9rem;font-weight:600;color:var(--accent)">${d.name}</div>
           <div style="font-size:0.75rem;color:#aaa">${d.date}</div>
         </div>
         <button onclick="deleteDday(${d.id})" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:1rem">✕</button>
@@ -2081,7 +2106,7 @@
         evEl.innerHTML = todayEvents.map(e => `
           <div onclick="openEventEdit(${e.id})" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;cursor:pointer;border-left:3px solid ${e.color||'#e5e7eb'};padding-left:8px;margin-left:-8px">
             <div style="font-size:0.78rem;color:#888;min-width:38px">${e.time||'종일'}</div>
-            <div style="font-size:0.9rem;color:#1a1a1a;flex:1">${e.emoji||''}${e.title}</div>
+            <div style="font-size:0.9rem;color:var(--accent);flex:1">${e.emoji||''}${e.title}</div>
             <span style="font-size:0.7rem;color:#ccc">✏️</span>
           </div>`).join('');
       }
@@ -2211,7 +2236,7 @@
         <div class="check-circle ${a.done?'on':''}" onclick="toggleAssignment(${a.id})" style="flex-shrink:0">${a.done?'✓':''}</div>
         <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${a.subjectColor||'#eee'};flex-shrink:0"></span>
         <div style="flex:1;min-width:0">
-          <div style="font-size:0.88rem;color:#1a1a1a;${a.done?'text-decoration:line-through':''}">${a.title}</div>
+          <div style="font-size:0.88rem;color:var(--accent);${a.done?'text-decoration:line-through':''}">${a.title}</div>
           <div style="display:flex;gap:6px;align-items:center;margin-top:2px">
             ${a.subjectName?`<span style="font-size:0.72rem;color:#888">${a.subjectName}</span>`:''}
             ${dueBadge}
@@ -2256,7 +2281,7 @@
       return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f3f4f6;${diff<0?'opacity:0.4':''}">
         <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${e.subjectColor||'#eee'};flex-shrink:0"></span>
         <div style="flex:1;min-width:0">
-          <div style="font-size:0.9rem;font-weight:600;color:#1a1a1a">${e.subjectName||'과목 미지정'}</div>
+          <div style="font-size:0.9rem;font-weight:600;color:var(--accent)">${e.subjectName||'과목 미지정'}</div>
           <div style="font-size:0.78rem;color:#888;margin-top:1px">${e.date}${e.scope?` · ${e.scope}`:''}</div>
         </div>
         ${dTag}
@@ -2293,7 +2318,7 @@
       const sub = studySubjects.find(s=>s.id===l.subjectId);
       return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f3f4f6">
         <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${sub?.color||'#eee'};flex-shrink:0"></span>
-        <span style="font-size:0.88rem;color:#1a1a1a;flex:1">${l.subjectName}</span>
+        <span style="font-size:0.88rem;color:var(--accent);flex:1">${l.subjectName}</span>
         <span style="font-size:0.82rem;color:#555;font-weight:600">${l.duration}분</span>
         ${l.note?`<span style="font-size:0.78rem;color:#aaa">${l.note}</span>`:''}
         <button onclick="deleteStudyLog(${l.id})" class="btn-del" style="font-size:0.78rem">🗑</button>
@@ -2556,6 +2581,43 @@
   // module 스코프 함수들을 전역으로 노출
   window.googleLogin  = googleLogin;
   window.googleLogout = googleLogout;
+
+  // ─── 색 테마 ───
+  function shadeColor(hex, pct) {
+    const n = parseInt(hex.replace('#',''),16);
+    const r = Math.min(255,Math.max(0,(n>>16)+pct));
+    const g = Math.min(255,Math.max(0,((n>>8)&0xff)+pct));
+    const b = Math.min(255,Math.max(0,(n&0xff)+pct));
+    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+  }
+  window.shadeColor = shadeColor;
+
+  const THEMES = {
+    '#1a1a1a': '🖤 모노 블랙', '#7c3aed': '💜 퍼플', '#db2777': '🌸 핑크',
+    '#b45309': '🤎 브라운', '#0369a1': '🔵 블루', '#0f766e': '🩵 틸',
+    '#15803d': '💚 그린', '#c2410c': '🧡 코랄', '#475569': '🩶 슬레이트',
+  };
+
+  window.applyTheme = function(accent, hover) {
+    document.documentElement.style.setProperty('--accent', accent);
+    document.documentElement.style.setProperty('--accent-hover', hover || shadeColor(accent, -20));
+    localStorage.setItem('themeAccent', accent);
+    localStorage.setItem('themeHover', hover || shadeColor(accent, -20));
+    document.querySelectorAll('.theme-btn[data-accent]').forEach(b =>
+      b.classList.toggle('active', b.dataset.accent === accent)
+    );
+    const label = document.getElementById('theme-current-label');
+    if(label) label.textContent = '현재: ' + (THEMES[accent] || '커스텀 ' + accent);
+  };
+
+  // 로드 시 테마 적용
+  const savedAccent = localStorage.getItem('themeAccent');
+  const savedHover  = localStorage.getItem('themeHover');
+  if(savedAccent) {
+    document.documentElement.style.setProperty('--accent', savedAccent);
+    document.documentElement.style.setProperty('--accent-hover', savedHover || shadeColor(savedAccent, -20));
+    setTimeout(() => window.applyTheme(savedAccent, savedHover), 0);
+  }
 
   // ─── 배너 장식 ───
   const DECO_POSITIONS = {
@@ -2855,7 +2917,7 @@
     if(!mpTracks.length) { el.innerHTML = `<div style="font-size:0.78rem;color:#ccc;text-align:center;padding:6px">파일을 추가하세요</div>`; return; }
     el.innerHTML = mpTracks.map((t,i)=>`
       <div onclick="mpPlay(${i})" style="display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:8px;cursor:pointer;background:${i===mpIndex?'#f5f5f5':'transparent'};transition:background 0.1s">
-        <span style="font-size:0.72rem;color:${i===mpIndex?'#1a1a1a':'#aaa'};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i===mpIndex?'▶ ':''}${t.name}</span>
+        <span style="font-size:0.72rem;color:${i===mpIndex?'var(--accent)':'#aaa'};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i===mpIndex?'▶ ':''}${t.name}</span>
         <span onclick="event.stopPropagation();mpDelete(${t.id},${i})" style="color:#ddd;font-size:0.75rem;cursor:pointer;padding:0 2px">✕</span>
       </div>`).join('');
   }
