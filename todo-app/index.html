@@ -1820,28 +1820,52 @@
   const qEl = document.getElementById('daily-quote');
   if(qEl) qEl.textContent = quotes[new Date().getDate() % quotes.length];
 
-  // ─── 날씨 (Open-Meteo, 서울) ───
+  // ─── 날씨 (Open-Meteo, 위치 기반) ───
   const weatherCodes = {0:'☀️ 맑음',1:'🌤 대체로 맑음',2:'⛅ 구름 조금',3:'☁️ 흐림',45:'🌫 안개',48:'🌫 안개',51:'🌦 이슬비',53:'🌦 이슬비',55:'🌧 이슬비',61:'🌧 비',63:'🌧 비',65:'🌧 강한 비',71:'🌨 눈',73:'🌨 눈',75:'🌨 강한 눈',80:'🌦 소나기',81:'🌦 소나기',82:'⛈ 강한 소나기',95:'⛈ 뇌우',99:'⛈ 뇌우'};
-  fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FSeoul&forecast_days=1')
-    .then(r=>r.json()).then(d=>{
-      const cur = d.current;
-      const desc = weatherCodes[cur.weather_code] || '—';
-      const max = Math.round(d.daily.temperature_2m_max[0]);
-      const min = Math.round(d.daily.temperature_2m_min[0]);
-      const wb = document.getElementById('weather-bar');
-      if(wb) wb.innerHTML = `
-        <span style="font-size:1.3rem">${desc.split(' ')[0]}</span>
-        <span style="font-weight:600;color:#1a1a1a;font-size:1rem">${Math.round(cur.temperature_2m)}°C</span>
-        <span>${desc.split(' ').slice(1).join(' ')}</span>
-        <span style="color:#aaa">·</span>
-        <span>최고 ${max}° / 최저 ${min}°</span>
-        <span style="color:#aaa">·</span>
-        <span>바람 ${cur.wind_speed_10m}km/h</span>
-        <span style="margin-left:auto;color:#aaa;font-size:0.78rem">서울</span>`;
-    }).catch(()=>{
-      const wb = document.getElementById('weather-bar');
-      if(wb) wb.style.display='none';
-    });
+
+  async function fetchWeather(lat, lon, cityName) {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Seoul';
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=${encodeURIComponent(tz)}&forecast_days=1`);
+    const d = await res.json();
+    const cur = d.current;
+    const desc = weatherCodes[cur.weather_code] || '—';
+    const max = Math.round(d.daily.temperature_2m_max[0]);
+    const min = Math.round(d.daily.temperature_2m_min[0]);
+    const wb = document.getElementById('weather-bar');
+    if(wb) wb.innerHTML = `
+      <span style="font-size:1.3rem">${desc.split(' ')[0]}</span>
+      <span style="font-weight:600;color:#1a1a1a;font-size:1rem">${Math.round(cur.temperature_2m)}°C</span>
+      <span>${desc.split(' ').slice(1).join(' ')}</span>
+      <span style="color:#aaa">·</span>
+      <span>최고 ${max}° / 최저 ${min}°</span>
+      <span style="color:#aaa">·</span>
+      <span>바람 ${cur.wind_speed_10m}km/h</span>
+      <span style="margin-left:auto;color:#aaa;font-size:0.78rem">📍 ${cityName}</span>`;
+  }
+
+  async function getLocationName(lat, lon) {
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=ko`);
+      const d = await r.json();
+      return d.address?.city || d.address?.town || d.address?.county || d.address?.state || '내 위치';
+    } catch { return '내 위치'; }
+  }
+
+  const wb = document.getElementById('weather-bar');
+  if(wb) wb.innerHTML = `<span style="color:#bbb;font-size:0.85rem">날씨 불러오는 중...</span>`;
+
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const {latitude: lat, longitude: lon} = pos.coords;
+      const city = await getLocationName(lat, lon);
+      fetchWeather(lat, lon, city).catch(()=>{ if(wb) wb.style.display='none'; });
+    }, () => {
+      // 위치 거부 시 서울 기본값
+      fetchWeather(37.5665, 126.9780, '서울').catch(()=>{ if(wb) wb.style.display='none'; });
+    }, {timeout: 6000});
+  } else {
+    fetchWeather(37.5665, 126.9780, '서울').catch(()=>{ if(wb) wb.style.display='none'; });
+  }
 
   renderTodoCatSelect();
   renderTodoCatPills();
