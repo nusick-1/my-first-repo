@@ -65,8 +65,14 @@
       .cal-day { min-height: 48px; padding: 4px; }
       .pln-topbar { padding: 14px 16px; border-radius: 12px; }
       .pln-date-big { font-size: 1.1rem; }
-      #view-planner, #view-cal, #view-todo, #view-habit, #view-goal, #view-stats, #view-dash { overflow-x: hidden; }
       body { overflow-x: hidden; }
+      .pln-card-header { flex-wrap: wrap; gap: 8px; }
+      .pln-card-header > div[style*="flex:1"] { flex-wrap: wrap; width: 100%; margin-left: 0 !important; }
+      .pln-card-header input[type="time"] { width: 100% !important; }
+      .pln-card-header input[type="text"] { width: 100% !important; flex: unset !important; }
+      #log-dur { width: 100% !important; }
+      .pln-card-header .pln-add-btn { width: 100%; padding: 8px; }
+      #view-planner .pln-card-header:first-of-type { flex-direction: row; }
     }
 
     .pln-left { background: white; border-radius: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; }
