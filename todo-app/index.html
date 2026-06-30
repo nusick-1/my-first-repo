@@ -1049,8 +1049,10 @@
     ['dash','planner','todo','cal','goal','habit','stats'].forEach(n=>{
       document.getElementById('view-'+n).style.display=n===v?'':'none';
     });
-    document.querySelectorAll('.tab').forEach((t,i)=>{
-      t.classList.toggle('active',['dash','planner','todo','cal','goal','habit','stats'][i]===v);
+    document.querySelectorAll('.tab').forEach(t=>{
+      const fn = t.getAttribute('onclick')||'';
+      const match = fn.match(/showView\('(\w+)'\)/);
+      t.classList.toggle('active', match && match[1]===v);
     });
     if(v==='cal'){renderCalendar(); renderCalDayEvents(selectedDate);}
     if(v==='stats') renderStats();
