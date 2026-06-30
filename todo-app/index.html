@@ -419,7 +419,10 @@
       <!-- 가운데: 일정 + 할일 + 습관 + 기록 -->
       <div class="today-col">
         <div class="tc">
-          <div class="tc-label">📅 오늘의 일정</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span class="tc-label" style="margin-bottom:0">📅 오늘의 일정</span>
+            <button onclick="openModal(plannerDate)" style="font-size:0.72rem;padding:2px 8px;border:1px dashed #ddd;border-radius:7px;background:none;cursor:pointer;color:#aaa">+ 추가</button>
+          </div>
           <div id="planner-events"></div>
         </div>
         <div class="tc">
@@ -434,20 +437,6 @@
         <div class="tc">
           <div class="tc-label">🔥 습관</div>
           <div id="phabit-list"></div>
-        </div>
-
-        <div class="tc">
-          <div class="tc-label">🌅 아침 일기</div>
-          <textarea id="diary-morning" placeholder="오늘 아침의 기분, 생각을 적어보세요..."
-            oninput="saveDiary('morning')"
-            style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box"></textarea>
-        </div>
-
-        <div class="tc">
-          <div class="tc-label">🌙 저녁 일기</div>
-          <textarea id="diary-evening" placeholder="오늘 하루를 돌아보며..."
-            oninput="saveDiary('evening')"
-            style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box"></textarea>
         </div>
 
         <div class="tc">
@@ -516,6 +505,20 @@
             <button onclick="addDday()" style="background:#1a1a1a;color:white;border:none;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:0.82rem">+</button>
           </div>
           <div id="dday-list"></div>
+        </div>
+
+        <div class="tc">
+          <div class="tc-label">🌅 아침 일기</div>
+          <textarea id="diary-morning" placeholder="오늘 아침의 기분, 생각을 적어보세요..."
+            oninput="saveDiary('morning')"
+            style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box"></textarea>
+        </div>
+
+        <div class="tc">
+          <div class="tc-label">🌙 저녁 일기</div>
+          <textarea id="diary-evening" placeholder="오늘 하루를 돌아보며..."
+            oninput="saveDiary('evening')"
+            style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box"></textarea>
         </div>
 
         <div class="tc" style="flex:1;display:flex;flex-direction:column;min-height:120px">
