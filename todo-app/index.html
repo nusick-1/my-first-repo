@@ -311,6 +311,7 @@
   <div class="tab" onclick="showView('goal')">목표</div>
   <div class="tab" onclick="showView('stats')">통계</div>
   <div class="tab" onclick="showView('dash')">대시보드</div>
+  <div class="tab" onclick="showView('study')">공부</div>
   <div class="tab" onclick="showView('settings')">⚙ 설정</div>
 </div>
 <img src="/todo-app/frill.png" style="width:100%;height:48px;object-fit:cover;display:block;opacity:0.85">
@@ -434,6 +435,52 @@
           <div class="tc-label">🔥 습관</div>
           <div id="phabit-list"></div>
         </div>
+
+        <div class="tc">
+          <div class="tc-label">🌅 아침 일기</div>
+          <textarea id="diary-morning" placeholder="오늘 아침의 기분, 생각을 적어보세요..."
+            oninput="saveDiary('morning')"
+            style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box"></textarea>
+        </div>
+
+        <div class="tc">
+          <div class="tc-label">🌙 저녁 일기</div>
+          <textarea id="diary-evening" placeholder="오늘 하루를 돌아보며..."
+            oninput="saveDiary('evening')"
+            style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box"></textarea>
+        </div>
+
+        <div class="tc">
+          <div class="tc-label">🍽 식단 기록</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:0.75rem;color:#888;min-width:28px">🌄 아침</span>
+              <input type="text" id="meal-breakfast" placeholder="먹은 것..." oninput="saveMeal()"
+                style="flex:1;padding:5px 8px;font-size:0.82rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;outline:none">
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:0.75rem;color:#888;min-width:28px">☀️ 점심</span>
+              <input type="text" id="meal-lunch" placeholder="먹은 것..." oninput="saveMeal()"
+                style="flex:1;padding:5px 8px;font-size:0.82rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;outline:none">
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:0.75rem;color:#888;min-width:28px">🌇 저녁</span>
+              <input type="text" id="meal-dinner" placeholder="먹은 것..." oninput="saveMeal()"
+                style="flex:1;padding:5px 8px;font-size:0.82rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;outline:none">
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:0.75rem;color:#888;min-width:28px">🍪 간식</span>
+              <input type="text" id="meal-snack" placeholder="먹은 것..." oninput="saveMeal()"
+                style="flex:1;padding:5px 8px;font-size:0.82rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;outline:none">
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;border-top:1px solid #f0f0f0;padding-top:6px;margin-top:2px">
+              <span style="font-size:0.75rem;color:#888;min-width:28px">🔥 칼로리</span>
+              <input type="number" id="meal-calories" placeholder="kcal" oninput="saveMeal()"
+                style="flex:1;padding:5px 8px;font-size:0.82rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;outline:none">
+              <span style="font-size:0.75rem;color:#aaa">kcal</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- 오른쪽: 음악 + D-Day + 메모 -->
@@ -512,6 +559,11 @@
       <div class="form-row">
         <input type="text" class="flex1" id="todo-input" placeholder="할일을 입력하세요" onkeydown="if(event.key==='Enter')addTodo()">
         <select id="cat-input"></select>
+        <select id="priority-input" style="padding:8px 6px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+          <option value="high">🔴 높음</option>
+          <option value="medium" selected>🟡 보통</option>
+          <option value="low">🟢 낮음</option>
+        </select>
         <input type="date" id="due-input">
         <button class="btn btn-primary" onclick="addTodo()">+ 추가</button>
       </div>
@@ -626,6 +678,75 @@
     <div class="card">
       <div class="card-title" id="habit-list-title">습관별 달성 현황 (30일)</div>
       <div id="habit-stats-list"></div>
+    </div>
+  </div>
+
+  <!-- 공부 플래너 탭 -->
+  <div id="view-study" style="display:none">
+    <div class="tab-header">
+      <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
+      <div class="tab-char"><img src="/todo-app/cat2.png" style="height:130px;object-fit:contain;mix-blend-mode:darken"></div>
+      <div class="tab-header-title">📚 STUDY 📚</div>
+      <div class="tab-header-sub">오늘도 한 걸음씩 성장해요 ✦</div>
+      <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
+    </div>
+
+    <!-- 과목 관리 -->
+    <div class="card">
+      <div class="card-title">📖 과목 관리</div>
+      <div class="form-row">
+        <input type="text" class="flex1" id="study-sub-input" placeholder="과목 이름 (예: 수학, 영어)" onkeydown="if(event.key==='Enter')addStudySubject()">
+        <select id="study-sub-color" style="padding:8px 6px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+          <option value="#FFD6E0">🩷 핑크</option>
+          <option value="#E8D5F5">💜 라벤더</option>
+          <option value="#C8F0E8">💚 민트</option>
+          <option value="#CCE8FF">💙 하늘</option>
+          <option value="#FFF3CC">💛 노랑</option>
+          <option value="#FFE5CC">🧡 피치</option>
+          <option value="#f0f0f0">🩶 회색</option>
+        </select>
+        <button class="btn btn-primary" onclick="addStudySubject()">+ 추가</button>
+      </div>
+      <div id="study-subject-list" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px"></div>
+    </div>
+
+    <!-- 오늘 공부 타이머 -->
+    <div class="card">
+      <div class="card-title">⏱ 공부 타이머</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <select id="study-timer-subject" style="flex:1;min-width:120px;padding:8px 10px;font-size:0.88rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+          <option value="">과목 선택...</option>
+        </select>
+        <div style="font-family:'DM Mono',monospace;font-size:1.6rem;font-weight:700;color:#1a1a1a;min-width:80px;text-align:center" id="study-timer-display">00:00</div>
+        <button id="study-timer-btn" onclick="toggleStudyTimer()"
+          style="padding:8px 18px;border-radius:10px;background:#1a1a1a;color:white;border:none;cursor:pointer;font-size:0.88rem;font-family:inherit">▶ 시작</button>
+        <button onclick="resetStudyTimer()" style="padding:8px 14px;border-radius:10px;border:1px solid #e5e7eb;background:white;cursor:pointer;font-size:0.82rem;font-family:inherit;color:#666">리셋</button>
+      </div>
+      <div style="font-size:0.78rem;color:#aaa;text-align:center" id="study-timer-status"></div>
+    </div>
+
+    <!-- 오늘 공부 기록 -->
+    <div class="card">
+      <div class="card-title">📝 공부 기록 <span id="study-log-date" style="font-size:0.78rem;color:#aaa;font-weight:400"></span></div>
+      <div class="form-row" style="margin-bottom:8px">
+        <select id="study-log-subject" style="flex:1;padding:7px 8px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+          <option value="">과목 선택...</option>
+        </select>
+        <input type="number" id="study-log-duration" placeholder="분" min="1"
+          style="width:70px;padding:7px 8px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+        <span style="font-size:0.82rem;color:#888;padding:0 2px">분</span>
+        <input type="text" id="study-log-note" placeholder="메모 (선택)" class="flex1"
+          style="padding:7px 8px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit"
+          onkeydown="if(event.key==='Enter')addStudyLog()">
+        <button class="btn btn-primary" onclick="addStudyLog()">+ 추가</button>
+      </div>
+      <div id="study-log-list"></div>
+    </div>
+
+    <!-- 주간 통계 -->
+    <div class="card">
+      <div class="card-title">📊 이번 주 공부 현황</div>
+      <div id="study-weekly-stats"></div>
     </div>
   </div>
 
@@ -744,6 +865,10 @@
   let ttNotes    = JSON.parse(localStorage.getItem('ttNotes')    || '{}');
   let ddays      = JSON.parse(localStorage.getItem('ddays')      || '[]');
   let memos      = JSON.parse(localStorage.getItem('memos')      || '{}');
+  let diaries    = JSON.parse(localStorage.getItem('diaries')    || '{}');
+  let meals      = JSON.parse(localStorage.getItem('meals')      || '{}');
+  let studySubjects = JSON.parse(localStorage.getItem('studySubjects') || '[]');
+  let studyLogs     = JSON.parse(localStorage.getItem('studyLogs')     || '{}');
 
   let todoFilter = 'all';
   let calYear = todayDate.getFullYear(), calMonth = todayDate.getMonth();
@@ -757,6 +882,10 @@
     localStorage.setItem('goals',     JSON.stringify(goals));
     localStorage.setItem('habits',    JSON.stringify(habits));
     localStorage.setItem('habitLogs', JSON.stringify(habitLogs));
+    localStorage.setItem('diaries',   JSON.stringify(diaries));
+    localStorage.setItem('meals',     JSON.stringify(meals));
+    localStorage.setItem('studySubjects', JSON.stringify(studySubjects));
+    localStorage.setItem('studyLogs',     JSON.stringify(studyLogs));
     syncToCloud();
   }
 
@@ -838,10 +967,34 @@
   function addTodo() {
     const text = document.getElementById('todo-input').value.trim();
     if (!text) return;
-    todos.unshift({ id: Date.now(), text, cat: document.getElementById('cat-input').value || '기타', due: document.getElementById('due-input').value, done: false, created: todayStr });
+    const priority = document.getElementById('priority-input')?.value || 'medium';
+    todos.unshift({ id: Date.now(), text, cat: document.getElementById('cat-input').value || '기타', priority, due: document.getElementById('due-input').value, done: false, created: todayStr });
     document.getElementById('todo-input').value = '';
     document.getElementById('due-input').value = '';
     save(); renderTodos(); renderDash(); renderStats();
+  }
+  function renameTodo(id) {
+    const t = todos.find(t=>t.id===id);
+    if(!t) return;
+    const newText = prompt('할일 이름 변경', t.text);
+    if(newText && newText.trim()) { t.text = newText.trim(); save(); renderTodos(); renderDash(); }
+  }
+  function setTodoPriority(id, p) {
+    const t = todos.find(t=>t.id===id);
+    if(t){ t.priority=p; save(); renderTodos(); }
+  }
+  let todoDragId = null;
+  function todoDragStart(id) { todoDragId = id; }
+  function todoDragOver(e) { e.preventDefault(); }
+  function todoDrop(id) {
+    if(todoDragId===id) return;
+    const from = todos.findIndex(t=>t.id===todoDragId);
+    const to   = todos.findIndex(t=>t.id===id);
+    if(from<0||to<0) return;
+    const [item] = todos.splice(from,1);
+    todos.splice(to,0,item);
+    todoDragId = null;
+    save(); renderTodos();
   }
   function toggleTodo(id) {
     const t = todos.find(t=>t.id===id);
@@ -863,21 +1016,27 @@
     if(todoFilter==='완료') return todos.filter(t=>t.done);
     return todos.filter(t=>t.cat===todoFilter);
   }
+  const PRIORITY_ICON = {high:'🔴', medium:'🟡', low:'🟢'};
+  const PRIORITY_ORDER = {high:0, medium:1, low:2};
   function renderTodos(container, items) {
     const el = document.getElementById(container||'todo-list');
     if(!el) return;
-    const list = items || filteredTodos();
+    let list = items || filteredTodos();
+    if(!container) list = [...list].sort((a,b)=>PRIORITY_ORDER[a.priority||'medium']-PRIORITY_ORDER[b.priority||'medium']);
     if(!list.length){el.innerHTML='<div class="empty">할일이 없어요 🎉</div>'; return;}
     el.innerHTML = list.map(t=>`
-      <div class="todo-item ${t.done?'done':''}">
+      <div class="todo-item ${t.done?'done':''}" draggable="true"
+        ondragstart="todoDragStart(${t.id})" ondragover="todoDragOver(event)" ondrop="todoDrop(${t.id})">
+        <span style="cursor:grab;color:#ccc;font-size:1rem;padding:0 4px 0 0;line-height:1" title="드래그해서 순서 변경">⠿</span>
         <div class="check-circle ${t.done?'on':''}" onclick="toggleTodo(${t.id})">${t.done?'✓':''}</div>
-        <div class="item-info">
-          <div class="item-text">${t.text}</div>
+        <div class="item-info" style="flex:1">
+          <div class="item-text">${PRIORITY_ICON[t.priority||'medium']} ${t.text}</div>
           <div class="item-meta">
             <span class="badge badge-${t.cat}">${t.cat}</span>
             ${t.due?`<span>📅 ${t.due}</span>`:''}
           </div>
         </div>
+        <button onclick="renameTodo(${t.id})" style="background:none;border:none;cursor:pointer;font-size:0.82rem;color:#bbb;padding:2px 4px" title="이름 변경">✏️</button>
         <button class="btn-del" onclick="deleteTodo(${t.id})">🗑</button>
       </div>`).join('');
   }
@@ -1199,6 +1358,25 @@
     habits=habits.filter(h=>h.id!==id);
     save(); renderHabits(); renderStats();
   }
+  function renameHabit(id) {
+    const h = habits.find(h=>h.id===id);
+    if(!h) return;
+    const newName = prompt('습관 이름 변경', h.name);
+    if(newName && newName.trim()) { h.name = newName.trim(); save(); renderHabits(); renderStats(); }
+  }
+  let habitDragId = null;
+  function habitDragStart(id) { habitDragId = id; }
+  function habitDragOver(e) { e.preventDefault(); }
+  function habitDrop(id) {
+    if(habitDragId===id) return;
+    const from = habits.findIndex(h=>h.id===habitDragId);
+    const to   = habits.findIndex(h=>h.id===id);
+    if(from<0||to<0) return;
+    const [item] = habits.splice(from,1);
+    habits.splice(to,0,item);
+    habitDragId = null;
+    save(); renderHabits();
+  }
   function getStreak(id) {
     let s=0, d=new Date(todayDate);
     while(true){
@@ -1219,7 +1397,9 @@
     el.innerHTML=habits.map(h=>{
       const on=habitLogs[todayStr]&&habitLogs[todayStr][h.id];
       const streak=getStreak(h.id), rate=getHabitRate(h.id,7);
-      return `<div class="habit-item">
+      return `<div class="habit-item" draggable="true"
+        ondragstart="habitDragStart(${h.id})" ondragover="habitDragOver(event)" ondrop="habitDrop(${h.id})">
+        <span style="cursor:grab;color:#ccc;font-size:1rem;padding:0 4px 0 0;line-height:1" title="드래그해서 순서 변경">⠿</span>
         <div class="check-sq ${on?'on':''}" onclick="toggleHabit(${h.id})">${on?'✓':''}</div>
         <div style="flex:1">
           <div class="habit-name">${h.name}</div>
@@ -1229,6 +1409,7 @@
           <div class="habit-rate-bar"><div class="habit-rate-fill" style="width:${rate}%"></div></div>
           <div class="habit-rate-label">주간 ${rate}%</div>
         </div>
+        <button onclick="renameHabit(${h.id})" style="background:none;border:none;cursor:pointer;font-size:0.82rem;color:#bbb;padding:2px 4px" title="이름 변경">✏️</button>
         <button class="btn-del" onclick="deleteHabit(${h.id})">🗑</button>
       </div>`;
     }).join('');
@@ -1545,6 +1726,43 @@
     if(el) el.value = memos[plannerDate] || '';
   }
 
+  // 일기
+  function saveDiary(type) {
+    const el = document.getElementById(`diary-${type}`);
+    if(!el) return;
+    if(!diaries[plannerDate]) diaries[plannerDate] = {};
+    diaries[plannerDate][type] = el.value;
+    save();
+  }
+  function loadDiary() {
+    const d = diaries[plannerDate] || {};
+    const m = document.getElementById('diary-morning');
+    const e = document.getElementById('diary-evening');
+    if(m) m.value = d.morning || '';
+    if(e) e.value = d.evening || '';
+  }
+
+  // 식단
+  function saveMeal() {
+    meals[plannerDate] = {
+      breakfast: document.getElementById('meal-breakfast')?.value || '',
+      lunch:     document.getElementById('meal-lunch')?.value || '',
+      dinner:    document.getElementById('meal-dinner')?.value || '',
+      snack:     document.getElementById('meal-snack')?.value || '',
+      calories:  document.getElementById('meal-calories')?.value || '',
+    };
+    save();
+  }
+  function loadMeal() {
+    const m = meals[plannerDate] || {};
+    const set = (id, val) => { const el=document.getElementById(id); if(el) el.value=val||''; };
+    set('meal-breakfast', m.breakfast);
+    set('meal-lunch',     m.lunch);
+    set('meal-dinner',    m.dinner);
+    set('meal-snack',     m.snack);
+    set('meal-calories',  m.calories);
+  }
+
   function renderPlanner() {
     const dt = new Date(plannerDate);
     const isToday = plannerDate === todayStr;
@@ -1598,6 +1816,8 @@
     renderPlannerLog();
     renderDdays();
     loadMemo();
+    loadDiary();
+    loadMeal();
   }
 
   function renderPlannerLog() {
@@ -1614,9 +1834,154 @@
       </div>`).join('');
   }
 
+  // ─── 공부 플래너 ───
+  let studyTimerInterval = null, studyTimerSeconds = 0, studyTimerRunning = false;
+
+  function addStudySubject() {
+    const name = document.getElementById('study-sub-input').value.trim();
+    if(!name) return;
+    const color = document.getElementById('study-sub-color').value;
+    studySubjects.push({id: Date.now(), name, color});
+    document.getElementById('study-sub-input').value = '';
+    save(); renderStudySubjects(); renderStudySubjectSelects();
+  }
+  function deleteStudySubject(id) {
+    studySubjects = studySubjects.filter(s=>s.id!==id);
+    save(); renderStudySubjects(); renderStudySubjectSelects();
+  }
+  function renderStudySubjects() {
+    const el = document.getElementById('study-subject-list');
+    if(!el) return;
+    if(!studySubjects.length){ el.innerHTML='<div style="font-size:0.82rem;color:#bbb">과목을 추가해보세요</div>'; return; }
+    el.innerHTML = studySubjects.map(s=>`
+      <div style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;background:${s.color};font-size:0.82rem;color:#555">
+        ${s.name}
+        <span onclick="deleteStudySubject(${s.id})" style="cursor:pointer;color:#999;font-size:0.75rem;margin-left:2px">✕</span>
+      </div>`).join('');
+  }
+  function renderStudySubjectSelects() {
+    const opts = studySubjects.length
+      ? studySubjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')
+      : '<option value="">과목 없음</option>';
+    ['study-timer-subject','study-log-subject'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.innerHTML = '<option value="">과목 선택...</option>' + opts;
+    });
+  }
+
+  function toggleStudyTimer() {
+    const btn = document.getElementById('study-timer-btn');
+    const subId = document.getElementById('study-timer-subject')?.value;
+    if(!studyTimerRunning) {
+      studyTimerRunning = true;
+      btn.textContent = '⏸ 일시정지';
+      studyTimerInterval = setInterval(()=>{
+        studyTimerSeconds++;
+        const m = String(Math.floor(studyTimerSeconds/60)).padStart(2,'0');
+        const s = String(studyTimerSeconds%60).padStart(2,'0');
+        const el = document.getElementById('study-timer-display');
+        if(el) el.textContent = `${m}:${s}`;
+      }, 1000);
+    } else {
+      studyTimerRunning = false;
+      clearInterval(studyTimerInterval);
+      btn.textContent = '▶ 시작';
+      if(studyTimerSeconds > 0 && subId) {
+        const min = Math.round(studyTimerSeconds/60);
+        if(min >= 1) {
+          if(!studyLogs[todayStr]) studyLogs[todayStr] = [];
+          const sub = studySubjects.find(s=>s.id==subId);
+          studyLogs[todayStr].push({id:Date.now(), subjectId:parseInt(subId), subjectName:sub?.name||'?', duration:min, note:'타이머'});
+          save(); renderStudyLog(); renderStudyWeekly();
+          const st = document.getElementById('study-timer-status');
+          if(st) st.textContent = `✓ ${sub?.name||''} ${min}분 기록됨`;
+        }
+      }
+    }
+  }
+  function resetStudyTimer() {
+    clearInterval(studyTimerInterval);
+    studyTimerRunning = false;
+    studyTimerSeconds = 0;
+    const el = document.getElementById('study-timer-display');
+    if(el) el.textContent = '00:00';
+    const btn = document.getElementById('study-timer-btn');
+    if(btn) btn.textContent = '▶ 시작';
+    const st = document.getElementById('study-timer-status');
+    if(st) st.textContent = '';
+  }
+
+  function addStudyLog() {
+    const subId = document.getElementById('study-log-subject')?.value;
+    const dur = parseInt(document.getElementById('study-log-duration')?.value);
+    const note = document.getElementById('study-log-note')?.value.trim() || '';
+    if(!subId || !dur || dur<1) return;
+    const sub = studySubjects.find(s=>s.id==subId);
+    if(!studyLogs[todayStr]) studyLogs[todayStr] = [];
+    studyLogs[todayStr].push({id:Date.now(), subjectId:parseInt(subId), subjectName:sub?.name||'?', duration:dur, note});
+    document.getElementById('study-log-duration').value = '';
+    document.getElementById('study-log-note').value = '';
+    save(); renderStudyLog(); renderStudyWeekly();
+  }
+  function deleteStudyLog(id) {
+    if(studyLogs[todayStr]) studyLogs[todayStr] = studyLogs[todayStr].filter(l=>l.id!==id);
+    save(); renderStudyLog(); renderStudyWeekly();
+  }
+  function renderStudyLog() {
+    const el = document.getElementById('study-log-list');
+    const dateEl = document.getElementById('study-log-date');
+    if(dateEl) dateEl.textContent = todayStr;
+    if(!el) return;
+    const logs = studyLogs[todayStr] || [];
+    if(!logs.length){el.innerHTML='<div class="empty" style="font-size:0.85rem">오늘 공부 기록이 없어요</div>'; return;}
+    const totalMin = logs.reduce((s,l)=>s+l.duration,0);
+    el.innerHTML = logs.map(l=>{
+      const sub = studySubjects.find(s=>s.id===l.subjectId);
+      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f3f4f6">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${sub?.color||'#eee'};flex-shrink:0"></span>
+        <span style="font-size:0.88rem;color:#1a1a1a;flex:1">${l.subjectName}</span>
+        <span style="font-size:0.82rem;color:#555;font-weight:600">${l.duration}분</span>
+        ${l.note?`<span style="font-size:0.78rem;color:#aaa">${l.note}</span>`:''}
+        <button onclick="deleteStudyLog(${l.id})" class="btn-del" style="font-size:0.78rem">🗑</button>
+      </div>`;
+    }).join('') + `<div style="font-size:0.82rem;color:#888;font-weight:700;padding:8px 0 0;border-top:1px solid #f0f0f0;margin-top:4px">총 ${totalMin}분 (${Math.floor(totalMin/60)}시간 ${totalMin%60}분)</div>`;
+  }
+  function renderStudyWeekly() {
+    const el = document.getElementById('study-weekly-stats');
+    if(!el) return;
+    if(!studySubjects.length){el.innerHTML='<div class="empty" style="font-size:0.85rem">과목을 추가하면 통계가 나타나요</div>'; return;}
+    const result = {};
+    for(let i=6;i>=0;i--){
+      const d=new Date(todayDate); d.setDate(d.getDate()-i);
+      const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      (studyLogs[ds]||[]).forEach(l=>{ result[l.subjectId]=(result[l.subjectId]||0)+l.duration; });
+    }
+    const totalAll = Object.values(result).reduce((s,v)=>s+v,0);
+    if(!totalAll){el.innerHTML='<div class="empty" style="font-size:0.85rem">이번 주 공부 기록이 없어요</div>'; return;}
+    el.innerHTML = studySubjects.filter(s=>result[s.id]).map(s=>{
+      const min=result[s.id]||0, pct=totalAll?Math.round((min/totalAll)*100):0;
+      return `<div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:3px">
+          <span style="color:#374151">${s.name}</span>
+          <span style="color:#888">${min}분 (${pct}%)</span>
+        </div>
+        <div style="height:8px;background:#f0f0f0;border-radius:99px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${s.color};border-radius:99px;transition:width 0.3s"></div>
+        </div>
+      </div>`;
+    }).join('') + `<div style="font-size:0.82rem;color:#888;margin-top:8px;font-weight:600">이번 주 총 ${totalAll}분</div>`;
+  }
+
+  function renderStudy() {
+    renderStudySubjects();
+    renderStudySubjectSelects();
+    renderStudyLog();
+    renderStudyWeekly();
+  }
+
   // ─── 탭 전환 ───
   function showView(v) {
-    ['dash','planner','todo','cal','goal','habit','stats','settings'].forEach(n=>{
+    ['dash','planner','todo','cal','goal','habit','stats','study','settings'].forEach(n=>{
       document.getElementById('view-'+n).style.display=n===v?'':'none';
     });
     document.querySelectorAll('.tab').forEach(t=>{
@@ -1630,6 +1995,7 @@
     if(v==='goal') renderGoals();
     if(v==='dash') renderDash();
     if(v==='planner') { renderPlanner(); renderMiniCal(); }
+    if(v==='study') renderStudy();
   }
 
   // ─── 검색 ───
@@ -1750,7 +2116,8 @@
     await setDoc(ref, {
       todos, habits, habitLogs, goals, events,
       plannerBlocks, plannerLogs,
-      todoCats, ttNotes, ddays, memos
+      todoCats, ttNotes, ddays, memos,
+      diaries, meals, studySubjects, studyLogs
     }, { merge: true });
   };
 
@@ -1774,6 +2141,10 @@
       ttNotes       = d.ttNotes       || {};
       ddays         = d.ddays         || [];
       memos         = d.memos         || {};
+      diaries       = d.diaries       || {};
+      meals         = d.meals         || {};
+      studySubjects = d.studySubjects || [];
+      studyLogs     = d.studyLogs     || {};
       // localStorage 동기화
       localStorage.setItem('todos',     JSON.stringify(todos));
       localStorage.setItem('habits',    JSON.stringify(habits));
@@ -1784,6 +2155,10 @@
       localStorage.setItem('ttNotes',   JSON.stringify(ttNotes));
       localStorage.setItem('ddays',     JSON.stringify(ddays));
       localStorage.setItem('memos',     JSON.stringify(memos));
+      localStorage.setItem('diaries',   JSON.stringify(diaries));
+      localStorage.setItem('meals',     JSON.stringify(meals));
+      localStorage.setItem('studySubjects', JSON.stringify(studySubjects));
+      localStorage.setItem('studyLogs',     JSON.stringify(studyLogs));
       isSyncing = false;
       renderTodoCatSelect(); renderTodoCatPills();
       renderDash(); renderTodos(); renderHabits(); renderGoals(); renderStats();
@@ -1994,6 +2369,23 @@
   window.openBlockModal = openBlockModal;
   window.deleteBlock = deleteBlock;
   window.deleteLog = deleteLog;
+  window.renameTodo = renameTodo;
+  window.setTodoPriority = setTodoPriority;
+  window.todoDragStart = todoDragStart;
+  window.todoDragOver = todoDragOver;
+  window.todoDrop = todoDrop;
+  window.renameHabit = renameHabit;
+  window.habitDragStart = habitDragStart;
+  window.habitDragOver = habitDragOver;
+  window.habitDrop = habitDrop;
+  window.saveDiary = saveDiary;
+  window.saveMeal = saveMeal;
+  window.addStudySubject = addStudySubject;
+  window.deleteStudySubject = deleteStudySubject;
+  window.toggleStudyTimer = toggleStudyTimer;
+  window.resetStudyTimer = resetStudyTimer;
+  window.addStudyLog = addStudyLog;
+  window.deleteStudyLog = deleteStudyLog;
 
   async function deleteAccount() {
     if (!confirm('정말 탈퇴하시겠어요?\n모든 데이터가 삭제되고 복구할 수 없어요.')) return;
