@@ -690,15 +690,15 @@
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
       <div class="tab-char"><img src="/todo-app/cat2.png" style="height:130px;object-fit:contain;mix-blend-mode:darken"></div>
       <div class="tab-header-title">📚 STUDY 📚</div>
-      <div class="tab-header-sub">오늘도 한 걸음씩 성장해요 ✦</div>
+      <div class="tab-header-sub">열심히 하는 중 ˘ᵕ˘ ✦</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
     </div>
 
-    <!-- 과목 관리 -->
+    <!-- 수강 과목 -->
     <div class="card">
-      <div class="card-title">📖 과목 관리</div>
+      <div class="card-title">📖 수강 과목</div>
       <div class="form-row">
-        <input type="text" class="flex1" id="study-sub-input" placeholder="과목 이름 (예: 수학, 영어)" onkeydown="if(event.key==='Enter')addStudySubject()">
+        <input type="text" class="flex1" id="study-sub-input" placeholder="과목명 (예: 경제학원론)" onkeydown="if(event.key==='Enter')addStudySubject()">
         <select id="study-sub-color" style="padding:8px 6px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
           <option value="#FFD6E0">🩷 핑크</option>
           <option value="#E8D5F5">💜 라벤더</option>
@@ -713,34 +713,44 @@
       <div id="study-subject-list" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px"></div>
     </div>
 
-    <!-- 오늘 공부 타이머 -->
+    <!-- 과제 관리 -->
     <div class="card">
-      <div class="card-title">⏱ 공부 타이머</div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-        <select id="study-timer-subject" style="flex:1;min-width:120px;padding:8px 10px;font-size:0.88rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
-          <option value="">과목 선택...</option>
+      <div class="card-title">📝 과제 관리</div>
+      <div class="form-row" style="margin-bottom:8px">
+        <select id="assign-subject" style="padding:7px 8px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+          <option value="">과목 선택</option>
         </select>
-        <div style="font-family:'DM Mono',monospace;font-size:1.6rem;font-weight:700;color:#1a1a1a;min-width:80px;text-align:center" id="study-timer-display">00:00</div>
-        <button id="study-timer-btn" onclick="toggleStudyTimer()"
-          style="padding:8px 18px;border-radius:10px;background:#1a1a1a;color:white;border:none;cursor:pointer;font-size:0.88rem;font-family:inherit">▶ 시작</button>
-        <button onclick="resetStudyTimer()" style="padding:8px 14px;border-radius:10px;border:1px solid #e5e7eb;background:white;cursor:pointer;font-size:0.82rem;font-family:inherit;color:#666">리셋</button>
+        <input type="text" id="assign-title" class="flex1" placeholder="과제 내용" onkeydown="if(event.key==='Enter')addAssignment()">
+        <input type="date" id="assign-due" style="padding:7px 8px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+        <button class="btn btn-primary" onclick="addAssignment()">+ 추가</button>
       </div>
-      <div style="font-size:0.78rem;color:#aaa;text-align:center" id="study-timer-status"></div>
+      <div id="assign-list"></div>
     </div>
 
-    <!-- 오늘 공부 기록 -->
+    <!-- 시험 일정 -->
     <div class="card">
-      <div class="card-title">📝 공부 기록 <span id="study-log-date" style="font-size:0.78rem;color:#aaa;font-weight:400"></span></div>
+      <div class="card-title">📆 시험 일정</div>
       <div class="form-row" style="margin-bottom:8px">
-        <select id="study-log-subject" style="flex:1;padding:7px 8px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
-          <option value="">과목 선택...</option>
+        <select id="exam-subject" style="padding:7px 8px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+          <option value="">과목 선택</option>
         </select>
-        <input type="number" id="study-log-duration" placeholder="분" min="1"
-          style="width:70px;padding:7px 8px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
-        <span style="font-size:0.82rem;color:#888;padding:0 2px">분</span>
-        <input type="text" id="study-log-note" placeholder="메모 (선택)" class="flex1"
-          style="padding:7px 8px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit"
-          onkeydown="if(event.key==='Enter')addStudyLog()">
+        <input type="text" id="exam-scope" class="flex1" placeholder="시험 범위 (예: 1~4장)">
+        <input type="date" id="exam-date" style="padding:7px 8px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+        <button class="btn btn-primary" onclick="addExam()">+ 추가</button>
+      </div>
+      <div id="exam-list"></div>
+    </div>
+
+    <!-- 공부 기록 -->
+    <div class="card">
+      <div class="card-title">🕐 공부 기록 <span id="study-log-date" style="font-size:0.78rem;color:#aaa;font-weight:400"></span></div>
+      <div class="form-row" style="margin-bottom:8px">
+        <select id="study-log-subject" style="padding:7px 8px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+          <option value="">과목 선택</option>
+        </select>
+        <input type="number" id="study-log-duration" placeholder="분" min="1" style="width:65px;padding:7px 8px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+        <span style="font-size:0.82rem;color:#888">분</span>
+        <input type="text" id="study-log-note" class="flex1" placeholder="메모 (선택)" onkeydown="if(event.key==='Enter')addStudyLog()" style="padding:7px 8px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
         <button class="btn btn-primary" onclick="addStudyLog()">+ 추가</button>
       </div>
       <div id="study-log-list"></div>
@@ -748,7 +758,7 @@
 
     <!-- 주간 통계 -->
     <div class="card">
-      <div class="card-title">📊 이번 주 공부 현황</div>
+      <div class="card-title">📊 이번 주 과목별 공부량</div>
       <div id="study-weekly-stats"></div>
     </div>
   </div>
@@ -870,8 +880,10 @@
   let memos      = JSON.parse(localStorage.getItem('memos')      || '{}');
   let diaries    = JSON.parse(localStorage.getItem('diaries')    || '{}');
   let meals      = JSON.parse(localStorage.getItem('meals')      || '{}');
-  let studySubjects = JSON.parse(localStorage.getItem('studySubjects') || '[]');
-  let studyLogs     = JSON.parse(localStorage.getItem('studyLogs')     || '{}');
+  let studySubjects     = JSON.parse(localStorage.getItem('studySubjects')     || '[]');
+  let studyLogs         = JSON.parse(localStorage.getItem('studyLogs')         || '{}');
+  let studyAssignments  = JSON.parse(localStorage.getItem('studyAssignments')  || '[]');
+  let studyExams        = JSON.parse(localStorage.getItem('studyExams')        || '[]');
 
   let todoFilter = 'all';
   let calYear = todayDate.getFullYear(), calMonth = todayDate.getMonth();
@@ -887,8 +899,10 @@
     localStorage.setItem('habitLogs', JSON.stringify(habitLogs));
     localStorage.setItem('diaries',   JSON.stringify(diaries));
     localStorage.setItem('meals',     JSON.stringify(meals));
-    localStorage.setItem('studySubjects', JSON.stringify(studySubjects));
-    localStorage.setItem('studyLogs',     JSON.stringify(studyLogs));
+    localStorage.setItem('studySubjects',    JSON.stringify(studySubjects));
+    localStorage.setItem('studyLogs',        JSON.stringify(studyLogs));
+    localStorage.setItem('studyAssignments', JSON.stringify(studyAssignments));
+    localStorage.setItem('studyExams',       JSON.stringify(studyExams));
     syncToCloud();
   }
 
@@ -1838,8 +1852,6 @@
   }
 
   // ─── 공부 플래너 ───
-  let studyTimerInterval = null, studyTimerSeconds = 0, studyTimerRunning = false;
-
   function addStudySubject() {
     const name = document.getElementById('study-sub-input').value.trim();
     if(!name) return;
@@ -1855,9 +1867,9 @@
   function renderStudySubjects() {
     const el = document.getElementById('study-subject-list');
     if(!el) return;
-    if(!studySubjects.length){ el.innerHTML='<div style="font-size:0.82rem;color:#bbb">과목을 추가해보세요</div>'; return; }
+    if(!studySubjects.length){ el.innerHTML='<div style="font-size:0.82rem;color:#bbb">수강 과목을 추가해보세요</div>'; return; }
     el.innerHTML = studySubjects.map(s=>`
-      <div style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;background:${s.color};font-size:0.82rem;color:#555">
+      <div style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:${s.color};font-size:0.82rem;color:#555">
         ${s.name}
         <span onclick="deleteStudySubject(${s.id})" style="cursor:pointer;color:#999;font-size:0.75rem;margin-left:2px">✕</span>
       </div>`).join('');
@@ -1865,53 +1877,108 @@
   function renderStudySubjectSelects() {
     const opts = studySubjects.length
       ? studySubjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')
-      : '<option value="">과목 없음</option>';
-    ['study-timer-subject','study-log-subject'].forEach(id=>{
+      : '';
+    ['assign-subject','exam-subject','study-log-subject'].forEach(id=>{
       const el = document.getElementById(id);
-      if(el) el.innerHTML = '<option value="">과목 선택...</option>' + opts;
+      if(el) el.innerHTML = '<option value="">과목 선택</option>' + opts;
     });
   }
 
-  function toggleStudyTimer() {
-    const btn = document.getElementById('study-timer-btn');
-    const subId = document.getElementById('study-timer-subject')?.value;
-    if(!studyTimerRunning) {
-      studyTimerRunning = true;
-      btn.textContent = '⏸ 일시정지';
-      studyTimerInterval = setInterval(()=>{
-        studyTimerSeconds++;
-        const m = String(Math.floor(studyTimerSeconds/60)).padStart(2,'0');
-        const s = String(studyTimerSeconds%60).padStart(2,'0');
-        const el = document.getElementById('study-timer-display');
-        if(el) el.textContent = `${m}:${s}`;
-      }, 1000);
-    } else {
-      studyTimerRunning = false;
-      clearInterval(studyTimerInterval);
-      btn.textContent = '▶ 시작';
-      if(studyTimerSeconds > 0 && subId) {
-        const min = Math.round(studyTimerSeconds/60);
-        if(min >= 1) {
-          if(!studyLogs[todayStr]) studyLogs[todayStr] = [];
-          const sub = studySubjects.find(s=>s.id==subId);
-          studyLogs[todayStr].push({id:Date.now(), subjectId:parseInt(subId), subjectName:sub?.name||'?', duration:min, note:'타이머'});
-          save(); renderStudyLog(); renderStudyWeekly();
-          const st = document.getElementById('study-timer-status');
-          if(st) st.textContent = `✓ ${sub?.name||''} ${min}분 기록됨`;
-        }
-      }
-    }
+  // 과제
+  function addAssignment() {
+    const subId = document.getElementById('assign-subject')?.value;
+    const title = document.getElementById('assign-title')?.value.trim();
+    const due   = document.getElementById('assign-due')?.value;
+    if(!title) return;
+    const sub = studySubjects.find(s=>s.id==subId);
+    studyAssignments.push({id:Date.now(), subjectId:parseInt(subId)||null, subjectName:sub?.name||'', subjectColor:sub?.color||'#f0f0f0', title, due, done:false});
+    document.getElementById('assign-title').value = '';
+    document.getElementById('assign-due').value = '';
+    save(); renderAssignments();
   }
-  function resetStudyTimer() {
-    clearInterval(studyTimerInterval);
-    studyTimerRunning = false;
-    studyTimerSeconds = 0;
-    const el = document.getElementById('study-timer-display');
-    if(el) el.textContent = '00:00';
-    const btn = document.getElementById('study-timer-btn');
-    if(btn) btn.textContent = '▶ 시작';
-    const st = document.getElementById('study-timer-status');
-    if(st) st.textContent = '';
+  function toggleAssignment(id) {
+    const a = studyAssignments.find(a=>a.id===id);
+    if(a){ a.done=!a.done; save(); renderAssignments(); }
+  }
+  function deleteAssignment(id) {
+    studyAssignments = studyAssignments.filter(a=>a.id!==id);
+    save(); renderAssignments();
+  }
+  function renderAssignments() {
+    const el = document.getElementById('assign-list');
+    if(!el) return;
+    if(!studyAssignments.length){ el.innerHTML='<div class="empty" style="font-size:0.85rem">과제가 없어요 🎉</div>'; return; }
+    const sorted = [...studyAssignments].sort((a,b)=>{
+      if(a.done!==b.done) return a.done?1:-1;
+      return (a.due||'9999').localeCompare(b.due||'9999');
+    });
+    el.innerHTML = sorted.map(a=>{
+      const today = new Date(todayDate); today.setHours(0,0,0,0);
+      const dueDate = a.due ? new Date(a.due) : null;
+      const diff = dueDate ? Math.round((dueDate-today)/86400000) : null;
+      let dueBadge = '';
+      if(diff!==null && !a.done) {
+        if(diff<0) dueBadge=`<span style="font-size:0.72rem;color:#ef4444;font-weight:600">마감 ${Math.abs(diff)}일 지남</span>`;
+        else if(diff===0) dueBadge=`<span style="font-size:0.72rem;color:#f97316;font-weight:600">오늘 마감!</span>`;
+        else if(diff<=3) dueBadge=`<span style="font-size:0.72rem;color:#f59e0b;font-weight:600">D-${diff}</span>`;
+        else dueBadge=`<span style="font-size:0.72rem;color:#aaa">D-${diff}</span>`;
+      }
+      return `<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f3f4f6;${a.done?'opacity:0.45':''}">
+        <div class="check-circle ${a.done?'on':''}" onclick="toggleAssignment(${a.id})" style="flex-shrink:0">${a.done?'✓':''}</div>
+        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${a.subjectColor||'#eee'};flex-shrink:0"></span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.88rem;color:#1a1a1a;${a.done?'text-decoration:line-through':''}">${a.title}</div>
+          <div style="display:flex;gap:6px;align-items:center;margin-top:2px">
+            ${a.subjectName?`<span style="font-size:0.72rem;color:#888">${a.subjectName}</span>`:''}
+            ${dueBadge}
+            ${a.due&&!dueBadge?`<span style="font-size:0.72rem;color:#ccc">${a.due}</span>`:''}
+          </div>
+        </div>
+        <button onclick="deleteAssignment(${a.id})" class="btn-del">🗑</button>
+      </div>`;
+    }).join('');
+  }
+
+  // 시험
+  function addExam() {
+    const subId = document.getElementById('exam-subject')?.value;
+    const scope = document.getElementById('exam-scope')?.value.trim();
+    const date  = document.getElementById('exam-date')?.value;
+    if(!date) return;
+    const sub = studySubjects.find(s=>s.id==subId);
+    studyExams.push({id:Date.now(), subjectId:parseInt(subId)||null, subjectName:sub?.name||'', subjectColor:sub?.color||'#f0f0f0', scope, date});
+    document.getElementById('exam-scope').value = '';
+    document.getElementById('exam-date').value = '';
+    save(); renderExams();
+  }
+  function deleteExam(id) {
+    studyExams = studyExams.filter(e=>e.id!==id);
+    save(); renderExams();
+  }
+  function renderExams() {
+    const el = document.getElementById('exam-list');
+    if(!el) return;
+    if(!studyExams.length){ el.innerHTML='<div class="empty" style="font-size:0.85rem">시험 일정이 없어요</div>'; return; }
+    const today = new Date(todayDate); today.setHours(0,0,0,0);
+    const sorted = [...studyExams].sort((a,b)=>a.date.localeCompare(b.date));
+    el.innerHTML = sorted.map(e=>{
+      const examDate = new Date(e.date);
+      const diff = Math.round((examDate-today)/86400000);
+      let dTag = '';
+      if(diff<0) dTag=`<span style="font-size:0.8rem;color:#ccc;font-weight:600">종료</span>`;
+      else if(diff===0) dTag=`<span style="font-size:0.8rem;color:#ef4444;font-weight:700">D-Day!</span>`;
+      else if(diff<=7) dTag=`<span style="font-size:0.8rem;color:#f97316;font-weight:700">D-${diff}</span>`;
+      else dTag=`<span style="font-size:0.8rem;color:#888;font-weight:600">D-${diff}</span>`;
+      return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f3f4f6;${diff<0?'opacity:0.4':''}">
+        <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${e.subjectColor||'#eee'};flex-shrink:0"></span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.9rem;font-weight:600;color:#1a1a1a">${e.subjectName||'과목 미지정'}</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:1px">${e.date}${e.scope?` · ${e.scope}`:''}</div>
+        </div>
+        ${dTag}
+        <button onclick="deleteExam(${e.id})" class="btn-del">🗑</button>
+      </div>`;
+    }).join('');
   }
 
   function addStudyLog() {
@@ -1978,6 +2045,8 @@
   function renderStudy() {
     renderStudySubjects();
     renderStudySubjectSelects();
+    renderAssignments();
+    renderExams();
     renderStudyLog();
     renderStudyWeekly();
   }
@@ -2146,8 +2215,10 @@
       memos         = d.memos         || {};
       diaries       = d.diaries       || {};
       meals         = d.meals         || {};
-      studySubjects = d.studySubjects || [];
-      studyLogs     = d.studyLogs     || {};
+      studySubjects    = d.studySubjects    || [];
+      studyLogs        = d.studyLogs        || {};
+      studyAssignments = d.studyAssignments || [];
+      studyExams       = d.studyExams       || [];
       // localStorage 동기화
       localStorage.setItem('todos',     JSON.stringify(todos));
       localStorage.setItem('habits',    JSON.stringify(habits));
@@ -2160,8 +2231,10 @@
       localStorage.setItem('memos',     JSON.stringify(memos));
       localStorage.setItem('diaries',   JSON.stringify(diaries));
       localStorage.setItem('meals',     JSON.stringify(meals));
-      localStorage.setItem('studySubjects', JSON.stringify(studySubjects));
-      localStorage.setItem('studyLogs',     JSON.stringify(studyLogs));
+      localStorage.setItem('studySubjects',    JSON.stringify(studySubjects));
+      localStorage.setItem('studyLogs',        JSON.stringify(studyLogs));
+      localStorage.setItem('studyAssignments', JSON.stringify(studyAssignments));
+      localStorage.setItem('studyExams',       JSON.stringify(studyExams));
       isSyncing = false;
       renderTodoCatSelect(); renderTodoCatPills();
       renderDash(); renderTodos(); renderHabits(); renderGoals(); renderStats();
@@ -2385,8 +2458,11 @@
   window.saveMeal = saveMeal;
   window.addStudySubject = addStudySubject;
   window.deleteStudySubject = deleteStudySubject;
-  window.toggleStudyTimer = toggleStudyTimer;
-  window.resetStudyTimer = resetStudyTimer;
+  window.addAssignment = addAssignment;
+  window.toggleAssignment = toggleAssignment;
+  window.deleteAssignment = deleteAssignment;
+  window.addExam = addExam;
+  window.deleteExam = deleteExam;
   window.addStudyLog = addStudyLog;
   window.deleteStudyLog = deleteStudyLog;
 
