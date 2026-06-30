@@ -211,16 +211,33 @@
 </head>
 <body>
 
+<!-- 로그인 화면 -->
+<div id="login-screen" style="display:flex;position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#4f46e5,#7c3aed);align-items:center;justify-content:center;flex-direction:column;gap:24px">
+  <div style="text-align:center;color:white">
+    <div style="font-size:3rem;margin-bottom:12px">✅</div>
+    <h1 style="font-size:1.8rem;font-weight:800;margin-bottom:8px">할일 관리</h1>
+    <p style="opacity:0.8;font-size:0.95rem">로그인하면 모든 기기에서 동기화돼요</p>
+  </div>
+  <button onclick="googleLogin()" style="display:flex;align-items:center;gap:12px;background:white;border:none;border-radius:14px;padding:14px 28px;font-size:1rem;font-weight:600;cursor:pointer;color:#374151;box-shadow:0 4px 20px rgba(0,0,0,0.2)">
+    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="22">
+    Google로 로그인
+  </button>
+  <p style="color:rgba(255,255,255,0.5);font-size:0.78rem">무료 · 광고 없음 · 개인정보 보호</p>
+</div>
+
+<!-- 앱 본체 -->
+<div id="app-screen" style="display:none">
 <header>
   <span style="font-size:1.4rem">✅</span>
   <h1>할일 관리</h1>
   <div style="display:flex;align-items:center;gap:10px;margin-left:auto">
-    <span id="auth-info" style="font-size:0.8rem;opacity:0.8;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">로그인하면 모든 기기에서 동기화돼요</span>
-    <button id="auth-btn" class="search-btn" onclick="googleLogin()">Google로 로그인</button>
+    <span id="user-name" style="font-size:0.82rem;opacity:0.85;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    <button class="search-btn" onclick="googleLogout()">로그아웃</button>
     <button class="search-btn" onclick="openSearch()">🔍 검색</button>
   </div>
 </header>
 
+<!-- /app-screen 닫기는 검색 오버레이 뒤에 -->
 <!-- 검색 오버레이 -->
 <div class="search-overlay" id="search-overlay" style="display:none" onclick="if(event.target===this)closeSearch()">
   <div class="search-box">
@@ -468,6 +485,8 @@
     </div>
   </div>
 </div>
+
+</div><!-- /app-screen -->
 
 <script type="module">
   const todayDate = new Date();
@@ -1184,24 +1203,26 @@
 
   onAuthStateChanged(auth, async user => {
     currentUser = user;
-    const btn = document.getElementById('auth-btn');
-    const info = document.getElementById('auth-info');
     if (user) {
-      btn.textContent  = '로그아웃';
-      btn.onclick      = googleLogout;
-      info.textContent = user.displayName || user.email;
+      // 로그인됨 → 앱 표시
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'block';
+      document.getElementById('user-name').textContent = user.displayName || user.email;
       await loadFromCloud();
     } else {
-      btn.textContent  = 'Google로 로그인';
-      btn.onclick      = googleLogin;
-      info.textContent = '로그인하면 모든 기기에서 동기화돼요';
-      renderDash(); renderTodos(); renderHabits(); renderGoals(); renderStats();
+      // 로그아웃됨 → 로그인 화면 표시
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('app-screen').style.display = 'none';
     }
   });
 
   // save() 호출 시 클라우드도 동기화
   const _origSave = save;
-  function save() { _origSave(); syncToCloud(); }
+  window.save = function() { _origSave(); syncToCloud(); }
+
+  // module 스코프 함수들을 전역으로 노출
+  window.googleLogin  = googleLogin;
+  window.googleLogout = googleLogout;
 
   renderDash();
   renderTodos();
