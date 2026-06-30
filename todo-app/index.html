@@ -67,6 +67,8 @@
       .cal-day { min-height: 48px; padding: 4px; }
       .pln-topbar { padding: 14px 16px; border-radius: 12px; }
       .pln-date-big { font-size: 1.1rem; }
+      #live-clock { font-size: 2rem !important; }
+      #weather-bar { flex-wrap: wrap; gap: 8px; }
       body { overflow-x: hidden; }
       .pln-card-header { flex-wrap: wrap; gap: 8px; }
       .pln-card-header > div[style*="flex:1"] { flex-wrap: wrap; width: 100%; margin-left: 0 !important; }
@@ -296,6 +298,19 @@
 
   <!-- 플래너 -->
   <div id="view-planner" style="display:none">
+
+    <!-- 배너 -->
+    <div style="position:relative;width:100%;height:180px;border-radius:16px;overflow:hidden;margin-bottom:18px">
+      <img src="https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=1400&q=80" alt="" style="width:100%;height:100%;object-fit:cover;filter:grayscale(100%) brightness(0.7)">
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+        <div id="live-clock" style="font-family:'DM Mono',monospace;font-size:2.8rem;font-weight:400;color:white;letter-spacing:0.05em;text-shadow:0 2px 8px rgba(0,0,0,0.4)"></div>
+        <div id="daily-quote" style="font-size:0.85rem;color:rgba(255,255,255,0.75);letter-spacing:0.08em;font-style:italic"></div>
+      </div>
+    </div>
+
+    <!-- 날씨 -->
+    <div id="weather-bar" style="display:flex;align-items:center;gap:16px;background:white;border-radius:12px;padding:12px 18px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,0.06);font-size:0.88rem;color:#555"></div>
+
     <!-- 날짜 헤더 -->
     <div class="pln-topbar">
       <button class="pnav" onclick="changePlannerDay(-1)">‹</button>
@@ -1363,6 +1378,59 @@
     }
   }
   window.deleteAccount = deleteAccount;
+
+  // ─── 시계 ───
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    const el = document.getElementById('live-clock');
+    if(el) el.textContent = `${h}:${m}:${s}`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // ─── 명언 ───
+  const quotes = [
+    "Your only limit is your mind.",
+    "작은 것들이 모여 큰 것이 된다.",
+    "오늘 할 수 있는 일을 내일로 미루지 마라.",
+    "노력은 배신하지 않는다.",
+    "Be the energy you want to attract.",
+    "하루하루가 새로운 시작이다.",
+    "Done is better than perfect.",
+    "천천히, 그러나 멈추지 말고.",
+    "Stay focused and never give up.",
+    "지금 이 순간이 가장 중요하다.",
+    "Consistency is the key to success.",
+    "어제보다 나은 오늘을 살자.",
+  ];
+  const qEl = document.getElementById('daily-quote');
+  if(qEl) qEl.textContent = quotes[new Date().getDate() % quotes.length];
+
+  // ─── 날씨 (Open-Meteo, 서울) ───
+  const weatherCodes = {0:'☀️ 맑음',1:'🌤 대체로 맑음',2:'⛅ 구름 조금',3:'☁️ 흐림',45:'🌫 안개',48:'🌫 안개',51:'🌦 이슬비',53:'🌦 이슬비',55:'🌧 이슬비',61:'🌧 비',63:'🌧 비',65:'🌧 강한 비',71:'🌨 눈',73:'🌨 눈',75:'🌨 강한 눈',80:'🌦 소나기',81:'🌦 소나기',82:'⛈ 강한 소나기',95:'⛈ 뇌우',99:'⛈ 뇌우'};
+  fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FSeoul&forecast_days=1')
+    .then(r=>r.json()).then(d=>{
+      const cur = d.current;
+      const desc = weatherCodes[cur.weather_code] || '—';
+      const max = Math.round(d.daily.temperature_2m_max[0]);
+      const min = Math.round(d.daily.temperature_2m_min[0]);
+      const wb = document.getElementById('weather-bar');
+      if(wb) wb.innerHTML = `
+        <span style="font-size:1.3rem">${desc.split(' ')[0]}</span>
+        <span style="font-weight:600;color:#1a1a1a;font-size:1rem">${Math.round(cur.temperature_2m)}°C</span>
+        <span>${desc.split(' ').slice(1).join(' ')}</span>
+        <span style="color:#aaa">·</span>
+        <span>최고 ${max}° / 최저 ${min}°</span>
+        <span style="color:#aaa">·</span>
+        <span>바람 ${cur.wind_speed_10m}km/h</span>
+        <span style="margin-left:auto;color:#aaa;font-size:0.78rem">서울</span>`;
+    }).catch(()=>{
+      const wb = document.getElementById('weather-bar');
+      if(wb) wb.style.display='none';
+    });
 
   renderDash();
   renderTodos();
