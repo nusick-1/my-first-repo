@@ -329,8 +329,8 @@
       .banner-wrap { position:relative;width:100%;height:200px;border-radius:20px;overflow:hidden;margin-bottom:10px; }
       .banner-bg { position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,#2a2a2a 0%,#0a0a0a 60%),radial-gradient(ellipse at 80% 30%,#1e1e1e,transparent);background-blend-mode:screen; }
       .banner-blob { position:absolute;border-radius:50%;filter:blur(40px);pointer-events:none; }
-      .glow-h { position:absolute;color:rgba(255,255,255,0.12);-webkit-text-stroke:1.2px rgba(255,255,255,0.85);text-shadow:0 0 8px rgba(255,255,255,0.9),0 0 20px rgba(255,255,255,0.5),0 0 40px rgba(255,255,255,0.2);pointer-events:none;animation:floatH 3s ease-in-out infinite; }
-      .glow-s { position:absolute;color:white;text-shadow:0 0 6px #fff,0 0 14px rgba(255,255,255,0.8);pointer-events:none;animation:twinkleS 2s ease-in-out infinite; }
+      .glow-h { position:absolute;color:rgba(255,182,193,0.15);-webkit-text-stroke:1.2px rgba(255,182,193,0.75);text-shadow:0 0 8px rgba(255,182,193,0.9),0 0 20px rgba(255,150,170,0.5),0 0 40px rgba(255,130,160,0.2);pointer-events:none;animation:floatH 3s ease-in-out infinite; }
+      .glow-s { position:absolute;color:rgba(255,210,220,0.9);text-shadow:0 0 6px rgba(255,182,193,0.9),0 0 14px rgba(255,150,170,0.7);pointer-events:none;animation:twinkleS 2s ease-in-out infinite; }
       @keyframes floatH { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
       @keyframes twinkleS { 0%,100%{opacity:0.3;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }
       .today-grid { display:grid;grid-template-columns:210px 1fr 240px;gap:10px;align-items:start; }
@@ -345,35 +345,31 @@
       <div class="banner-blob" style="width:200px;height:200px;background:rgba(80,80,80,0.25);top:-60px;left:10%"></div>
       <div class="banner-blob" style="width:250px;height:250px;background:rgba(60,60,60,0.2);bottom:-80px;left:40%"></div>
       <div class="banner-blob" style="width:180px;height:180px;background:rgba(70,70,70,0.22);top:-40px;right:5%"></div>
-      <span class="glow-h" style="font-size:2.2rem;top:12px;left:4%;animation-delay:0s">♡</span>
-      <span class="glow-h" style="font-size:1.3rem;top:50px;left:11%;animation-delay:0.4s">♡</span>
-      <span class="glow-h" style="font-size:2.8rem;top:8px;left:20%;animation-delay:0.8s">♡</span>
-      <span class="glow-h" style="font-size:1.6rem;top:70px;left:28%;animation-delay:0.2s">♡</span>
-      <span class="glow-h" style="font-size:3.2rem;top:5px;left:38%;animation-delay:1s">♡</span>
-      <span class="glow-h" style="font-size:1.4rem;top:55px;left:48%;animation-delay:0.6s">♡</span>
-      <span class="glow-h" style="font-size:2.5rem;top:10px;left:57%;animation-delay:0.3s">♡</span>
-      <span class="glow-h" style="font-size:1.8rem;top:65px;left:66%;animation-delay:0.9s">♡</span>
-      <span class="glow-h" style="font-size:3rem;top:6px;left:75%;animation-delay:0.5s">♡</span>
-      <span class="glow-h" style="font-size:1.2rem;top:48px;left:84%;animation-delay:0.7s">♡</span>
-      <span class="glow-h" style="font-size:2rem;top:14px;left:92%;animation-delay:0.1s">♡</span>
-      <span class="glow-h" style="font-size:1.8rem;bottom:14px;left:7%;animation-delay:0.5s">♡</span>
-      <span class="glow-h" style="font-size:2.6rem;bottom:8px;left:17%;animation-delay:0.2s">♡</span>
-      <span class="glow-h" style="font-size:1.3rem;bottom:40px;left:26%;animation-delay:0.8s">♡</span>
-      <span class="glow-h" style="font-size:2rem;bottom:12px;left:35%;animation-delay:0.4s">♡</span>
-      <span class="glow-h" style="font-size:1.5rem;bottom:38px;left:52%;animation-delay:1s">♡</span>
-      <span class="glow-h" style="font-size:2.4rem;bottom:10px;left:62%;animation-delay:0.3s">♡</span>
-      <span class="glow-h" style="font-size:1.6rem;bottom:42px;left:72%;animation-delay:0.7s">♡</span>
-      <span class="glow-h" style="font-size:2.8rem;bottom:6px;left:81%;animation-delay:0.6s">♡</span>
-      <span class="glow-h" style="font-size:1.4rem;bottom:36px;left:91%;animation-delay:0.9s">♡</span>
-      <span class="glow-s" style="font-size:0.9rem;top:38px;left:15%;animation-delay:0s">✦</span>
-      <span class="glow-s" style="font-size:1.1rem;top:44px;left:33%;animation-delay:0.5s">✦</span>
-      <span class="glow-s" style="font-size:0.8rem;top:36px;left:53%;animation-delay:1s">✦</span>
-      <span class="glow-s" style="font-size:1rem;top:42px;left:71%;animation-delay:0.3s">✦</span>
-      <span class="glow-s" style="font-size:0.9rem;top:40px;left:89%;animation-delay:0.7s">✦</span>
-      <span class="glow-s" style="font-size:1.2rem;bottom:28px;left:22%;animation-delay:0.4s">✦</span>
-      <span class="glow-s" style="font-size:0.8rem;bottom:30px;left:44%;animation-delay:0.9s">✦</span>
-      <span class="glow-s" style="font-size:1rem;bottom:26px;left:67%;animation-delay:0.2s">✦</span>
-      <span class="glow-s" style="font-size:0.9rem;bottom:32px;left:87%;animation-delay:0.6s">✦</span>
+      <!-- 왼쪽 하트 (left 0~28%) -->
+      <span class="glow-h" style="font-size:2.2rem;top:12px;left:2%;animation-delay:0s">♡</span>
+      <span class="glow-h" style="font-size:1.3rem;top:52px;left:8%;animation-delay:0.4s">♡</span>
+      <span class="glow-h" style="font-size:2.6rem;top:8px;left:14%;animation-delay:0.8s">♡</span>
+      <span class="glow-h" style="font-size:1.5rem;top:68px;left:20%;animation-delay:0.2s">♡</span>
+      <span class="glow-h" style="font-size:1.8rem;bottom:14px;left:4%;animation-delay:0.5s">♡</span>
+      <span class="glow-h" style="font-size:2.4rem;bottom:8px;left:11%;animation-delay:0.2s">♡</span>
+      <span class="glow-h" style="font-size:1.2rem;bottom:42px;left:18%;animation-delay:0.8s">♡</span>
+      <span class="glow-h" style="font-size:2rem;bottom:10px;left:25%;animation-delay:0.4s">♡</span>
+      <!-- 오른쪽 하트 (left 72~98%) -->
+      <span class="glow-h" style="font-size:2.8rem;top:6px;left:75%;animation-delay:0.5s">♡</span>
+      <span class="glow-h" style="font-size:1.4rem;top:54px;left:82%;animation-delay:0.7s">♡</span>
+      <span class="glow-h" style="font-size:2rem;top:10px;left:88%;animation-delay:0.1s">♡</span>
+      <span class="glow-h" style="font-size:1.6rem;top:66px;left:94%;animation-delay:0.9s">♡</span>
+      <span class="glow-h" style="font-size:1.5rem;bottom:38px;left:73%;animation-delay:1s">♡</span>
+      <span class="glow-h" style="font-size:2.4rem;bottom:10px;left:80%;animation-delay:0.3s">♡</span>
+      <span class="glow-h" style="font-size:2.8rem;bottom:6px;left:87%;animation-delay:0.6s">♡</span>
+      <span class="glow-h" style="font-size:1.3rem;bottom:40px;left:93%;animation-delay:0.9s">♡</span>
+      <!-- 별 (양쪽만) -->
+      <span class="glow-s" style="font-size:0.9rem;top:38px;left:6%;animation-delay:0s">✦</span>
+      <span class="glow-s" style="font-size:1.1rem;top:44px;left:17%;animation-delay:0.5s">✦</span>
+      <span class="glow-s" style="font-size:1.2rem;bottom:28px;left:10%;animation-delay:0.4s">✦</span>
+      <span class="glow-s" style="font-size:1rem;top:42px;left:83%;animation-delay:0.3s">✦</span>
+      <span class="glow-s" style="font-size:0.9rem;top:40px;left:91%;animation-delay:0.7s">✦</span>
+      <span class="glow-s" style="font-size:0.8rem;bottom:30px;left:78%;animation-delay:0.9s">✦</span>
       <!-- 시계 + 날씨 -->
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:2">
         <div id="live-clock" style="font-family:'Gaegu',cursive;font-size:3.2rem;font-weight:700;color:white;letter-spacing:0.06em;text-shadow:0 0 20px rgba(255,255,255,0.3)"></div>
