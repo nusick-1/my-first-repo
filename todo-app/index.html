@@ -93,13 +93,14 @@
     .pln-add-btn:hover { background: #333; }
 
     /* 시간표 */
-    .timetable { display: flex; flex-direction: column; }
-    .time-row { display: flex; align-items: stretch; min-height: 48px; border-top: 1px solid #f3f4f6; }
-    .time-row:last-child { border-bottom: 1px solid #f3f4f6; }
-    .time-label { width: 44px; font-size: 0.7rem; color: #9ca3af; padding: 7px 6px 0 10px; flex-shrink: 0; }
-    .time-slot { flex: 1; padding: 4px 8px; cursor: pointer; transition: background 0.12s; }
-    .time-slot:hover { background: #f0f0f0; }
-    .time-slot.has-block { cursor: default; }
+    .timetable { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+    .timetable th { font-size: 0.62rem; color: #bbb; padding: 2px 0; text-align: center; border: 1px dashed #e5e7eb; background: #fafafa; width: 18%; }
+    .timetable th.th-hour { width: 14%; }
+    .timetable td.td-hour { font-size: 0.65rem; color: #aaa; text-align: center; padding: 0; border: 1px solid #e5e7eb; background: #fafafa; white-space: nowrap; }
+    .timetable td.td-cell { border: 1px dashed #e8e8e8; height: 22px; cursor: pointer; transition: background 0.1s; position: relative; }
+    .timetable td.td-cell:hover { background: #f5f5f5; }
+    .timetable td.td-cell.has-note { background: #1a1a1a10; }
+    .tt-note { position: absolute; inset: 0; font-size: 0.58rem; color: #333; overflow: hidden; padding: 1px 2px; line-height: 1.2; }
     .time-block { border-radius: 6px; padding: 5px 8px; font-size: 0.78rem; display: flex; justify-content: space-between; align-items: flex-start; }
     .time-block.color-purple { background: #e8e8e8; border-left: 3px solid #555; color: #222; }
     .time-block.color-green  { background: #e8e8e8; border-left: 3px solid #333; color: #222; }
@@ -403,8 +404,18 @@
           </div>
           <div id="mini-cal-cells" style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:1px"></div>
         </div>
+        <!-- D-day -->
+        <div class="pln-card" style="margin-bottom:12px">
+          <div class="pln-section-label">⏳ D-Day</div>
+          <div style="display:flex;gap:6px;margin-bottom:8px">
+            <input id="dday-name" type="text" placeholder="이름 (예: 기말고사)" style="flex:1;padding:6px 8px;font-size:0.82rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+            <input id="dday-date" type="date" style="padding:6px 8px;font-size:0.82rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+            <button onclick="addDday()" style="background:#1a1a1a;color:white;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:0.85rem">+</button>
+          </div>
+          <div id="dday-list"></div>
+        </div>
         <div class="pln-section-label">🗓 시간표</div>
-        <div class="timetable" id="timetable"></div>
+        <div id="timetable"></div>
       </div>
 
       <!-- 가운데: 할일 + 습관 + 기록 -->
@@ -781,6 +792,60 @@
   function miniCalNext(){miniCalMonth++;if(miniCalMonth>11){miniCalMonth=0;miniCalYear++;}renderMiniCal();}
   window.miniCalPrev=miniCalPrev; window.miniCalNext=miniCalNext;
 
+  // 시간표 셀 편집
+  window.editTTNote = function(date, key, cell) {
+    const cur = (ttNotes[date]||{})[key] || '';
+    const val = prompt('메모 입력 (빈칸으로 지우기)', cur);
+    if(val === null) return;
+    if(!ttNotes[date]) ttNotes[date] = {};
+    if(val.trim() === '') { delete ttNotes[date][key]; }
+    else { ttNotes[date][key] = val.trim(); }
+    localStorage.setItem('ttNotes', JSON.stringify(ttNotes));
+    renderPlanner();
+  };
+
+  // D-day 기능
+  function calcDday(dateStr) {
+    const today = new Date(todayStr);
+    const target = new Date(dateStr);
+    const diff = Math.round((target - today) / 86400000);
+    if(diff === 0) return 'D-Day';
+    return diff > 0 ? `D-${diff}` : `D+${Math.abs(diff)}`;
+  }
+  window.addDday = function() {
+    const name = document.getElementById('dday-name').value.trim();
+    const date = document.getElementById('dday-date').value;
+    if(!name || !date) return;
+    ddays.push({id: Date.now(), name, date});
+    localStorage.setItem('ddays', JSON.stringify(ddays));
+    document.getElementById('dday-name').value = '';
+    document.getElementById('dday-date').value = '';
+    renderDdays();
+  };
+  window.deleteDday = function(id) {
+    ddays = ddays.filter(d => d.id !== id);
+    localStorage.setItem('ddays', JSON.stringify(ddays));
+    renderDdays();
+  };
+  function renderDdays() {
+    const el = document.getElementById('dday-list');
+    if(!el) return;
+    if(!ddays.length) { el.innerHTML = `<div style="color:#bbb;font-size:0.85rem;text-align:center;padding:10px 0">디데이를 추가해보세요 ⏳</div>`; return; }
+    el.innerHTML = ddays.sort((a,b)=>a.date.localeCompare(b.date)).map(d => {
+      const dd = calcDday(d.date);
+      const isPast = dd.startsWith('D+');
+      return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0">
+        <div style="font-size:1.1rem;font-weight:800;color:${isPast?'#aaa':'#1a1a1a'};min-width:60px;font-family:'DM Mono',monospace">${dd}</div>
+        <div style="flex:1">
+          <div style="font-size:0.9rem;font-weight:600;color:#1a1a1a">${d.name}</div>
+          <div style="font-size:0.75rem;color:#aaa">${d.date}</div>
+        </div>
+        <button onclick="deleteDday(${d.id})" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:1rem">✕</button>
+      </div>`;
+    }).join('');
+  }
+  window.renderDdays = renderDdays;
+
   function changeMonth(d) {
     calMonth+=d;
     if(calMonth>11){calMonth=0;calYear++;} if(calMonth<0){calMonth=11;calYear--;}
@@ -1131,7 +1196,9 @@
   let plannerDate   = todayStr;
   let blockModalHour = null;
 
-  const HOURS = Array.from({length:18}, (_,i)=>i+6); // 6~23시
+  const HOURS = Array.from({length:24}, (_,i)=>i+1); // 01~24시
+  let ttNotes = JSON.parse(localStorage.getItem('ttNotes') || '{}'); // {date: {hour_min: text}}
+  let ddays = JSON.parse(localStorage.getItem('ddays') || '[]'); // [{name, date}]
   const DAYS_KO = ['일','월','화','수','목','금','토'];
   const COLORS = {'color-purple':'color-purple','color-green':'color-green','color-yellow':'color-yellow','color-blue':'color-blue','color-red':'color-red'};
 
@@ -1276,24 +1343,31 @@
     }
 
     // 시간표
-    const blocks = plannerBlocks[plannerDate] || [];
-    document.getElementById('timetable').innerHTML = HOURS.map(h => {
-      const block = blocks.find(b => b.hour === h);
-      return `<div class="time-row">
-        <div class="time-label">${String(h).padStart(2,'0')}:00</div>
-        <div class="time-slot ${block?'has-block':''}" ${block?'':` onclick="openBlockModal(${h})"`}>
-          ${block
-            ? `<div class="time-block ${block.color}">
-                <div><div class="time-block-title">${block.title}</div>${block.endTime?`<div class="time-block-sub">~${block.endTime}</div>`:''}
-                </div><button class="time-block-del" onclick="deleteBlock(${block.id})">✕</button></div>`
-            : `<span class="add-hint">+ 추가</span>`}
-        </div>
-      </div>`;
-    }).join('');
+    // 그리드형 시간표
+    const dateNotes = ttNotes[plannerDate] || {};
+    const MINS = [10,20,30,40,50];
+    let ttHtml = `<table class="timetable"><thead><tr>
+      <th class="th-hour"></th>
+      ${MINS.map(m=>`<th>${m}</th>`).join('')}
+    </tr></thead><tbody>`;
+    HOURS.forEach(h => {
+      ttHtml += `<tr><td class="td-hour">${String(h).padStart(2,'0')}</td>`;
+      MINS.forEach(m => {
+        const key = `${h}_${m}`;
+        const note = dateNotes[key] || '';
+        ttHtml += `<td class="td-cell ${note?'has-note':''}" onclick="editTTNote('${plannerDate}','${key}',this)">
+          ${note ? `<div class="tt-note">${note}</div>` : ''}
+        </td>`;
+      });
+      ttHtml += `</tr>`;
+    });
+    ttHtml += `</tbody></table>`;
+    document.getElementById('timetable').innerHTML = ttHtml;
 
     renderPlannerTodos();
     renderPlannerHabits();
     renderPlannerLog();
+    renderDdays();
     loadMemo();
   }
 
