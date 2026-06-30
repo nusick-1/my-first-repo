@@ -898,7 +898,8 @@
     </div>
     <div class="modal-btns">
       <button class="btn btn-outline" onclick="closeModal()">취소</button>
-      <button class="btn btn-primary" onclick="saveEvent()">저장</button>
+      <button id="ev-delete-btn" class="btn" onclick="deleteEventFromModal()" style="display:none;background:#fee2e2;color:#ef4444;border:none">🗑 삭제</button>
+      <button id="ev-save-btn" class="btn btn-primary" onclick="saveEvent()">저장</button>
     </div>
   </div>
 </div>
@@ -1101,10 +1102,11 @@
   }
 
   // ─── 캘린더 / 일정 ───
-  let modalDate = null, modalEndDate = null, evSelColor = '';
+  let modalDate = null, modalEndDate = null, evSelColor = '', editingEventId = null;
+
   function openModal(dateStr, endDateStr) {
+    editingEventId = null;
     modalDate = dateStr;
-    modalEndDate = endDateStr || '';
     evSelColor = '';
     const label = endDateStr && endDateStr !== dateStr ? `${dateStr} ~ ${endDateStr}` : dateStr;
     document.getElementById('modal-title').textContent = label + ' 일정 추가';
@@ -1113,30 +1115,71 @@
     document.getElementById('ev-memo').value='';
     document.getElementById('ev-emoji').value='';
     document.getElementById('ev-end-date').value = endDateStr||'';
+    document.getElementById('ev-save-btn').textContent = '저장';
+    document.getElementById('ev-delete-btn').style.display = 'none';
     document.querySelectorAll('.ev-color-swatch').forEach(s=>{
       s.style.border = s.dataset.color==='' ? '2px solid #999' : '2px solid transparent';
     });
     document.getElementById('event-modal').style.display='flex';
     setTimeout(()=>document.getElementById('ev-title').focus(),50);
   }
+
+  function openEventEdit(id) {
+    const ev = events.find(e=>e.id===id);
+    if(!ev) return;
+    editingEventId = id;
+    modalDate = ev.date;
+    evSelColor = ev.color||'';
+    document.getElementById('modal-title').textContent = '일정 수정';
+    document.getElementById('ev-title').value = ev.title||'';
+    document.getElementById('ev-time').value = ev.time||'';
+    document.getElementById('ev-memo').value = ev.memo||'';
+    document.getElementById('ev-emoji').value = ev.emoji||'';
+    document.getElementById('ev-end-date').value = ev.dateEnd||'';
+    document.getElementById('ev-save-btn').textContent = '수정 완료';
+    document.getElementById('ev-delete-btn').style.display = 'inline-block';
+    document.querySelectorAll('.ev-color-swatch').forEach(s=>{
+      const match = s.dataset.color === evSelColor || (s.dataset.color==='' && !evSelColor);
+      s.style.border = match ? '2px solid #555' : '2px solid transparent';
+      if(s.dataset.color==='' && !evSelColor) s.style.border='2px solid #999';
+    });
+    document.getElementById('event-modal').style.display='flex';
+    setTimeout(()=>document.getElementById('ev-title').focus(),50);
+  }
+
   function closeModal() {
     document.getElementById('event-modal').style.display='none';
+    editingEventId = null;
     clearCalDrag();
   }
+
   function saveEvent() {
     const title = document.getElementById('ev-title').value.trim();
     if(!title) return;
     const dateEnd = document.getElementById('ev-end-date').value;
-    events.push({
-      id: Date.now(), date: modalDate,
+    const fields = {
+      date: modalDate,
       dateEnd: dateEnd && dateEnd > modalDate ? dateEnd : '',
       time: document.getElementById('ev-time').value,
       title,
       emoji: document.getElementById('ev-emoji').value,
       color: evSelColor,
       memo: document.getElementById('ev-memo').value
-    });
-    save(); closeModal(); renderCalendar(); renderCalDayEvents(modalDate); renderDash();
+    };
+    if(editingEventId) {
+      const idx = events.findIndex(e=>e.id===editingEventId);
+      if(idx>=0) events[idx] = { ...events[idx], ...fields };
+    } else {
+      events.push({ id: Date.now(), ...fields });
+    }
+    save(); closeModal(); renderCalendar(); renderCalDayEvents(selectedDate); renderDash();
+    if(typeof renderPlanner==='function') renderPlanner();
+  }
+
+  function deleteEventFromModal() {
+    if(!editingEventId) return;
+    events = events.filter(e=>e.id!==editingEventId);
+    save(); closeModal(); renderCalendar(); renderCalDayEvents(selectedDate); renderDash();
     if(typeof renderPlanner==='function') renderPlanner();
   }
   // 색상 스워치 클릭
@@ -1416,15 +1459,14 @@
     let html='';
     if(dayEvents.length){
       html+=dayEvents.map(e=>{
-        const bg=e.color||'#f3f4f6';
         const rangeLabel=e.dateEnd&&e.dateEnd!==e.date?`<span style="font-size:0.72rem;color:#aaa;margin-left:4px">${e.date}~${e.dateEnd}</span>`:'';
-        return `<div class="event-item" style="border-left:4px solid ${e.color||'#e5e7eb'};background:${e.color?e.color+'22':'white'}">
+        return `<div class="event-item" style="border-left:4px solid ${e.color||'#e5e7eb'};background:${e.color?e.color+'22':'white'};cursor:pointer" onclick="openEventEdit(${e.id})">
           <div class="event-time">${e.time||'　'}</div>
           <div class="item-info" style="flex:1">
             <div class="event-title">${e.emoji||''}${e.title}${rangeLabel}</div>
             ${e.memo?`<div class="item-meta">${e.memo}</div>`:''}
           </div>
-          <button class="btn-del" onclick="deleteEvent(${e.id})">🗑</button>
+          <span style="font-size:0.75rem;color:#bbb;padding:0 4px">✏️</span>
         </div>`;
       }).join('');
     }
@@ -1926,9 +1968,10 @@
         evEl.innerHTML = `<div style="color:#bbb;font-size:0.85rem;text-align:center;padding:10px 0">일정이 없어요 ☁️</div>`;
       } else {
         evEl.innerHTML = todayEvents.map(e => `
-          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0">
+          <div onclick="openEventEdit(${e.id})" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;cursor:pointer;border-left:3px solid ${e.color||'#e5e7eb'};padding-left:8px;margin-left:-8px">
             <div style="font-size:0.78rem;color:#888;min-width:38px">${e.time||'종일'}</div>
-            <div style="font-size:0.9rem;color:#1a1a1a;flex:1">${e.title}</div>
+            <div style="font-size:0.9rem;color:#1a1a1a;flex:1">${e.emoji||''}${e.title}</div>
+            <span style="font-size:0.7rem;color:#ccc">✏️</span>
           </div>`).join('');
       }
     }
@@ -2568,6 +2611,8 @@
   window.goToPlanner = goToPlanner;
   window.deleteEvent = deleteEvent;
   window.openModal = openModal;
+  window.openEventEdit = openEventEdit;
+  window.deleteEventFromModal = deleteEventFromModal;
   window.openPlannerEventModal = function() { openModal(plannerDate); };
   window.calCellDown = calCellDown;
   window.calCellEnter = calCellEnter;
