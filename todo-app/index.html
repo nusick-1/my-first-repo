@@ -287,16 +287,108 @@
 <body>
 
 <!-- 로그인 화면 -->
-<div id="login-screen" style="display:flex;position:fixed;inset:0;z-index:9999;background:var(--accent);align-items:center;justify-content:center;flex-direction:column;gap:24px">
-  <div style="text-align:center;color:white">
-    <h1 style="font-size:2.2rem;font-weight:500;margin-bottom:8px;font-family:'DM Mono',monospace;letter-spacing:0.08em">Mono</h1>
-    <p style="opacity:0.8;font-size:0.95rem">로그인하면 모든 기기에서 동기화돼요</p>
+<div id="login-screen" style="display:flex;position:fixed;inset:0;z-index:9999;background:#0f0f0f;flex-direction:column;overflow-y:auto">
+
+  <!-- 헤더 히어로 -->
+  <div style="background:linear-gradient(160deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);padding:56px 28px 40px;text-align:center;position:relative;overflow:hidden;flex-shrink:0">
+    <!-- 배경 원 장식 -->
+    <div style="position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.03);top:-80px;left:-60px"></div>
+    <div style="position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.04);bottom:-40px;right:-30px"></div>
+    <div style="position:relative;z-index:1">
+      <div style="font-family:'DM Mono',monospace;font-size:3rem;font-weight:500;color:white;letter-spacing:0.1em;margin-bottom:6px">Mono</div>
+      <div style="color:rgba(255,255,255,0.5);font-size:0.8rem;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:20px">Personal Planner</div>
+      <p style="color:rgba(255,255,255,0.75);font-size:1rem;line-height:1.7;max-width:320px;margin:0 auto">하루를 정리하고, 습관을 만들고,<br>나를 기록하는 공간</p>
+    </div>
   </div>
-  <button onclick="googleLogin()" style="display:flex;align-items:center;gap:12px;background:white;border:none;border-radius:14px;padding:14px 28px;font-size:1rem;font-weight:600;cursor:pointer;color:#374151;box-shadow:0 4px 20px rgba(0,0,0,0.2)">
-    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="22">
-    Google로 로그인
-  </button>
-  <p style="color:rgba(255,255,255,0.5);font-size:0.78rem">무료 · 광고 없음 · 개인정보 보호</p>
+
+  <!-- 기능 카드 가로 스크롤 -->
+  <div style="padding:28px 0 8px">
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);letter-spacing:0.12em;text-transform:uppercase;padding:0 24px;margin-bottom:14px">주요 기능</div>
+    <div style="display:flex;gap:14px;overflow-x:auto;padding:4px 24px 16px;scrollbar-width:none">
+
+      <div style="min-width:180px;background:#1e1e1e;border-radius:18px;padding:20px;flex-shrink:0;border:1px solid rgba(255,255,255,0.07)">
+        <div style="font-size:1.8rem;margin-bottom:12px">📅</div>
+        <div style="color:white;font-weight:600;font-size:0.92rem;margin-bottom:6px">캘린더</div>
+        <div style="color:rgba(255,255,255,0.45);font-size:0.78rem;line-height:1.6">드래그로 기간 일정 등록, 공휴일 자동 표시, 색상·이모지 꾸미기</div>
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:5px">
+          <div style="background:#2a2a2a;border-radius:8px;padding:6px 10px;font-size:0.7rem;color:rgba(255,255,255,0.6)">🎂 생일파티 <span style="float:right;opacity:0.4">D-3</span></div>
+          <div style="background:#7c3aed22;border-left:3px solid #7c3aed;border-radius:0 8px 8px 0;padding:6px 10px;font-size:0.7rem;color:rgba(255,255,255,0.6)">💼 팀 미팅</div>
+          <div style="background:#db277722;border-left:3px solid #db2777;border-radius:0 8px 8px 0;padding:6px 10px;font-size:0.7rem;color:rgba(255,255,255,0.6)">✈️ 여행</div>
+        </div>
+      </div>
+
+      <div style="min-width:180px;background:#1e1e1e;border-radius:18px;padding:20px;flex-shrink:0;border:1px solid rgba(255,255,255,0.07)">
+        <div style="font-size:1.8rem;margin-bottom:12px">✅</div>
+        <div style="color:white;font-weight:600;font-size:0.92rem;margin-bottom:6px">할일 & 습관</div>
+        <div style="color:rgba(255,255,255,0.45);font-size:0.78rem;line-height:1.6">우선순위 설정, 습관 스트릭 추적, 드래그로 순서 변경</div>
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:16px;height:16px;border-radius:50%;background:#15803d;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:white;flex-shrink:0">✓</div>
+            <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);text-decoration:line-through">운동 30분</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:16px;height:16px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.2);flex-shrink:0"></div>
+            <span style="font-size:0.72rem;color:rgba(255,255,255,0.6)">🔴 리포트 제출</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:16px;height:16px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.2);flex-shrink:0"></div>
+            <span style="font-size:0.72rem;color:rgba(255,255,255,0.6)">🟡 책 읽기</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="min-width:180px;background:#1e1e1e;border-radius:18px;padding:20px;flex-shrink:0;border:1px solid rgba(255,255,255,0.07)">
+        <div style="font-size:1.8rem;margin-bottom:12px">📚</div>
+        <div style="color:white;font-weight:600;font-size:0.92rem;margin-bottom:6px">공부 플래너</div>
+        <div style="color:rgba(255,255,255,0.45);font-size:0.78rem;line-height:1.6">과제 관리, 시험 D-Day, 과목별 공부 기록</div>
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:5px">
+          <div style="display:flex;justify-content:space-between;align-items:center;background:#2a2a2a;border-radius:8px;padding:6px 10px">
+            <span style="font-size:0.7rem;color:rgba(255,255,255,0.6)">중간고사</span>
+            <span style="font-size:0.68rem;color:#ef4444;font-weight:600">D-7</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;background:#2a2a2a;border-radius:8px;padding:6px 10px">
+            <span style="font-size:0.7rem;color:rgba(255,255,255,0.6)">영어 과제</span>
+            <span style="font-size:0.68rem;color:#f59e0b">진행중</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="min-width:180px;background:#1e1e1e;border-radius:18px;padding:20px;flex-shrink:0;border:1px solid rgba(255,255,255,0.07)">
+        <div style="font-size:1.8rem;margin-bottom:12px">🌅</div>
+        <div style="color:white;font-weight:600;font-size:0.92rem;margin-bottom:6px">일기 & 메모</div>
+        <div style="color:rgba(255,255,255,0.45);font-size:0.78rem;line-height:1.6">아침·저녁 일기, 식단 기록, 자유 메모</div>
+        <div style="margin-top:14px;background:#2a2a2a;border-radius:10px;padding:12px">
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.3);margin-bottom:6px">🌅 오늘 아침</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.5);line-height:1.6;font-style:italic">"오늘은 일찍 일어났다. 커피 한 잔과 함께 하루를 시작..."</div>
+        </div>
+      </div>
+
+      <div style="min-width:180px;background:#1e1e1e;border-radius:18px;padding:20px;flex-shrink:0;border:1px solid rgba(255,255,255,0.07)">
+        <div style="font-size:1.8rem;margin-bottom:12px">🎨</div>
+        <div style="color:white;font-weight:600;font-size:0.92rem;margin-bottom:6px">커스텀 테마</div>
+        <div style="color:rgba(255,255,255,0.45);font-size:0.78rem;line-height:1.6">배너 사진, 장식 모양·색상, 앱 전체 테마 변경</div>
+        <div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap">
+          <div style="width:26px;height:26px;border-radius:50%;background:#1a1a1a;border:2px solid rgba(255,255,255,0.15)"></div>
+          <div style="width:26px;height:26px;border-radius:50%;background:#7c3aed"></div>
+          <div style="width:26px;height:26px;border-radius:50%;background:#db2777"></div>
+          <div style="width:26px;height:26px;border-radius:50%;background:#0369a1"></div>
+          <div style="width:26px;height:26px;border-radius:50%;background:#15803d"></div>
+          <div style="width:26px;height:26px;border-radius:50%;background:#c2410c"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 로그인 CTA -->
+  <div style="padding:16px 28px 48px;text-align:center;margin-top:auto;flex-shrink:0">
+    <button onclick="googleLogin()" style="display:flex;align-items:center;justify-content:center;gap:12px;background:white;border:none;border-radius:16px;padding:16px 32px;font-size:1rem;font-weight:700;cursor:pointer;color:#1a1a1a;box-shadow:0 8px 32px rgba(0,0,0,0.4);width:100%;max-width:360px;margin:0 auto">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="22">
+      Google로 시작하기
+    </button>
+    <p style="color:rgba(255,255,255,0.25);font-size:0.75rem;margin-top:14px">무료 · 광고 없음 · 모든 기기 동기화</p>
+  </div>
+
 </div>
 
 <!-- 앱 본체 -->
