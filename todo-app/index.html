@@ -682,7 +682,7 @@
   let syncToCloud = () => {};  // Firebase 초기화 후 실제 함수로 교체됨
 
   const todayDate = new Date();
-  const todayStr = todayDate.toISOString().slice(0,10);
+  const todayStr = `${todayDate.getFullYear()}-${String(todayDate.getMonth()+1).padStart(2,'0')}-${String(todayDate.getDate()).padStart(2,'0')}`;
 
   let todoCats   = JSON.parse(localStorage.getItem('todoCats')   || '["업무","개인","공부","기타"]');
   let todos      = JSON.parse(localStorage.getItem('todos')      || '[]');
