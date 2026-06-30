@@ -410,6 +410,12 @@
       <!-- 가운데: 할일 + 습관 + 기록 -->
       <div class="pln-right">
 
+        <!-- 오늘 일정 -->
+        <div class="pln-card">
+          <div class="pln-section-label">📅 오늘의 일정</div>
+          <div id="planner-events"></div>
+        </div>
+
         <!-- 할일 -->
         <div class="pln-card">
           <div class="pln-card-header">
@@ -1253,6 +1259,21 @@
     document.getElementById('planner-date-label').textContent =
       `${dt.getFullYear()}년 ${dt.getMonth()+1}월 ${dt.getDate()}일 (${DAYS_KO2[dt.getDay()]})`;
     document.getElementById('planner-date-sub').textContent = isToday ? '✨ 오늘' : '';
+
+    // 오늘 일정
+    const todayEvents = (events || []).filter(e => e.date === plannerDate).sort((a,b) => (a.time||'').localeCompare(b.time||''));
+    const evEl = document.getElementById('planner-events');
+    if(evEl) {
+      if(todayEvents.length === 0) {
+        evEl.innerHTML = `<div style="color:#bbb;font-size:0.85rem;text-align:center;padding:10px 0">일정이 없어요 ☁️</div>`;
+      } else {
+        evEl.innerHTML = todayEvents.map(e => `
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0">
+            <div style="font-size:0.78rem;color:#888;min-width:38px">${e.time||'종일'}</div>
+            <div style="font-size:0.9rem;color:#1a1a1a;flex:1">${e.title}</div>
+          </div>`).join('');
+      }
+    }
 
     // 시간표
     const blocks = plannerBlocks[plannerDate] || [];
