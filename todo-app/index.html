@@ -1212,6 +1212,11 @@
     const t = todos.find(t=>t.id===id);
     if(t){ t.priority=p; save(); renderTodos(); }
   }
+  function setTodoDue(id, val) {
+    const t = todos.find(t=>t.id===id);
+    if(t){ t.due=val; save(); renderTodos(); renderDash(); }
+  }
+  window.setTodoDue = setTodoDue;
   let todoDragId = null;
   function todoDragStart(id) { todoDragId = id; }
   function todoDragOver(e) { e.preventDefault(); }
@@ -1253,21 +1258,36 @@
     let list = items || filteredTodos();
     if(!container) list = [...list].sort((a,b)=>PRIORITY_ORDER[a.priority||'medium']-PRIORITY_ORDER[b.priority||'medium']);
     if(!list.length){el.innerHTML='<div class="empty">할일이 없어요 🎉</div>'; return;}
-    el.innerHTML = list.map(t=>`
+    el.innerHTML = list.map(t=>{
+      const isOverdue = t.due && t.due < todayStr && !t.done;
+      const dueDiff = t.due ? Math.round((new Date(t.due)-new Date(todayStr))/(1000*60*60*24)) : null;
+      let dueLabel = '';
+      if(t.due) {
+        if(isOverdue) dueLabel = `<span style="color:#ef4444;font-weight:600">⚠️ ${Math.abs(dueDiff)}일 지남</span>`;
+        else if(dueDiff===0) dueLabel = `<span style="color:#f59e0b;font-weight:600">📅 오늘 마감</span>`;
+        else if(dueDiff===1) dueLabel = `<span style="color:#f59e0b">📅 내일 마감</span>`;
+        else dueLabel = `<span style="color:#9ca3af">📅 ${t.due}</span>`;
+      }
+      return `
       <div class="todo-item ${t.done?'done':''}" draggable="true"
+        style="${isOverdue?'border-left:3px solid #ef4444;background:#fff5f5;':''}"
         ondragstart="todoDragStart(${t.id})" ondragover="todoDragOver(event)" ondrop="todoDrop(${t.id})">
         <span style="cursor:grab;color:#ccc;font-size:1rem;padding:0 4px 0 0;line-height:1" title="드래그해서 순서 변경">⠿</span>
         <div class="check-circle ${t.done?'on':''}" onclick="toggleTodo(${t.id})">${t.done?'✓':''}</div>
         <div class="item-info" style="flex:1">
           <div class="item-text">${PRIORITY_ICON[t.priority||'medium']} ${t.text}</div>
-          <div class="item-meta">
+          <div class="item-meta" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <span class="badge badge-${t.cat}">${t.cat}</span>
-            ${t.due?`<span>📅 ${t.due}</span>`:''}
+            ${dueLabel}
+            <input type="date" value="${t.due||''}" onchange="setTodoDue(${t.id},this.value)"
+              style="border:none;background:transparent;font-size:0.72rem;color:#bbb;cursor:pointer;font-family:inherit;outline:none;padding:0;width:${t.due?'0':'90px'};max-width:90px;${t.due?'display:none':''}">
+            ${t.due?'':`<span style="color:#ddd;font-size:0.72rem;cursor:pointer" onclick="this.previousElementSibling.style.display='block';this.style.display='none';this.previousElementSibling.style.width='90px'">+ 마감일</span>`}
           </div>
         </div>
         <button onclick="renameTodo(${t.id})" style="background:none;border:none;cursor:pointer;font-size:0.82rem;color:#bbb;padding:2px 4px" title="이름 변경">✏️</button>
         <button class="btn-del" onclick="deleteTodo(${t.id})">🗑</button>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
 
   // ─── 캘린더 / 일정 ───
@@ -2093,15 +2113,29 @@
   function renderPlannerTodos() {
     const el = document.getElementById('ptodo-list');
     if(!el) return;
-    const list = todos.filter(t => t.due === plannerDate || (!t.due && t.created === plannerDate));
+    const list = todos.filter(t =>
+      t.due === plannerDate ||
+      (!t.due && t.created === plannerDate) ||
+      (t.due && t.due < plannerDate && !t.done)  // 마감 지난 미완료 항상 표시
+    ).sort((a,b) => {
+      const ao = a.due && a.due < plannerDate ? -1 : 0;
+      const bo = b.due && b.due < plannerDate ? -1 : 0;
+      return ao - bo; // 지난 할일 위로
+    });
     if(!list.length){el.innerHTML='<div class="empty" style="padding:8px 0;font-size:0.85rem">할일이 없어요</div>'; return;}
-    el.innerHTML = list.map(t=>`
-      <div class="todo-item ${t.done?'done':''}" style="padding:8px 10px;margin-bottom:6px;box-shadow:none;background:${t.done?'#f9fafb':'#f5f3ff'};border-radius:8px">
+    el.innerHTML = list.map(t=>{
+      const isOverdue = t.due && t.due < plannerDate && !t.done;
+      return `
+      <div class="todo-item ${t.done?'done':''}" style="padding:8px 10px;margin-bottom:6px;box-shadow:none;background:${isOverdue?'#fff5f5':t.done?'#f9fafb':'#f5f3ff'};border-radius:8px;${isOverdue?'border-left:3px solid #ef4444;':''}">
         <div class="check-circle ${t.done?'on':''}" style="width:18px;height:18px;font-size:0.7rem" onclick="toggleTodo(${t.id});renderPlannerTodos()">${t.done?'✓':''}</div>
-        <div class="item-text" style="font-size:0.87rem;flex:1">${t.text}</div>
+        <div style="flex:1;min-width:0">
+          <div class="item-text" style="font-size:0.87rem">${t.text}</div>
+          ${isOverdue?`<div style="font-size:0.68rem;color:#ef4444;font-weight:600">⚠️ ${Math.round((new Date(plannerDate)-new Date(t.due))/(1000*60*60*24))}일 지남</div>`:''}
+        </div>
         <span class="badge badge-${t.cat}" style="font-size:0.7rem">${t.cat}</span>
         <button class="btn-del" style="font-size:0.85rem" onclick="deleteTodo(${t.id});renderPlannerTodos()">🗑</button>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
 
   // 플래너 습관
