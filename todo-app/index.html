@@ -327,10 +327,8 @@
       .glow-s { position:absolute;color:white;text-shadow:0 0 6px #fff,0 0 14px rgba(255,255,255,0.8);pointer-events:none;animation:twinkleS 2s ease-in-out infinite; }
       @keyframes floatH { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
       @keyframes twinkleS { 0%,100%{opacity:0.3;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }
-      .today-grid { display:grid;grid-template-columns:210px 1fr 240px;gap:10px;height:calc(100vh - 370px); }
-      .today-col { display:flex;flex-direction:column;gap:8px;overflow-y:auto;min-height:0; }
-      .today-col::-webkit-scrollbar { width:3px; }
-      .today-col::-webkit-scrollbar-thumb { background:#e0e0e0;border-radius:2px; }
+      .today-grid { display:grid;grid-template-columns:210px 1fr 240px;gap:10px;align-items:start; }
+      .today-col { display:flex;flex-direction:column;gap:8px; }
       .tc { background:white;border-radius:12px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.05);flex-shrink:0; }
       .tc-label { font-size:0.75rem;font-weight:700;color:#aaa;letter-spacing:0.04em;margin-bottom:8px; }
     </style>
@@ -411,7 +409,7 @@
           <div id="mini-cal-cells" style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:1px"></div>
         </div>
 
-        <div class="tc" style="flex:1;overflow-y:auto;min-height:0">
+        <div class="tc">
           <div class="tc-label">🗓 시간표</div>
           <div id="timetable"></div>
         </div>
@@ -435,15 +433,6 @@
         <div class="tc">
           <div class="tc-label">🔥 습관</div>
           <div id="phabit-list"></div>
-        </div>
-        <div class="tc">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-            <span class="tc-label" style="margin-bottom:0">📝 한 일</span>
-            <input type="time" id="log-time" style="padding:5px 6px;font-size:0.78rem;border:1px solid #e5e7eb;border-radius:8px;width:80px">
-            <input type="text" id="log-text" placeholder="뭘 했나요?" style="flex:1;padding:5px 8px;font-size:0.82rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
-            <button class="pln-add-btn" onclick="addLog()" style="padding:5px 10px">+</button>
-          </div>
-          <div id="log-list"></div>
         </div>
       </div>
 
