@@ -1390,7 +1390,12 @@
     const s = calDragStart < ds ? calDragStart : ds;
     const en = calDragStart < ds ? ds : calDragStart;
     calDragStart = null; calDragEnd = null;
-    openModal(s, en);
+    clearCalDrag();
+    if(s === en) {
+      selectDate(s); // 단순 클릭 → 날짜 선택만
+    } else {
+      openModal(s, en); // 드래그 → 기간 일정 추가
+    }
   }
   function highlightCalDrag() {
     if(!calDragStart||!calDragEnd) return;
@@ -1435,8 +1440,8 @@
           const bg=e.color||'#e8e8e8';
           const isStart=e.date===ds, isEnd=e.dateEnd===ds||!e.dateEnd;
           const isMulti=!!e.dateEnd && e.date!==e.dateEnd;
-          return `<div class="cal-ev-pill" style="background:${bg};border-radius:${isMulti?(isStart?'4px 0 0 4px':isEnd?'0 4px 4px 0':'0'):'4px'};margin-right:${isMulti&&!isEnd?'-7px':''}"
-            title="${e.title}">${isStart?(e.emoji||'')+e.title:''}</div>`;
+          return `<div class="cal-ev-pill" style="background:${bg};border-radius:${isMulti?(isStart?'4px 0 0 4px':isEnd?'0 4px 4px 0':'0'):'4px'};margin-right:${isMulti&&!isEnd?'-7px':''};cursor:pointer"
+            title="${e.title}" onmousedown="event.stopPropagation()" onclick="event.stopPropagation();openEventEdit(${e.id})">${isStart?(e.emoji||'')+e.title:''}</div>`;
         }).join('')}
         ${dayTodos.map(t=>`<div class="cal-dot todo-dot">${t.text}</div>`).join('')}
       </div>`;
