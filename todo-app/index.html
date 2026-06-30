@@ -207,7 +207,7 @@
     .cal-day-name:first-child { color: #888; }
     .cal-day-name:last-child { color: #888; }
     .cal-cells { display: grid; grid-template-columns: repeat(7,1fr); border-radius: 0 0 12px 12px; overflow: hidden; }
-    .cal-cell { border: 1px solid #f0f0f0; min-height: 80px; padding: 7px; cursor: pointer; transition: background 0.15s; user-select:none; }
+    .cal-cell { border: 1px solid #f0f0f0; min-height: 110px; padding: 7px; cursor: pointer; transition: background 0.15s; user-select:none; }
     .cal-cell:hover { background: #f9f9f9; }
     .cal-cell:hover .cal-plus-btn { opacity:1; }
     .cal-cell.other-month .cal-date { color: #ccc; }
@@ -1459,7 +1459,12 @@
     const dayEvents = events.filter(e=>{
       if(e.dateEnd) return e.date<=ds && e.dateEnd>=ds;
       return e.date===ds;
-    }).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+    }).sort((a,b)=>{
+      const aMulti = a.dateEnd && a.dateEnd !== a.date ? 0 : 1;
+      const bMulti = b.dateEnd && b.dateEnd !== b.date ? 0 : 1;
+      if(aMulti !== bMulti) return aMulti - bMulti;
+      return (a.time||'').localeCompare(b.time||'');
+    });
     const dayTodos = todos.filter(t=>t.due===ds);
     let html='';
     if(dayEvents.length){
