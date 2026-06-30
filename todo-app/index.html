@@ -496,22 +496,22 @@
         </div>
 
         <div class="tc">
+          <div class="tc-label">📌 메모</div>
+          <textarea id="pln-memo" placeholder="자유롭게 메모하세요..." oninput="saveMemo();autoResize(this)" style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box;overflow:hidden"></textarea>
+        </div>
+
+        <div class="tc">
           <div class="tc-label">🌅 아침 일기</div>
           <textarea id="diary-morning" placeholder="오늘 아침의 기분, 생각을 적어보세요..."
-            oninput="saveDiary('morning')"
-            style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box"></textarea>
+            oninput="saveDiary('morning');autoResize(this)"
+            style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box;overflow:hidden"></textarea>
         </div>
 
         <div class="tc">
           <div class="tc-label">🌙 저녁 일기</div>
           <textarea id="diary-evening" placeholder="오늘 하루를 돌아보며..."
-            oninput="saveDiary('evening')"
-            style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box"></textarea>
-        </div>
-
-        <div class="tc" style="flex:1;display:flex;flex-direction:column;min-height:120px">
-          <div class="tc-label">📌 메모</div>
-          <textarea id="pln-memo" placeholder="자유롭게 메모하세요..." oninput="saveMemo()" style="flex:1;width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box"></textarea>
+            oninput="saveDiary('evening');autoResize(this)"
+            style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box;overflow:hidden"></textarea>
         </div>
       </div>
 
@@ -2026,12 +2026,20 @@
     diaries[plannerDate][type] = el.value;
     save();
   }
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+  window.autoResize = autoResize;
+
   function loadDiary() {
     const d = diaries[plannerDate] || {};
     const m = document.getElementById('diary-morning');
     const e = document.getElementById('diary-evening');
-    if(m) m.value = d.morning || '';
-    if(e) e.value = d.evening || '';
+    const memo = document.getElementById('pln-memo');
+    if(m){ m.value = d.morning || ''; autoResize(m); }
+    if(e){ e.value = d.evening || ''; autoResize(e); }
+    if(memo) autoResize(memo);
   }
 
   // 식단
