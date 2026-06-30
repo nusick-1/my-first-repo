@@ -233,6 +233,7 @@
   <div style="display:flex;align-items:center;gap:10px;margin-left:auto">
     <span id="user-name" style="font-size:0.82rem;opacity:0.85;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
     <button class="search-btn" onclick="googleLogout()">로그아웃</button>
+    <button class="search-btn" style="background:rgba(239,68,68,0.2);color:#fca5a5" onclick="deleteAccount()">회원탈퇴</button>
     <button class="search-btn" onclick="openSearch()">🔍 검색</button>
   </div>
 </header>
@@ -1223,6 +1224,27 @@
   // module 스코프 함수들을 전역으로 노출
   window.googleLogin  = googleLogin;
   window.googleLogout = googleLogout;
+
+  async function deleteAccount() {
+    if (!confirm('정말 탈퇴하시겠어요?\n모든 데이터가 삭제되고 복구할 수 없어요.')) return;
+    try {
+      // Firestore 데이터 삭제
+      const { deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      await deleteDoc(doc(db, 'users', currentUser.uid));
+      // 계정 삭제
+      await currentUser.delete();
+      localStorage.clear();
+      alert('탈퇴가 완료됐어요.');
+    } catch(e) {
+      if (e.code === 'auth/requires-recent-login') {
+        alert('보안을 위해 다시 로그인 후 탈퇴해주세요.');
+        await signOut(auth);
+      } else {
+        alert('탈퇴 실패: ' + e.message);
+      }
+    }
+  }
+  window.deleteAccount = deleteAccount;
 
   renderDash();
   renderTodos();
