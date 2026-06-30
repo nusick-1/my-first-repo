@@ -2272,20 +2272,46 @@
     // 그리드형 시간표
     const dateNotes = ttNotes[plannerDate] || {};
     const MINS = [10,20,30,40,50];
+    // 2D 병합: 같은 text+bg가 연속되면 colspan/rowspan으로 합침
+    const used = Array.from({length:HOURS.length}, ()=>Array(MINS.length).fill(false));
     let ttHtml = `<table class="timetable"><thead><tr>
       <th class="th-hour"></th>
       ${MINS.map(m=>`<th>${m}</th>`).join('')}
     </tr></thead><tbody>`;
-    HOURS.forEach(h => {
+    HOURS.forEach((h,hi) => {
       ttHtml += `<tr><td class="td-hour">${String(h).padStart(2,'0')}</td>`;
-      MINS.forEach(m => {
+      MINS.forEach((m,mi) => {
+        if(used[hi][mi]) return; // 이미 병합된 셀
         const key = `${h}_${m}`;
         const note = dateNotes[key];
-        const bg = note?.bg || '';
-        const textColor = note?.textColor || '#333';
-        const text = note?.text || '';
-        ttHtml += `<td class="td-cell ${note?'has-note':''}" data-key="${key}" data-date="${plannerDate}" style="${bg?`background:${bg};`:''}">
-          ${text ? `<div class="tt-note" style="color:${textColor}">${text}</div>` : ''}
+        if(!note?.text) {
+          ttHtml += `<td class="td-cell" data-key="${key}" data-date="${plannerDate}"></td>`;
+          return;
+        }
+        // colspan 계산 (같은 행에서 연속)
+        let cs = 1;
+        while(mi+cs < MINS.length) {
+          const nk = `${h}_${MINS[mi+cs]}`;
+          const nn = dateNotes[nk];
+          if(nn?.text===note.text && nn?.bg===note.bg) cs++; else break;
+        }
+        // rowspan 계산 (같은 colspan 패턴이 아래 행에도 연속)
+        let rs = 1;
+        outer: while(hi+rs < HOURS.length) {
+          for(let c=0;c<cs;c++) {
+            const nk = `${HOURS[hi+rs]}_${MINS[mi+c]}`;
+            const nn = dateNotes[nk];
+            if(!nn||nn.text!==note.text||nn.bg!==note.bg) break outer;
+          }
+          rs++;
+        }
+        // 사용 표시
+        for(let r=0;r<rs;r++) for(let c=0;c<cs;c++) used[hi+r][mi+c]=true;
+        const cellH = 22*rs; // 병합된 높이
+        ttHtml += `<td class="td-cell has-note" colspan="${cs}" rowspan="${rs}"
+          data-key="${key}" data-date="${plannerDate}"
+          style="background:${note.bg||''};height:${cellH}px;text-align:center;vertical-align:middle;padding:2px">
+          <div style="color:${note.textColor||'#333'};font-size:${rs>1?'0.72':'0.6'}rem;font-weight:${rs>1?'600':'400'};line-height:1.3;overflow:hidden;white-space:${rs>1?'normal':'nowrap'}">${note.text}</div>
         </td>`;
       });
       ttHtml += `</tr>`;
