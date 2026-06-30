@@ -880,7 +880,18 @@
         <span style="font-size:0.75rem;color:#aaa">이모지</span>
         <input type="text" id="ev-emoji" placeholder="🎂" maxlength="2" style="width:48px;padding:6px 8px;font-size:1rem;border:1px solid #e5e7eb;border-radius:8px;text-align:center">
         <div style="display:flex;gap:4px;flex-wrap:wrap">
-          ${['🎂','🎉','✈️','📚','💊','🏥','💼','🎵','🏋️','☕','🍽️','💕'].map(e=>`<span onclick="document.getElementById('ev-emoji').value='${e}'" style="cursor:pointer;font-size:1rem;padding:2px">${e}</span>`).join('')}
+          <span onclick="document.getElementById('ev-emoji').value=this.textContent" style="cursor:pointer;font-size:1rem;padding:2px">🎂</span>
+          <span onclick="document.getElementById('ev-emoji').value=this.textContent" style="cursor:pointer;font-size:1rem;padding:2px">🎉</span>
+          <span onclick="document.getElementById('ev-emoji').value=this.textContent" style="cursor:pointer;font-size:1rem;padding:2px">✈️</span>
+          <span onclick="document.getElementById('ev-emoji').value=this.textContent" style="cursor:pointer;font-size:1rem;padding:2px">📚</span>
+          <span onclick="document.getElementById('ev-emoji').value=this.textContent" style="cursor:pointer;font-size:1rem;padding:2px">💊</span>
+          <span onclick="document.getElementById('ev-emoji').value=this.textContent" style="cursor:pointer;font-size:1rem;padding:2px">🏥</span>
+          <span onclick="document.getElementById('ev-emoji').value=this.textContent" style="cursor:pointer;font-size:1rem;padding:2px">💼</span>
+          <span onclick="document.getElementById('ev-emoji').value=this.textContent" style="cursor:pointer;font-size:1rem;padding:2px">🎵</span>
+          <span onclick="document.getElementById('ev-emoji').value=this.textContent" style="cursor:pointer;font-size:1rem;padding:2px">🏋️</span>
+          <span onclick="document.getElementById('ev-emoji').value=this.textContent" style="cursor:pointer;font-size:1rem;padding:2px">☕</span>
+          <span onclick="document.getElementById('ev-emoji').value=this.textContent" style="cursor:pointer;font-size:1rem;padding:2px">🍽️</span>
+          <span onclick="document.getElementById('ev-emoji').value=this.textContent" style="cursor:pointer;font-size:1rem;padding:2px">💕</span>
         </div>
       </div>
       <textarea id="ev-memo" placeholder="메모 (선택)" rows="2" style="resize:none"></textarea>
