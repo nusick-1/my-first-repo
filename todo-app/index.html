@@ -319,188 +319,152 @@
 
   <!-- 플래너 -->
   <div id="view-planner" style="display:none">
-
-    <!-- 배너 -->
     <style>
-      .banner-wrap { position:relative;width:100%;height:220px;border-radius:20px;overflow:hidden;margin-bottom:18px; }
-      .banner-bg { position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,#2a2a2a 0%,#0a0a0a 60%),radial-gradient(ellipse at 80% 30%,#1e1e1e,transparent); background-blend-mode:screen; }
-      .banner-blob { position:absolute;border-radius:50%;filter:blur(40px);pointer-events:none; }
-      .glow-h { position:absolute;color:rgba(255,255,255,0.12);-webkit-text-stroke:1.2px rgba(255,255,255,0.85);text-shadow:0 0 8px rgba(255,255,255,0.9),0 0 20px rgba(255,255,255,0.5),0 0 40px rgba(255,255,255,0.2);pointer-events:none;animation:floatH 3s ease-in-out infinite; }
-      .glow-s { position:absolute;color:white;text-shadow:0 0 6px #fff,0 0 14px rgba(255,255,255,0.8);pointer-events:none;animation:twinkleS 2s ease-in-out infinite; }
+      .glow-h { color:rgba(255,255,255,0.12);-webkit-text-stroke:1.2px rgba(255,255,255,0.85);text-shadow:0 0 8px rgba(255,255,255,0.9),0 0 20px rgba(255,255,255,0.5);animation:floatH 3s ease-in-out infinite;pointer-events:none; }
+      .glow-s { color:white;text-shadow:0 0 6px #fff,0 0 14px rgba(255,255,255,0.8);animation:twinkleS 2s ease-in-out infinite;pointer-events:none; }
       @keyframes floatH { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
       @keyframes twinkleS { 0%,100%{opacity:0.3;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }
+
+      .today-topbar {
+        display:flex;align-items:center;gap:12px;
+        background:#1a1a1a;border-radius:16px;padding:10px 20px;
+        margin-bottom:10px;position:relative;overflow:hidden;
+      }
+      .today-topbar-hearts { position:absolute;inset:0;display:flex;align-items:center;gap:6px;padding:0 10px;pointer-events:none;overflow:hidden; }
+      .today-grid {
+        display:grid;
+        grid-template-columns:210px 1fr 240px;
+        gap:10px;
+        height:calc(100vh - 195px);
+      }
+      .today-col { display:flex;flex-direction:column;gap:8px;overflow-y:auto;min-height:0; }
+      .today-col::-webkit-scrollbar { width:3px; }
+      .today-col::-webkit-scrollbar-thumb { background:#e0e0e0;border-radius:2px; }
+      .tc { background:white;border-radius:12px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.05);flex-shrink:0; }
+      .tc-label { font-size:0.75rem;font-weight:700;color:#aaa;letter-spacing:0.04em;margin-bottom:8px;text-transform:uppercase; }
     </style>
-    <div class="banner-wrap">
-      <div class="banner-bg"></div>
-      <div class="banner-blob" style="width:200px;height:200px;background:rgba(80,80,80,0.25);top:-60px;left:10%"></div>
-      <div class="banner-blob" style="width:250px;height:250px;background:rgba(60,60,60,0.2);bottom:-80px;left:40%"></div>
-      <div class="banner-blob" style="width:180px;height:180px;background:rgba(70,70,70,0.22);top:-40px;right:5%"></div>
 
-      <!-- 글로우 하트들 -->
-      <span class="glow-h" style="font-size:2.2rem;top:12px;left:4%;animation-delay:0s">♡</span>
-      <span class="glow-h" style="font-size:1.3rem;top:50px;left:11%;animation-delay:0.4s">♡</span>
-      <span class="glow-h" style="font-size:2.8rem;top:8px;left:20%;animation-delay:0.8s">♡</span>
-      <span class="glow-h" style="font-size:1.6rem;top:70px;left:28%;animation-delay:0.2s">♡</span>
-      <span class="glow-h" style="font-size:3.2rem;top:5px;left:38%;animation-delay:1s">♡</span>
-      <span class="glow-h" style="font-size:1.4rem;top:55px;left:48%;animation-delay:0.6s">♡</span>
-      <span class="glow-h" style="font-size:2.5rem;top:10px;left:57%;animation-delay:0.3s">♡</span>
-      <span class="glow-h" style="font-size:1.8rem;top:65px;left:66%;animation-delay:0.9s">♡</span>
-      <span class="glow-h" style="font-size:3rem;top:6px;left:75%;animation-delay:0.5s">♡</span>
-      <span class="glow-h" style="font-size:1.2rem;top:48px;left:84%;animation-delay:0.7s">♡</span>
-      <span class="glow-h" style="font-size:2rem;top:14px;left:92%;animation-delay:0.1s">♡</span>
-      <span class="glow-h" style="font-size:1.8rem;bottom:14px;left:7%;animation-delay:0.5s">♡</span>
-      <span class="glow-h" style="font-size:2.6rem;bottom:8px;left:17%;animation-delay:0.2s">♡</span>
-      <span class="glow-h" style="font-size:1.3rem;bottom:40px;left:26%;animation-delay:0.8s">♡</span>
-      <span class="glow-h" style="font-size:2rem;bottom:12px;left:35%;animation-delay:0.4s">♡</span>
-      <span class="glow-h" style="font-size:1.5rem;bottom:38px;left:52%;animation-delay:1s">♡</span>
-      <span class="glow-h" style="font-size:2.4rem;bottom:10px;left:62%;animation-delay:0.3s">♡</span>
-      <span class="glow-h" style="font-size:1.6rem;bottom:42px;left:72%;animation-delay:0.7s">♡</span>
-      <span class="glow-h" style="font-size:2.8rem;bottom:6px;left:81%;animation-delay:0.6s">♡</span>
-      <span class="glow-h" style="font-size:1.4rem;bottom:36px;left:91%;animation-delay:0.9s">♡</span>
-
-      <!-- 반짝이 별 -->
-      <span class="glow-s" style="font-size:0.9rem;top:38px;left:15%;animation-delay:0s">✦</span>
-      <span class="glow-s" style="font-size:1.1rem;top:44px;left:33%;animation-delay:0.5s">✦</span>
-      <span class="glow-s" style="font-size:0.8rem;top:36px;left:53%;animation-delay:1s">✦</span>
-      <span class="glow-s" style="font-size:1rem;top:42px;left:71%;animation-delay:0.3s">✦</span>
-      <span class="glow-s" style="font-size:0.9rem;top:40px;left:89%;animation-delay:0.7s">✦</span>
-      <span class="glow-s" style="font-size:1.2rem;bottom:28px;left:22%;animation-delay:0.4s">✦</span>
-      <span class="glow-s" style="font-size:0.8rem;bottom:30px;left:44%;animation-delay:0.9s">✦</span>
-      <span class="glow-s" style="font-size:1rem;bottom:26px;left:67%;animation-delay:0.2s">✦</span>
-      <span class="glow-s" style="font-size:0.9rem;bottom:32px;left:87%;animation-delay:0.6s">✦</span>
-
-      <!-- 텍스트 -->
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:2">
-        <div id="live-clock" style="font-family:'Gaegu',cursive;font-size:3.2rem;font-weight:700;color:white;letter-spacing:0.06em;text-shadow:0 0 20px rgba(255,255,255,0.3)"></div>
-        <div id="daily-quote" style="font-size:0.9rem;color:rgba(255,255,255,0.55);letter-spacing:0.08em;font-family:'Gaegu',cursive;text-shadow:0 0 10px rgba(255,255,255,0.2)"></div>
+    <!-- 상단 바: 시계 + 날짜 이동 + 날씨 + D-day 빠른보기 -->
+    <div class="today-topbar">
+      <div class="today-topbar-hearts" aria-hidden="true">
+        <span class="glow-h" style="font-size:1.1rem;animation-delay:0s">♡</span>
+        <span class="glow-h" style="font-size:0.8rem;animation-delay:0.4s">♡</span>
+        <span class="glow-h" style="font-size:1.3rem;animation-delay:0.8s">♡</span>
+        <span class="glow-s" style="font-size:0.7rem;animation-delay:0.2s">✦</span>
+        <span class="glow-h" style="font-size:0.9rem;animation-delay:0.6s">♡</span>
+        <span class="glow-s" style="font-size:0.75rem;animation-delay:1s">✦</span>
+        <span class="glow-h" style="font-size:1.2rem;animation-delay:0.3s">♡</span>
       </div>
+      <div id="live-clock" style="font-family:'Gaegu',cursive;font-size:2rem;font-weight:700;color:white;letter-spacing:0.06em;white-space:nowrap;z-index:1"></div>
+      <div style="width:1px;height:28px;background:rgba(255,255,255,0.2);flex-shrink:0"></div>
+      <button class="pnav" onclick="changePlannerDay(-1)" style="flex-shrink:0;z-index:1">‹</button>
+      <div style="z-index:1;text-align:center;min-width:120px">
+        <div class="pln-date-big" id="planner-date-label" style="font-size:0.95rem"></div>
+        <div class="pln-date-tag" id="planner-date-sub" style="font-size:0.72rem"></div>
+      </div>
+      <button class="pnav" onclick="changePlannerDay(1)" style="flex-shrink:0;z-index:1">›</button>
+      <div style="width:1px;height:28px;background:rgba(255,255,255,0.2);flex-shrink:0"></div>
+      <div id="weather-bar" style="flex:1;display:flex;align-items:center;gap:10px;font-size:0.82rem;color:rgba(255,255,255,0.85);z-index:1;min-width:0;overflow:hidden"></div>
+      <div id="daily-quote" style="display:none"></div>
     </div>
 
-    <!-- 날씨 + 뮤직 -->
-    <div style="display:flex;gap:12px;margin-bottom:18px;align-items:stretch;flex-wrap:wrap">
-      <div id="weather-bar" style="flex:1;min-width:200px;display:flex;align-items:center;gap:16px;background:white;border-radius:12px;padding:12px 18px;box-shadow:0 1px 4px rgba(0,0,0,0.06);font-size:0.88rem;color:#555"></div>
-      <!-- 미니 MP3 플레이어 -->
-      <div style="flex:1;min-width:280px;background:white;border-radius:12px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,0.06)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <span style="font-size:0.82rem;font-weight:600;color:#555">🎵 내 음악</span>
-          <label style="font-size:0.75rem;color:#aaa;cursor:pointer;padding:3px 8px;border:1px dashed #ddd;border-radius:8px">
-            + 파일 추가
-            <input type="file" accept=".mp3,audio/*" multiple onchange="mpAdd(event)" style="display:none">
-          </label>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <button onclick="mpPrev()" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:#555;padding:0">⏮</button>
-          <button id="mp-play-btn" onclick="mpToggle()" style="width:36px;height:36px;border-radius:50%;background:#1a1a1a;color:white;border:none;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center">▶</button>
-          <button onclick="mpNext()" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:#555;padding:0">⏭</button>
-          <div style="flex:1;overflow:hidden">
-            <div id="mp-title" style="font-size:0.8rem;color:#374151;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">—</div>
-            <input id="mp-progress" type="range" value="0" min="0" step="0.1"
-              oninput="mpSeek(this.value)"
-              style="width:100%;margin-top:4px;accent-color:#1a1a1a;height:3px;cursor:pointer">
-          </div>
-          <span id="mp-time" style="font-size:0.72rem;color:#aaa;white-space:nowrap">0:00</span>
-        </div>
-        <div id="mp-playlist" style="max-height:80px;overflow-y:auto;display:flex;flex-direction:column;gap:3px"></div>
-      </div>
-    </div>
+    <!-- 메인 3컬럼 그리드 -->
+    <div class="today-grid">
 
-    <!-- 날짜 헤더 -->
-    <div class="pln-topbar">
-      <button class="pnav" onclick="changePlannerDay(-1)">‹</button>
-      <div class="pln-date-center">
-        <div class="pln-date-big" id="planner-date-label"></div>
-        <div class="pln-date-tag" id="planner-date-sub"></div>
-      </div>
-      <button class="pnav" onclick="changePlannerDay(1)">›</button>
-    </div>
-
-    <!-- 메인 그리드 (3컬럼) -->
-    <div style="display:grid;grid-template-columns:240px 1fr 280px;gap:16px;align-items:start">
-
-      <!-- 왼쪽: 미니 캘린더 + 시간표 -->
-      <div class="pln-left">
-        <!-- 미니 캘린더 -->
-        <div class="pln-card" style="margin-bottom:12px;padding:12px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <button onclick="miniCalPrev()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#555;padding:2px 6px">‹</button>
-            <div style="display:flex;align-items:center;gap:6px">
-              <div id="mini-cal-title" style="font-size:0.85rem;font-weight:700;color:#1a1a1a;font-family:'Gowun Dodum',sans-serif"></div>
-              <button id="mini-cal-today-btn" onclick="miniCalGoToday()" style="display:none;font-size:0.65rem;padding:2px 7px;border-radius:20px;border:1px solid #ddd;background:#f5f5f5;cursor:pointer;color:#666;font-family:inherit">오늘</button>
+      <!-- 왼쪽: 미니캘 + 시간표 -->
+      <div class="today-col">
+        <div class="tc" style="padding:10px 12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <button onclick="miniCalPrev()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#555;padding:0 4px">‹</button>
+            <div style="display:flex;align-items:center;gap:5px">
+              <div id="mini-cal-title" style="font-size:0.82rem;font-weight:700;color:#1a1a1a;font-family:'Gowun Dodum',sans-serif"></div>
+              <button id="mini-cal-today-btn" onclick="miniCalGoToday()" style="display:none;font-size:0.6rem;padding:1px 6px;border-radius:20px;border:1px solid #ddd;background:#f5f5f5;cursor:pointer;color:#666;font-family:inherit">오늘</button>
             </div>
-            <button onclick="miniCalNext()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#555;padding:2px 6px">›</button>
+            <button onclick="miniCalNext()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#555;padding:0 4px">›</button>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:1px">
-            <div style="font-size:0.65rem;color:#aaa;padding:2px">일</div>
-            <div style="font-size:0.65rem;color:#aaa;padding:2px">월</div>
-            <div style="font-size:0.65rem;color:#aaa;padding:2px">화</div>
-            <div style="font-size:0.65rem;color:#aaa;padding:2px">수</div>
-            <div style="font-size:0.65rem;color:#aaa;padding:2px">목</div>
-            <div style="font-size:0.65rem;color:#aaa;padding:2px">금</div>
-            <div style="font-size:0.65rem;color:#aaa;padding:2px">토</div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:1px;margin-bottom:2px">
+            <div style="font-size:0.6rem;color:#aaa;padding:1px">일</div><div style="font-size:0.6rem;color:#aaa;padding:1px">월</div>
+            <div style="font-size:0.6rem;color:#aaa;padding:1px">화</div><div style="font-size:0.6rem;color:#aaa;padding:1px">수</div>
+            <div style="font-size:0.6rem;color:#aaa;padding:1px">목</div><div style="font-size:0.6rem;color:#aaa;padding:1px">금</div>
+            <div style="font-size:0.6rem;color:#aaa;padding:1px">토</div>
           </div>
           <div id="mini-cal-cells" style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:1px"></div>
         </div>
-        <div class="pln-section-label">🗓 시간표</div>
-        <div id="timetable"></div>
+
+        <div class="tc" style="flex:1;overflow-y:auto;min-height:0">
+          <div class="tc-label">🗓 시간표</div>
+          <div id="timetable"></div>
+        </div>
       </div>
 
-      <!-- 가운데: 할일 + 습관 + 기록 -->
-      <div class="pln-right">
-
-        <!-- 오늘 일정 -->
-        <div class="pln-card">
-          <div class="pln-section-label">📅 오늘의 일정</div>
+      <!-- 가운데: 일정 + 할일 + 습관 + 기록 -->
+      <div class="today-col">
+        <div class="tc">
+          <div class="tc-label">📅 오늘의 일정</div>
           <div id="planner-events"></div>
         </div>
-
-        <!-- 할일 -->
-        <div class="pln-card">
-          <div class="pln-card-header">
-            <span class="pln-section-label" style="margin-bottom:0">✅ 오늘 할일</span>
-            <div style="display:flex;gap:6px;flex:1;margin-left:10px">
-              <input type="text" id="ptodo-input" placeholder="할일 추가..." style="flex:1;padding:6px 10px;font-size:0.85rem">
-              <select id="ptodo-cat" style="padding:6px 8px;font-size:0.82rem"></select>
-              <button class="pln-add-btn" onclick="addPlannerTodo()">+</button>
-            </div>
+        <div class="tc">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+            <span class="tc-label" style="margin-bottom:0">✅ 할일</span>
+            <input type="text" id="ptodo-input" placeholder="할일 추가..." onkeydown="if(event.key==='Enter')addPlannerTodo()" style="flex:1;padding:5px 8px;font-size:0.82rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+            <select id="ptodo-cat" style="padding:5px 6px;font-size:0.78rem;border:1px solid #e5e7eb;border-radius:8px"></select>
+            <button class="pln-add-btn" onclick="addPlannerTodo()" style="padding:5px 10px">+</button>
           </div>
           <div id="ptodo-list"></div>
         </div>
-
-        <!-- 습관 -->
-        <div class="pln-card">
-          <div class="pln-section-label">🔥 오늘의 습관</div>
+        <div class="tc">
+          <div class="tc-label">🔥 습관</div>
           <div id="phabit-list"></div>
         </div>
-
-        <!-- 오늘 한 일 기록 -->
-        <div class="pln-card">
-          <div class="pln-card-header">
-            <span class="pln-section-label" style="margin-bottom:0">📝 오늘 한 일</span>
-            <div style="display:flex;gap:6px;flex:1;margin-left:10px">
-              <input type="time" id="log-time" style="padding:6px 8px;font-size:0.82rem;width:90px">
-              <input type="text" id="log-text" placeholder="뭘 했나요?" style="flex:1;padding:6px 10px;font-size:0.85rem">
-              <input type="text" id="log-dur" placeholder="소요" style="width:52px;padding:6px 8px;font-size:0.82rem">
-              <button class="pln-add-btn" onclick="addLog()">+</button>
-            </div>
+        <div class="tc">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+            <span class="tc-label" style="margin-bottom:0">📝 한 일</span>
+            <input type="time" id="log-time" style="padding:5px 6px;font-size:0.78rem;border:1px solid #e5e7eb;border-radius:8px;width:80px">
+            <input type="text" id="log-text" placeholder="뭘 했나요?" style="flex:1;padding:5px 8px;font-size:0.82rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+            <button class="pln-add-btn" onclick="addLog()" style="padding:5px 10px">+</button>
           </div>
           <div id="log-list"></div>
         </div>
       </div>
 
-      <!-- 오른쪽: D-day + 메모 -->
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div class="pln-card">
-          <div class="pln-section-label">⏳ D-Day</div>
-          <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
-            <input id="dday-name" type="text" placeholder="기말고사, 기념일..." style="flex:1;min-width:80px;padding:6px 8px;font-size:0.82rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
-            <input id="dday-date" type="date" style="padding:6px 8px;font-size:0.82rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
-            <button onclick="addDday()" style="background:#1a1a1a;color:white;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:0.85rem">+</button>
+      <!-- 오른쪽: 음악 + D-Day + 메모 -->
+      <div class="today-col">
+        <div class="tc">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span class="tc-label" style="margin-bottom:0">🎵 내 음악</span>
+            <label style="font-size:0.72rem;color:#aaa;cursor:pointer;padding:2px 7px;border:1px dashed #ddd;border-radius:7px">
+              + 추가 <input type="file" accept=".mp3,audio/*" multiple onchange="mpAdd(event)" style="display:none">
+            </label>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <button onclick="mpPrev()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#555;padding:0">⏮</button>
+            <button id="mp-play-btn" onclick="mpToggle()" style="width:32px;height:32px;border-radius:50%;background:#1a1a1a;color:white;border:none;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">▶</button>
+            <button onclick="mpNext()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#555;padding:0">⏭</button>
+            <div style="flex:1;min-width:0">
+              <div id="mp-title" style="font-size:0.78rem;color:#374151;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">—</div>
+              <input id="mp-progress" type="range" value="0" min="0" step="0.1" oninput="mpSeek(this.value)" style="width:100%;margin-top:3px;accent-color:#1a1a1a;height:3px;cursor:pointer">
+            </div>
+            <span id="mp-time" style="font-size:0.7rem;color:#aaa;white-space:nowrap">0:00</span>
+          </div>
+          <div id="mp-playlist" style="max-height:70px;overflow-y:auto;display:flex;flex-direction:column;gap:2px"></div>
+        </div>
+
+        <div class="tc">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span class="tc-label" style="margin-bottom:0">⏳ D-Day</span>
+            <button onclick="document.getElementById('dday-add-form').style.display=document.getElementById('dday-add-form').style.display==='none'?'flex':'none'" style="font-size:0.72rem;padding:2px 7px;border:1px dashed #ddd;border-radius:7px;background:none;cursor:pointer;color:#aaa">+ 추가</button>
+          </div>
+          <div id="dday-add-form" style="display:none;gap:5px;margin-bottom:8px;flex-wrap:wrap">
+            <input id="dday-name" type="text" placeholder="이름..." style="flex:1;min-width:70px;padding:5px 8px;font-size:0.8rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+            <input id="dday-date" type="date" style="padding:5px 7px;font-size:0.8rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+            <button onclick="addDday()" style="background:#1a1a1a;color:white;border:none;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:0.82rem">+</button>
           </div>
           <div id="dday-list"></div>
         </div>
-        <div class="pln-card" style="flex:1;display:flex;flex-direction:column">
-          <div class="pln-section-label">📌 메모</div>
-          <textarea id="pln-memo" placeholder="자유롭게 메모하세요..." oninput="saveMemo()" style="width:100%;flex:1;min-height:280px;border:1px solid #e8e8e8;border-radius:8px;padding:12px;font-size:0.88rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8"></textarea>
+
+        <div class="tc" style="flex:1;display:flex;flex-direction:column;min-height:120px">
+          <div class="tc-label">📌 메모</div>
+          <textarea id="pln-memo" placeholder="자유롭게 메모하세요..." oninput="saveMemo()" style="flex:1;width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box"></textarea>
         </div>
       </div>
 
@@ -2086,14 +2050,14 @@
     const min = Math.round(d.daily.temperature_2m_min[0]);
     const wb = document.getElementById('weather-bar');
     if(wb) wb.innerHTML = `
-      <span style="font-size:1.3rem">${desc.split(' ')[0]}</span>
-      <span style="font-weight:600;color:#1a1a1a;font-size:1rem">${Math.round(cur.temperature_2m)}°C</span>
-      <span>${desc.split(' ').slice(1).join(' ')}</span>
-      <span style="color:#aaa">·</span>
-      <span>최고 ${max}° / 최저 ${min}°</span>
-      <span style="color:#aaa">·</span>
-      <span>바람 ${cur.wind_speed_10m}km/h</span>
-      <span style="margin-left:auto;color:#aaa;font-size:0.78rem">📍 ${cityName}</span>`;
+      <span style="font-size:1.2rem">${desc.split(' ')[0]}</span>
+      <span style="font-weight:700;color:white;font-size:1rem">${Math.round(cur.temperature_2m)}°C</span>
+      <span style="color:rgba(255,255,255,0.7);font-size:0.82rem">${desc.split(' ').slice(1).join(' ')}</span>
+      <span style="color:rgba(255,255,255,0.3)">·</span>
+      <span style="color:rgba(255,255,255,0.6);font-size:0.8rem">↑${max}° ↓${min}°</span>
+      <span style="color:rgba(255,255,255,0.3)">·</span>
+      <span style="color:rgba(255,255,255,0.6);font-size:0.8rem">💨 ${cur.wind_speed_10m}km/h</span>
+      <span style="margin-left:auto;color:rgba(255,255,255,0.4);font-size:0.75rem">📍 ${cityName}</span>`;
   }
 
   async function getLocationName(lat, lon) {
