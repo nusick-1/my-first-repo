@@ -284,9 +284,6 @@
 <header>
   <h1>Mono</h1>
   <div style="display:flex;align-items:center;gap:10px;margin-left:auto">
-    <span id="user-name" style="font-size:0.82rem;opacity:0.85;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-    <button class="search-btn" onclick="googleLogout()">로그아웃</button>
-    <button class="search-btn" style="background:rgba(239,68,68,0.2);color:#fca5a5" onclick="deleteAccount()">회원탈퇴</button>
     <button class="search-btn" onclick="openSearch()">🔍 검색</button>
   </div>
 </header>
@@ -314,6 +311,7 @@
   <div class="tab" onclick="showView('goal')">목표</div>
   <div class="tab" onclick="showView('stats')">통계</div>
   <div class="tab" onclick="showView('dash')">대시보드</div>
+  <div class="tab" onclick="showView('settings')">⚙ 설정</div>
 </div>
 <img src="/todo-app/frill.png" style="width:100%;height:48px;object-fit:cover;display:block;opacity:0.85">
 
@@ -630,6 +628,61 @@
     <div class="card">
       <div class="card-title" id="habit-list-title">습관별 달성 현황 (30일)</div>
       <div id="habit-stats-list"></div>
+    </div>
+  </div>
+
+  <!-- 설정 탭 -->
+  <div id="view-settings" style="display:none">
+    <div class="tab-header">
+      <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
+      <div class="tab-char"><img src="/todo-app/cat1.png" style="height:130px;object-fit:contain;mix-blend-mode:darken"></div>
+      <div class="tab-header-title">⚙ SETTINGS ⚙</div>
+      <div class="tab-header-sub">앱을 내 마음대로 꾸며봐요 ˘ᵕ˘</div>
+      <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
+    </div>
+
+    <!-- 계정 -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">👤 계정</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid #f0f0f0;margin-bottom:14px">
+        <div style="width:46px;height:46px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:white;font-size:1.3rem">🐾</div>
+        <div>
+          <div id="settings-user-name" style="font-weight:700;font-size:0.95rem;color:#1a1a1a"></div>
+          <div id="settings-user-email" style="font-size:0.8rem;color:#aaa;margin-top:2px"></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button onclick="googleLogout()" style="width:100%;padding:12px;border:1px solid #e5e7eb;border-radius:12px;background:white;cursor:pointer;font-size:0.9rem;font-family:inherit;color:#374151;text-align:left;display:flex;align-items:center;gap:10px">
+          <span>🚪</span> 로그아웃
+        </button>
+        <button onclick="deleteAccount()" style="width:100%;padding:12px;border:1px solid #fecaca;border-radius:12px;background:#fff5f5;cursor:pointer;font-size:0.9rem;font-family:inherit;color:#ef4444;text-align:left;display:flex;align-items:center;gap:10px">
+          <span>⚠️</span> 회원 탈퇴
+        </button>
+      </div>
+    </div>
+
+    <!-- 데이터 -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">💾 데이터</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button onclick="exportData()" style="width:100%;padding:12px;border:1px solid #e5e7eb;border-radius:12px;background:white;cursor:pointer;font-size:0.9rem;font-family:inherit;color:#374151;text-align:left;display:flex;align-items:center;gap:10px">
+          <span>📤</span> 데이터 내보내기 (JSON)
+        </button>
+        <label style="width:100%;padding:12px;border:1px solid #e5e7eb;border-radius:12px;background:white;cursor:pointer;font-size:0.9rem;font-family:inherit;color:#374151;display:flex;align-items:center;gap:10px;box-sizing:border-box">
+          <span>📥</span> 데이터 가져오기 (JSON)
+          <input type="file" accept=".json" onchange="importData(event)" style="display:none">
+        </label>
+      </div>
+    </div>
+
+    <!-- 앱 정보 -->
+    <div class="card">
+      <div class="card-title">ℹ️ 앱 정보</div>
+      <div style="color:#aaa;font-size:0.85rem;line-height:2">
+        <div>Mono Planner</div>
+        <div>Firebase 실시간 동기화 ✓</div>
+        <div>데이터는 Google 계정에 안전하게 저장돼요 🔒</div>
+      </div>
     </div>
   </div>
 
@@ -1565,7 +1618,7 @@
 
   // ─── 탭 전환 ───
   function showView(v) {
-    ['dash','planner','todo','cal','goal','habit','stats'].forEach(n=>{
+    ['dash','planner','todo','cal','goal','habit','stats','settings'].forEach(n=>{
       document.getElementById('view-'+n).style.display=n===v?'':'none';
     });
     document.querySelectorAll('.tab').forEach(t=>{
@@ -1753,7 +1806,10 @@
       // 로그인됨 → 앱 표시
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app-screen').style.display = 'block';
-      document.getElementById('user-name').textContent = user.displayName || user.email;
+      const sn = document.getElementById('settings-user-name');
+      const se = document.getElementById('settings-user-email');
+      if(sn) sn.textContent = user.displayName || '사용자';
+      if(se) se.textContent = user.email || '';
       startCloudSync();
     } else {
       if (unsubSnapshot) { unsubSnapshot(); unsubSnapshot = null; }
@@ -1766,6 +1822,41 @@
   // module 스코프 함수들을 전역으로 노출
   window.googleLogin  = googleLogin;
   window.googleLogout = googleLogout;
+
+  window.exportData = function() {
+    const data = { todos, events, goals, habits, habitLogs, todoCats, ttNotes, ddays, memos, plannerBlocks, plannerLogs };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `mono-backup-${todayStr}.json`;
+    a.click();
+  };
+  window.importData = function(e) {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const d = JSON.parse(ev.target.result);
+        if(d.todos) todos = d.todos;
+        if(d.events) events = d.events;
+        if(d.goals) goals = d.goals;
+        if(d.habits) habits = d.habits;
+        if(d.habitLogs) habitLogs = d.habitLogs;
+        if(d.todoCats) todoCats = d.todoCats;
+        if(d.ttNotes) ttNotes = d.ttNotes;
+        if(d.ddays) ddays = d.ddays;
+        if(d.memos) memos = d.memos;
+        if(d.plannerBlocks) plannerBlocks = d.plannerBlocks;
+        if(d.plannerLogs) plannerLogs = d.plannerLogs;
+        save(); syncToCloud();
+        renderTodoCatSelect(); renderTodoCatPills();
+        renderDash(); renderTodos(); renderHabits(); renderGoals(); renderStats(); renderDdays(); renderPlanner();
+        alert('데이터를 불러왔어요! ✓');
+      } catch { alert('올바른 JSON 파일이 아니에요.'); }
+    };
+    reader.readAsText(file);
+  };
   window.openSearch = openSearch;
   window.closeSearch = closeSearch;
   window.showView = showView;
