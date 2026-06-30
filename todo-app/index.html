@@ -1439,6 +1439,9 @@
       const dayEvents = events.filter(e=>{
         if(e.dateEnd) return e.date<=ds && e.dateEnd>=ds;
         return e.date===ds;
+      }).sort((a,b)=>{
+        const am=a.dateEnd&&a.dateEnd!==a.date?0:1, bm=b.dateEnd&&b.dateEnd!==b.date?0:1;
+        return am-bm;
       });
       const dayTodos = todos.filter(t=>t.due===ds);
       html+=`<div class="cal-cell ${isToday?'today':''}" data-ds="${ds}"
@@ -1451,8 +1454,15 @@
         </div>
         ${dayEvents.map(e=>{
           const bg=e.color||'#e8e8e8';
-          return `<div class="cal-ev-pill" style="background:${bg};border-radius:4px;cursor:pointer"
-            title="${e.title}" onmousedown="event.stopPropagation()" onclick="event.stopPropagation();openEventEdit(${e.id})">${(e.emoji||'')+e.title}</div>`;
+          const isMulti=!!e.dateEnd&&e.date!==e.dateEnd;
+          const isStart=e.date===ds;
+          const isEnd=!e.dateEnd||e.dateEnd===ds;
+          const br=isMulti?(isStart?'4px 0 0 4px':isEnd?'0 4px 4px 0':'0'):'4px';
+          const ml=isMulti&&!isStart?'-8px':'0';
+          const mr=isMulti&&!isEnd?'-8px':'0';
+          const text=isStart?(e.emoji||'')+e.title:'&nbsp;';
+          return `<div class="cal-ev-pill" style="background:${bg};border-radius:${br};margin-left:${ml};margin-right:${mr};position:relative;z-index:${isStart?2:1};cursor:pointer"
+            title="${e.title}" onmousedown="event.stopPropagation()" onclick="event.stopPropagation();openEventEdit(${e.id})">${text}</div>`;
         }).join('')}
         ${dayTodos.map(t=>`<div class="cal-dot todo-dot">${t.text}</div>`).join('')}
       </div>`;
