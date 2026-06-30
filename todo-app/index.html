@@ -421,7 +421,7 @@
         <div class="tc">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
             <span class="tc-label" style="margin-bottom:0">📅 오늘의 일정</span>
-            <button onclick="openModal(plannerDate)" style="font-size:0.72rem;padding:2px 8px;border:1px dashed #ddd;border-radius:7px;background:none;cursor:pointer;color:#aaa">+ 추가</button>
+            <button onclick="openPlannerEventModal()" style="font-size:0.72rem;padding:2px 8px;border:1px dashed #ddd;border-radius:7px;background:none;cursor:pointer;color:#aaa">+ 추가</button>
           </div>
           <div id="planner-events"></div>
         </div>
@@ -2437,6 +2437,7 @@
   window.goToPlanner = goToPlanner;
   window.deleteEvent = deleteEvent;
   window.openModal = openModal;
+  window.openPlannerEventModal = function() { openModal(plannerDate); };
   window.deleteGoal = deleteGoal;
   window.updateProgress = updateProgress;
   window.toggleHabit = toggleHabit;
