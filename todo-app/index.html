@@ -99,7 +99,7 @@
     .pln-add-btn:hover { background: #333; }
 
     /* 시간표 */
-    .timetable { width: 100%; border-collapse: collapse; font-size: 0.7rem; user-select: none; -webkit-user-select: none; }
+    .timetable { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 0.7rem; user-select: none; -webkit-user-select: none; }
     .timetable th { font-size: 0.62rem; color: #bbb; padding: 2px 0; text-align: center; border: 1px dashed #e5e7eb; background: #fafafa; width: 18%; }
     .timetable th.th-hour { width: 14%; }
     .timetable td.td-hour { font-size: 0.65rem; color: #aaa; text-align: center; padding: 0; border: 1px solid #e5e7eb; background: #fafafa; white-space: nowrap; }
@@ -1503,10 +1503,13 @@
   let ttPointerDown = false;
   let ttDragStartHI = -1, ttDragStartMI = -1;
   function updateTTRect(hiEnd, miEnd) {
-    const hiMin = Math.min(ttDragStartHI, hiEnd);
-    const hiMax = Math.max(ttDragStartHI, hiEnd);
-    const miMin = Math.min(ttDragStartMI, miEnd);
-    const miMax = Math.max(ttDragStartMI, miEnd);
+    // 방향 잠금: 더 많이 움직인 축으로만 확장
+    const dhi = Math.abs(hiEnd - ttDragStartHI);
+    const dmi = Math.abs(miEnd - ttDragStartMI);
+    const hiMin = Math.min(ttDragStartHI, dhi >= dmi ? hiEnd : ttDragStartHI);
+    const hiMax = Math.max(ttDragStartHI, dhi >= dmi ? hiEnd : ttDragStartHI);
+    const miMin = Math.min(ttDragStartMI, dmi > dhi ? miEnd : ttDragStartMI);
+    const miMax = Math.max(ttDragStartMI, dmi > dhi ? miEnd : ttDragStartMI);
     document.querySelectorAll('.drag-select').forEach(c=>c.classList.remove('drag-select'));
     ttSelKeys = [];
     document.querySelectorAll(`.td-cell[data-date="${ttSelDate}"]`).forEach(cell => {
