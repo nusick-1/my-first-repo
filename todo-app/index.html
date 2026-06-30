@@ -214,7 +214,11 @@
 <header>
   <span style="font-size:1.4rem">✅</span>
   <h1>할일 관리</h1>
-  <button class="search-btn" onclick="openSearch()">🔍 검색</button>
+  <div style="display:flex;align-items:center;gap:10px;margin-left:auto">
+    <span id="auth-info" style="font-size:0.8rem;opacity:0.8;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">로그인하면 모든 기기에서 동기화돼요</span>
+    <button id="auth-btn" class="search-btn" onclick="googleLogin()">Google로 로그인</button>
+    <button class="search-btn" onclick="openSearch()">🔍 검색</button>
+  </div>
 </header>
 
 <!-- 검색 오버레이 -->
@@ -465,7 +469,7 @@
   </div>
 </div>
 
-<script>
+<script type="module">
   const todayDate = new Date();
   const todayStr = todayDate.toISOString().slice(0,10);
 
@@ -1126,6 +1130,79 @@
   }
 
   // 초기 렌더
+  // ─── Firebase 초기화 ───
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDWIWdYOsHyR-UshPleDUntFfrmPmHssKU",
+    authDomain: "nusick-8f322.firebaseapp.com",
+    projectId: "nusick-8f322",
+    storageBucket: "nusick-8f322.firebasestorage.app",
+    messagingSenderId: "551782036268",
+    appId: "1:551782036268:web:3f931b8187b61f4daef289"
+  };
+
+  const fbApp  = initializeApp(firebaseConfig);
+  const auth   = getAuth(fbApp);
+  const db     = getFirestore(fbApp);
+  const provider = new GoogleAuthProvider();
+
+  let currentUser = null;
+
+  async function syncToCloud() {
+    if (!currentUser) return;
+    const ref = doc(db, 'users', currentUser.uid);
+    await setDoc(ref, { todos, habits, habitLogs, goals, events, plannerBlocks, plannerLogs }, { merge: true });
+  }
+
+  async function loadFromCloud() {
+    if (!currentUser) return;
+    const ref  = doc(db, 'users', currentUser.uid);
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      const d = snap.data();
+      todos        = d.todos        || [];
+      habits       = d.habits       || [];
+      habitLogs    = d.habitLogs    || {};
+      goals        = d.goals        || [];
+      events       = d.events       || [];
+      plannerBlocks= d.plannerBlocks|| {};
+      plannerLogs  = d.plannerLogs  || {};
+      save();
+    }
+    renderDash(); renderTodos(); renderHabits(); renderGoals(); renderStats();
+  }
+
+  function googleLogin() {
+    signInWithPopup(auth, provider).catch(e => alert('로그인 실패: ' + e.message));
+  }
+  function googleLogout() {
+    signOut(auth);
+  }
+
+  onAuthStateChanged(auth, async user => {
+    currentUser = user;
+    const btn = document.getElementById('auth-btn');
+    const info = document.getElementById('auth-info');
+    if (user) {
+      btn.textContent  = '로그아웃';
+      btn.onclick      = googleLogout;
+      info.textContent = user.displayName || user.email;
+      await loadFromCloud();
+    } else {
+      btn.textContent  = 'Google로 로그인';
+      btn.onclick      = googleLogin;
+      info.textContent = '로그인하면 모든 기기에서 동기화돼요';
+      renderDash(); renderTodos(); renderHabits(); renderGoals(); renderStats();
+    }
+  });
+
+  // save() 호출 시 클라우드도 동기화
+  const _origSave = save;
+  function save() { _origSave(); syncToCloud(); }
+
   renderDash();
   renderTodos();
   renderHabits();
