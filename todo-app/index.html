@@ -2315,15 +2315,11 @@
         // 경계선: 같은 내용이 이어지면 그쪽 border 투명
         const bStyle = `${sameL?'border-left-color:transparent;':''}${sameT?'border-top-color:transparent;':''}`;
         const bg = note?.bg ? `background:${note.bg};` : '';
-        // 텍스트는 블록의 중간 셀에만 표시
+        // 텍스트는 블록의 top-left 셀에만, absolute로 블록 전체 커버
         let textHtml = '';
         if(note?.text && !sameL && !sameT){
           const {cs,rs} = blockSize(hi,mi,note);
-          const centerHi = Math.floor(rs/2), centerMi = Math.floor(cs/2);
-          if(centerHi===0 && centerMi===0) {
-            // 작은 블록 → 맨 앞 셀에 표시, absolute로 블록 전체 커버
-            textHtml = `<div style="position:absolute;left:0;top:0;width:${cs*100}%;height:${rs*22}px;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:1;font-size:${rs>2?'0.75':'0.62'}rem;font-weight:${rs>2?'600':'500'};color:${note.textColor||'#333'};overflow:hidden">${note.text}</div>`;
-          }
+          textHtml = `<div style="position:absolute;left:0;top:0;width:${cs*100}%;height:${rs*22}px;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:2;font-size:${rs>2?'0.75':'0.62'}rem;font-weight:${rs>2?'600':'500'};color:${note.textColor||'#333'}">${note.text}</div>`;
         }
         ttHtml += `<td class="td-cell ${note?'has-note':''}" data-key="${key}" data-hi="${hi}" data-mi="${mi}" data-date="${plannerDate}" style="${bg}${bStyle}">${textHtml}</td>`;
       });
