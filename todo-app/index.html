@@ -2389,6 +2389,7 @@
       const se = document.getElementById('settings-user-email');
       if(sn) sn.textContent = user.displayName || '사용자';
       if(se) se.textContent = user.email || '';
+      showView('planner');
       startCloudSync();
     } else {
       if (unsubSnapshot) { unsubSnapshot(); unsubSnapshot = null; }
