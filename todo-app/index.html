@@ -803,20 +803,20 @@
     <!-- 배너 -->
     <div class="card" style="margin-bottom:16px">
       <div class="card-title">🖼 배너 사진</div>
-      <div id="banner-preview-wrap" style="margin-bottom:12px;border-radius:12px;overflow:hidden;height:80px;background:#f3f4f6;display:none">
-        <div id="banner-preview-inner" style="width:100%;height:100%;background-size:cover;background-repeat:no-repeat"></div>
-      </div>
-      <div id="banner-fit-section" style="display:none;margin-bottom:12px">
-        <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:6px">📐 사진 위치</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
-          <button onclick="setBannerPos('top')"    class="banner-pos-btn" data-pos="top">↑ 위</button>
-          <button onclick="setBannerPos('center')" class="banner-pos-btn" data-pos="center">· 가운데</button>
-          <button onclick="setBannerPos('bottom')" class="banner-pos-btn" data-pos="bottom">↓ 아래</button>
+      <div id="banner-preview-wrap" style="display:none;margin-bottom:14px">
+        <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:6px">🖱 미리보기 — 드래그해서 위치 조절</div>
+        <div id="banner-preview-inner" style="width:100%;height:110px;border-radius:12px;overflow:hidden;background-size:cover;background-repeat:no-repeat;cursor:grab;user-select:none;position:relative">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+            <div style="background:rgba(0,0,0,0.35);color:white;font-size:0.7rem;padding:3px 8px;border-radius:20px;opacity:0.7">드래그</div>
+          </div>
         </div>
-        <div style="font-size:0.78rem;color:#9ca3af;margin:10px 0 6px">🔍 사진 크기</div>
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px">
-          <button onclick="setBannerSize('cover')"   class="banner-size-btn" data-size="cover">꽉 채우기</button>
-          <button onclick="setBannerSize('contain')" class="banner-size-btn" data-size="contain">전체 보기</button>
+        <div style="margin-top:10px">
+          <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#9ca3af;margin-bottom:4px">
+            <span>🔍 크기</span><span id="banner-zoom-label">100%</span>
+          </div>
+          <input type="range" id="banner-zoom" min="100" max="300" step="5" value="100"
+            oninput="updateBannerZoom(this.value)"
+            style="width:100%;accent-color:#1a1a1a">
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px">
@@ -2532,40 +2532,93 @@
   // ─── 배너 이미지 ───
   function applyBannerImage(dataUrl) {
     const bg = document.querySelector('.banner-bg');
-    const pos = localStorage.getItem('bannerPos') || 'center';
-    const size = localStorage.getItem('bannerSize') || 'cover';
+    const posX = localStorage.getItem('bannerPosX') || '50';
+    const posY = localStorage.getItem('bannerPosY') || '50';
+    const zoom = localStorage.getItem('bannerZoom') || '100';
     if(dataUrl) {
+      const pos = `${posX}% ${posY}%`;
+      const size = `${zoom}%`;
       bg.style.cssText = `position:absolute;inset:0;background-image:url(${dataUrl});background-size:${size};background-position:${pos};background-repeat:no-repeat`;
       const preview = document.getElementById('banner-preview-inner');
-      if(preview){ preview.style.backgroundImage=`url(${dataUrl})`; preview.style.backgroundSize=size; preview.style.backgroundPosition=pos; }
+      if(preview){
+        preview.style.backgroundImage = `url(${dataUrl})`;
+        preview.style.backgroundSize = size;
+        preview.style.backgroundPosition = pos;
+      }
       const wrap = document.getElementById('banner-preview-wrap');
-      if(wrap) wrap.style.display='block';
-      const fitSec = document.getElementById('banner-fit-section');
-      if(fitSec) fitSec.style.display='block';
-      updateBannerBtnActive();
+      if(wrap) wrap.style.display = 'block';
+      const zoomInput = document.getElementById('banner-zoom');
+      if(zoomInput){ zoomInput.value = zoom; document.getElementById('banner-zoom-label').textContent = zoom+'%'; }
+      initBannerDrag();
     } else {
       bg.style.cssText = '';
       const wrap = document.getElementById('banner-preview-wrap');
-      if(wrap) wrap.style.display='none';
-      const fitSec = document.getElementById('banner-fit-section');
-      if(fitSec) fitSec.style.display='none';
+      if(wrap) wrap.style.display = 'none';
     }
   }
-  function updateBannerBtnActive() {
-    const pos = localStorage.getItem('bannerPos') || 'center';
-    const size = localStorage.getItem('bannerSize') || 'cover';
-    document.querySelectorAll('.banner-pos-btn').forEach(b => b.classList.toggle('active', b.dataset.pos===pos));
-    document.querySelectorAll('.banner-size-btn').forEach(b => b.classList.toggle('active', b.dataset.size===size));
+  function initBannerDrag() {
+    const preview = document.getElementById('banner-preview-inner');
+    if(!preview || preview._dragInit) return;
+    preview._dragInit = true;
+    let dragging=false, startX, startY, startPX, startPY;
+    preview.addEventListener('mousedown', e=>{
+      dragging=true;
+      startX=e.clientX; startY=e.clientY;
+      startPX=parseFloat(localStorage.getItem('bannerPosX')||'50');
+      startPY=parseFloat(localStorage.getItem('bannerPosY')||'50');
+      preview.style.cursor='grabbing';
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', e=>{
+      if(!dragging) return;
+      const rect=preview.getBoundingClientRect();
+      const dx=(startX-e.clientX)/rect.width*100;
+      const dy=(startY-e.clientY)/rect.height*100;
+      const nx=Math.min(100,Math.max(0,startPX+dx));
+      const ny=Math.min(100,Math.max(0,startPY+dy));
+      localStorage.setItem('bannerPosX', nx.toFixed(1));
+      localStorage.setItem('bannerPosY', ny.toFixed(1));
+      const pos=`${nx.toFixed(1)}% ${ny.toFixed(1)}%`;
+      const zoom=localStorage.getItem('bannerZoom')||'100';
+      preview.style.backgroundPosition=pos;
+      document.querySelector('.banner-bg').style.backgroundPosition=pos;
+    });
+    document.addEventListener('mouseup', ()=>{ dragging=false; preview.style.cursor='grab'; });
+    // 터치 지원
+    preview.addEventListener('touchstart', e=>{
+      const t=e.touches[0];
+      dragging=true; startX=t.clientX; startY=t.clientY;
+      startPX=parseFloat(localStorage.getItem('bannerPosX')||'50');
+      startPY=parseFloat(localStorage.getItem('bannerPosY')||'50');
+      e.preventDefault();
+    },{passive:false});
+    preview.addEventListener('touchmove', e=>{
+      if(!dragging) return;
+      const t=e.touches[0];
+      const rect=preview.getBoundingClientRect();
+      const dx=(startX-t.clientX)/rect.width*100;
+      const dy=(startY-t.clientY)/rect.height*100;
+      const nx=Math.min(100,Math.max(0,startPX+dx));
+      const ny=Math.min(100,Math.max(0,startPY+dy));
+      localStorage.setItem('bannerPosX', nx.toFixed(1));
+      localStorage.setItem('bannerPosY', ny.toFixed(1));
+      const pos=`${nx.toFixed(1)}% ${ny.toFixed(1)}%`;
+      preview.style.backgroundPosition=pos;
+      document.querySelector('.banner-bg').style.backgroundPosition=pos;
+      e.preventDefault();
+    },{passive:false});
+    preview.addEventListener('touchend', ()=>{ dragging=false; });
   }
-  window.setBannerPos = function(pos) {
-    localStorage.setItem('bannerPos', pos);
-    const dataUrl = localStorage.getItem('bannerImage');
-    if(dataUrl) applyBannerImage(dataUrl);
-  };
-  window.setBannerSize = function(size) {
-    localStorage.setItem('bannerSize', size);
-    const dataUrl = localStorage.getItem('bannerImage');
-    if(dataUrl) applyBannerImage(dataUrl);
+  window.updateBannerZoom = function(val) {
+    localStorage.setItem('bannerZoom', val);
+    document.getElementById('banner-zoom-label').textContent = val+'%';
+    const posX = localStorage.getItem('bannerPosX')||'50';
+    const posY = localStorage.getItem('bannerPosY')||'50';
+    const pos = `${posX}% ${posY}%`;
+    const size = `${val}%`;
+    const preview = document.getElementById('banner-preview-inner');
+    if(preview){ preview.style.backgroundSize=size; }
+    document.querySelector('.banner-bg').style.backgroundSize=size;
   };
   window.setBannerImage = function(e) {
     const file = e.target.files[0];
@@ -2573,12 +2626,18 @@
     const reader = new FileReader();
     reader.onload = function(ev) {
       localStorage.setItem('bannerImage', ev.target.result);
+      localStorage.setItem('bannerPosX','50');
+      localStorage.setItem('bannerPosY','50');
+      localStorage.setItem('bannerZoom','100');
       applyBannerImage(ev.target.result);
     };
     reader.readAsDataURL(file);
   };
   window.removeBannerImage = function() {
     localStorage.removeItem('bannerImage');
+    localStorage.removeItem('bannerPosX');
+    localStorage.removeItem('bannerPosY');
+    localStorage.removeItem('bannerZoom');
     applyBannerImage(null);
   };
   // 로드 시 적용
