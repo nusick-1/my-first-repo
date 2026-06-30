@@ -98,7 +98,7 @@
     .pln-add-btn:hover { background: #333; }
 
     /* 시간표 */
-    .timetable { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+    .timetable { width: 100%; border-collapse: collapse; font-size: 0.7rem; user-select: none; -webkit-user-select: none; }
     .timetable th { font-size: 0.62rem; color: #bbb; padding: 2px 0; text-align: center; border: 1px dashed #e5e7eb; background: #fafafa; width: 18%; }
     .timetable th.th-hour { width: 14%; }
     .timetable td.td-hour { font-size: 0.65rem; color: #aaa; text-align: center; padding: 0; border: 1px solid #e5e7eb; background: #fafafa; white-space: nowrap; }
@@ -814,90 +814,86 @@
     {name:'하늘', bg:'#CCE8FF', text:'#3878c0'},
     {name:'검정', bg:'#1a1a1a', text:'#ffffff'},
   ];
-  let ttDragging = false, ttSelKeys = [], ttSelDate = '';
+  // 시간표 드래그 + 모달 입력
+  let ttDragging = false, ttSelKeys = [], ttSelDate = '', ttSelBg = '', ttSelTextColor = '';
 
-  function closeTTPopup() {
-    const p = document.getElementById('tt-popup');
-    if(p) p.remove();
-  }
-
-  function openTTPopup(keys, date, e) {
-    closeTTPopup();
-    const existKey = keys[0];
-    const cur = (ttNotes[date]||{})[existKey] || {};
-    const curText = typeof cur === 'object' ? cur.text||'' : cur||'';
-    const curBg = typeof cur === 'object' ? cur.bg||'' : '';
-
-    const popup = document.createElement('div');
-    popup.id = 'tt-popup';
-    popup.className = 'tt-color-popup';
-    popup.innerHTML = `
-      <div style="font-size:0.8rem;color:#888;margin-bottom:6px">${keys.length}칸 선택됨</div>
-      <input id="tt-popup-text" type="text" placeholder="내용 입력..." value="${curText}"
-        style="width:100%;padding:7px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.85rem;font-family:inherit;margin-bottom:6px">
-      <div class="tt-colors">
+  function openTTModal(keys, date) {
+    const cur = (ttNotes[date]||{})[keys[0]] || {};
+    const curText = cur.text||'';
+    const curBg = cur.bg||'';
+    ttSelBg = curBg; ttSelTextColor = cur.textColor||'';
+    const overlay = document.createElement('div');
+    overlay.id = 'tt-modal-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:9998;display:flex;align-items:center;justify-content:center';
+    overlay.innerHTML = `<div style="background:white;border-radius:18px;padding:20px;width:300px;max-width:90vw;box-shadow:0 8px 40px rgba(0,0,0,0.18)">
+      <div style="font-size:0.82rem;color:#888;margin-bottom:10px">✦ ${keys.length}칸 선택됨</div>
+      <input id="tt-m-text" type="text" placeholder="내용 입력..." value="${curText}"
+        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:0.9rem;font-family:inherit;margin-bottom:12px;box-sizing:border-box">
+      <div style="font-size:0.78rem;color:#aaa;margin-bottom:6px">색상 선택</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
         ${TT_COLORS.map(c=>`<div class="tt-color-btn ${c.bg===curBg?'active':''}" data-bg="${c.bg}" data-text="${c.text}"
-          style="background:${c.bg||'#f0f0f0'};${!c.bg?'border:1px dashed #ccc':''};"
-          title="${c.name}"></div>`).join('')}
+          style="width:28px;height:28px;border-radius:50%;background:${c.bg||'#f0f0f0'};${!c.bg?'border:1.5px dashed #ccc':'border:1.5px solid transparent'};cursor:pointer" title="${c.name}"></div>`).join('')}
       </div>
-      <div style="display:flex;gap:6px;margin-top:4px">
-        <button id="tt-popup-del" style="flex:1;padding:7px;border:1px solid #e5e7eb;border-radius:8px;cursor:pointer;background:white;font-size:0.82rem">지우기</button>
-        <button id="tt-popup-ok" style="flex:2;padding:7px;background:#1a1a1a;color:white;border:none;border-radius:8px;cursor:pointer;font-size:0.82rem">확인</button>
-      </div>`;
-    popup.style.cssText += `left:${Math.min(e.clientX, window.innerWidth-240)}px;top:${Math.min(e.clientY+10, window.innerHeight-220)}px`;
-    document.body.appendChild(popup);
+      <div style="display:flex;gap:8px">
+        <button id="tt-m-del" style="flex:1;padding:9px;border:1px solid #e5e7eb;border-radius:10px;cursor:pointer;background:white;font-size:0.85rem;font-family:inherit">지우기</button>
+        <button id="tt-m-ok" style="flex:2;padding:9px;background:#1a1a1a;color:white;border:none;border-radius:10px;cursor:pointer;font-size:0.85rem;font-family:inherit">확인</button>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
 
-    let selBg = curBg, selText2 = typeof cur==='object'?cur.text||'':'';;
-    popup.querySelectorAll('.tt-color-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        popup.querySelectorAll('.tt-color-btn').forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        selBg = btn.dataset.bg; selText2 = btn.dataset.text;
-      });
+    overlay.querySelectorAll('.tt-color-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        overlay.querySelectorAll('.tt-color-btn').forEach(b=>{ b.style.border='1.5px solid transparent'; if(!b.dataset.bg) b.style.border='1.5px dashed #ccc'; });
+        btn.style.border='2px solid #555';
+        ttSelBg = btn.dataset.bg; ttSelTextColor = btn.dataset.text;
+      };
     });
-    document.getElementById('tt-popup-ok').onclick = () => {
-      const text = document.getElementById('tt-popup-text').value.trim();
+    document.getElementById('tt-m-ok').onclick = () => {
+      const text = document.getElementById('tt-m-text').value.trim();
       if(!ttNotes[date]) ttNotes[date] = {};
       keys.forEach(k => {
-        if(!text && !selBg) { delete ttNotes[date][k]; }
-        else { ttNotes[date][k] = {text, bg:selBg, textColor:selText2}; }
+        if(!text && !ttSelBg) delete ttNotes[date][k];
+        else ttNotes[date][k] = {text, bg:ttSelBg, textColor:ttSelTextColor};
       });
       localStorage.setItem('ttNotes', JSON.stringify(ttNotes));
-      closeTTPopup(); renderPlanner();
+      overlay.remove(); renderPlanner();
     };
-    document.getElementById('tt-popup-del').onclick = () => {
-      if(!ttNotes[date]) return;
-      keys.forEach(k => delete ttNotes[date][k]);
+    document.getElementById('tt-m-del').onclick = () => {
+      if(ttNotes[date]) keys.forEach(k => delete ttNotes[date][k]);
       localStorage.setItem('ttNotes', JSON.stringify(ttNotes));
-      closeTTPopup(); renderPlanner();
+      overlay.remove(); renderPlanner();
     };
-    setTimeout(() => document.addEventListener('click', function outsideClick(ev) {
-      if(!document.getElementById('tt-popup')?.contains(ev.target)) { closeTTPopup(); document.removeEventListener('click', outsideClick); }
-    }), 100);
-    document.getElementById('tt-popup-text').focus();
+    overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
+    setTimeout(() => document.getElementById('tt-m-text')?.focus(), 50);
   }
 
-  document.addEventListener('mousedown', e => {
+  // 드래그 이벤트
+  let ttPointerDown = false;
+  document.addEventListener('pointerdown', e => {
     const cell = e.target.closest('.td-cell');
     if(!cell) return;
-    ttDragging = true; ttSelKeys = [cell.dataset.key]; ttSelDate = cell.dataset.date;
+    ttPointerDown = true; ttDragging = false;
+    ttSelKeys = [cell.dataset.key]; ttSelDate = cell.dataset.date;
     cell.classList.add('drag-select');
     e.preventDefault();
   });
-  document.addEventListener('mouseover', e => {
-    if(!ttDragging) return;
-    const cell = e.target.closest('.td-cell');
+  document.addEventListener('pointermove', e => {
+    if(!ttPointerDown) return;
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const cell = el?.closest('.td-cell');
     if(!cell || cell.dataset.date !== ttSelDate) return;
     if(!ttSelKeys.includes(cell.dataset.key)) {
       ttSelKeys.push(cell.dataset.key);
       cell.classList.add('drag-select');
+      ttDragging = true;
     }
   });
-  document.addEventListener('mouseup', e => {
-    if(!ttDragging) return;
-    ttDragging = false;
-    if(ttSelKeys.length > 0) openTTPopup(ttSelKeys, ttSelDate, e);
+  document.addEventListener('pointerup', e => {
+    if(!ttPointerDown) return;
+    ttPointerDown = false;
     document.querySelectorAll('.drag-select').forEach(c=>c.classList.remove('drag-select'));
+    if(ttSelKeys.length > 0) openTTModal(ttSelKeys, ttSelDate);
   });
 
   // D-day 기능
@@ -941,6 +937,13 @@
     }).join('');
   }
   window.renderDdays = renderDdays;
+
+  // 미니 캘린더 날짜 클릭 → 플래너 날짜 이동
+  window.changePlannerToDate = function(dateStr) {
+    plannerDate = dateStr;
+    showView('planner');
+    renderPlanner();
+  };
 
   function changeMonth(d) {
     calMonth+=d;
