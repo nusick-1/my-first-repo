@@ -307,11 +307,30 @@
   <div id="view-planner" style="display:none">
 
     <!-- 배너 -->
-    <div style="position:relative;width:100%;height:180px;border-radius:16px;overflow:hidden;margin-bottom:18px">
-      <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=1400&q=80&fm=jpg" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:grayscale(100%) brightness(0.72)">
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
-        <div id="live-clock" style="font-family:'DM Mono',monospace;font-size:2.8rem;font-weight:400;color:white;letter-spacing:0.05em;text-shadow:0 2px 8px rgba(0,0,0,0.4)"></div>
-        <div id="daily-quote" style="font-size:0.85rem;color:rgba(255,255,255,0.75);letter-spacing:0.08em;font-style:italic"></div>
+    <div style="position:relative;width:100%;height:200px;border-radius:20px;overflow:hidden;margin-bottom:18px;background:#111">
+      <!-- 하트 배경 -->
+      <div style="position:absolute;inset:0;overflow:hidden;opacity:0.18">
+        <span style="position:absolute;font-size:5rem;top:-10px;left:3%">♥</span>
+        <span style="position:absolute;font-size:2rem;top:20px;left:18%">♡</span>
+        <span style="position:absolute;font-size:7rem;top:-20px;left:30%">♥</span>
+        <span style="position:absolute;font-size:1.5rem;top:10px;left:50%">♡</span>
+        <span style="position:absolute;font-size:4rem;top:-5px;left:62%">♥</span>
+        <span style="position:absolute;font-size:2.5rem;top:25px;left:78%">♡</span>
+        <span style="position:absolute;font-size:6rem;top:-15px;left:88%">♥</span>
+        <span style="position:absolute;font-size:3rem;bottom:0px;left:8%">♡</span>
+        <span style="position:absolute;font-size:8rem;bottom:-20px;left:22%">♥</span>
+        <span style="position:absolute;font-size:2rem;bottom:5px;left:45%">♡</span>
+        <span style="position:absolute;font-size:5rem;bottom:-10px;left:60%">♥</span>
+        <span style="position:absolute;font-size:3rem;bottom:0px;left:80%">♡</span>
+        <span style="position:absolute;font-size:1.2rem;top:45%;left:10%">✦</span>
+        <span style="position:absolute;font-size:1rem;top:40%;left:40%">✦</span>
+        <span style="position:absolute;font-size:1.2rem;top:50%;left:70%">✦</span>
+        <span style="position:absolute;font-size:0.9rem;top:35%;left:90%">✦</span>
+      </div>
+      <!-- 텍스트 -->
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+        <div id="live-clock" style="font-family:'DM Mono',monospace;font-size:2.8rem;font-weight:400;color:white;letter-spacing:0.06em"></div>
+        <div id="daily-quote" style="font-size:0.88rem;color:rgba(255,255,255,0.6);letter-spacing:0.1em;font-family:'Gaegu',cursive"></div>
       </div>
     </div>
 
