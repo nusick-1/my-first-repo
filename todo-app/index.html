@@ -1230,9 +1230,25 @@
     todoDragId = null;
     save(); renderTodos();
   }
+  const TODO_STATUS_CYCLE = ['pending','done','partial','cancelled'];
+  const TODO_STATUS_STYLE = {
+    pending:   { icon:'',  bg:'transparent', border:'2px solid #d1d5db', color:'#9ca3af' },
+    done:      { icon:'✓', bg:'var(--accent)', border:'none', color:'white' },
+    partial:   { icon:'△', bg:'#f59e0b', border:'none', color:'white' },
+    cancelled: { icon:'✕', bg:'#ef4444',  border:'none', color:'white' },
+  };
+  function getTodoStatus(t) {
+    if(t.status) return t.status;
+    return t.done ? 'done' : 'pending';
+  }
   function toggleTodo(id) {
     const t = todos.find(t=>t.id===id);
-    if(t){t.done=!t.done; save(); renderTodos(); renderDash(); renderStats();}
+    if(!t) return;
+    const cur = getTodoStatus(t);
+    const next = TODO_STATUS_CYCLE[(TODO_STATUS_CYCLE.indexOf(cur)+1) % TODO_STATUS_CYCLE.length];
+    t.status = next;
+    t.done = next === 'done';
+    save(); renderTodos(); renderDash(); renderStats();
   }
   function deleteTodo(id) {
     todos = todos.filter(t=>t.id!==id);
@@ -1259,7 +1275,12 @@
     if(!container) list = [...list].sort((a,b)=>PRIORITY_ORDER[a.priority||'medium']-PRIORITY_ORDER[b.priority||'medium']);
     if(!list.length){el.innerHTML='<div class="empty">할일이 없어요 🎉</div>'; return;}
     el.innerHTML = list.map(t=>{
-      const isOverdue = t.due && t.due < todayStr && !t.done;
+      const status = getTodoStatus(t);
+      const st = TODO_STATUS_STYLE[status];
+      const isOverdue = t.due && t.due < todayStr && status==='pending';
+      const isDone = status==='done';
+      const isCancelled = status==='cancelled';
+      const isPartial = status==='partial';
       const dueDiff = t.due ? Math.round((new Date(t.due)-new Date(todayStr))/(1000*60*60*24)) : null;
       let dueLabel = '';
       if(t.due) {
@@ -1268,23 +1289,24 @@
         else if(dueDiff===1) dueLabel = `<span style="color:#f59e0b">📅 내일 마감</span>`;
         else dueLabel = `<span style="color:#9ca3af">📅 ${t.due}</span>`;
       }
+      const rowBg = isOverdue?'border-left:3px solid #ef4444;background:#fff5f5;' : isCancelled?'opacity:0.45;' : '';
+      const textStyle = (isDone||isCancelled)?'text-decoration:line-through;color:#9ca3af;' : isPartial?'color:#b45309;':'';
       return `
-      <div class="todo-item ${t.done?'done':''}" draggable="true"
-        style="${isOverdue?'border-left:3px solid #ef4444;background:#fff5f5;':''}"
+      <div class="todo-item" draggable="true" style="${rowBg}"
         ondragstart="todoDragStart(${t.id})" ondragover="todoDragOver(event)" ondrop="todoDrop(${t.id})">
-        <span style="cursor:grab;color:#ccc;font-size:1rem;padding:0 4px 0 0;line-height:1" title="드래그해서 순서 변경">⠿</span>
-        <div class="check-circle ${t.done?'on':''}" onclick="toggleTodo(${t.id})">${t.done?'✓':''}</div>
+        <span style="cursor:grab;color:#ccc;font-size:1rem;padding:0 4px 0 0;line-height:1">⠿</span>
+        <div onclick="toggleTodo(${t.id})" style="width:22px;height:22px;border-radius:50%;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;background:${st.bg};border:${st.border};color:${st.color};transition:all 0.15s" title="클릭: 완료→△→✕ 순환">${st.icon}</div>
         <div class="item-info" style="flex:1">
-          <div class="item-text">${PRIORITY_ICON[t.priority||'medium']} ${t.text}</div>
+          <div class="item-text" style="${textStyle}">${PRIORITY_ICON[t.priority||'medium']} ${t.text}</div>
           <div class="item-meta" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <span class="badge badge-${t.cat}">${t.cat}</span>
             ${dueLabel}
             <input type="date" value="${t.due||''}" onchange="setTodoDue(${t.id},this.value)"
-              style="border:none;background:transparent;font-size:0.72rem;color:#bbb;cursor:pointer;font-family:inherit;outline:none;padding:0;width:${t.due?'0':'90px'};max-width:90px;${t.due?'display:none':''}">
-            ${t.due?'':`<span style="color:#ddd;font-size:0.72rem;cursor:pointer" onclick="this.previousElementSibling.style.display='block';this.style.display='none';this.previousElementSibling.style.width='90px'">+ 마감일</span>`}
+              style="border:none;background:transparent;font-size:0.72rem;color:#bbb;cursor:pointer;font-family:inherit;outline:none;padding:0;${t.due?'display:none':'width:90px'}">
+            ${t.due?'':`<span style="color:#ddd;font-size:0.72rem;cursor:pointer" onclick="this.previousElementSibling.style.display='block';this.style.display='none'">+ 마감일</span>`}
           </div>
         </div>
-        <button onclick="renameTodo(${t.id})" style="background:none;border:none;cursor:pointer;font-size:0.82rem;color:#bbb;padding:2px 4px" title="이름 변경">✏️</button>
+        <button onclick="renameTodo(${t.id})" style="background:none;border:none;cursor:pointer;font-size:0.82rem;color:#bbb;padding:2px 4px">✏️</button>
         <button class="btn-del" onclick="deleteTodo(${t.id})">🗑</button>
       </div>`;
     }).join('');
@@ -2114,12 +2136,12 @@
     const el = document.getElementById('ptodo-list');
     if(!el) return;
     const list = todos.filter(t => {
+      const st = getTodoStatus(t);
+      const carries = st === 'pending' || st === 'partial'; // 세모도 이월
       if(t.due) {
-        // 마감일 있는 것: 해당 날짜 OR 지났는데 미완료
-        return t.due === plannerDate || (t.due < plannerDate && !t.done);
+        return t.due === plannerDate || (t.due < plannerDate && carries);
       } else {
-        // 마감일 없는 것: 생성일 이후 → 완료됐으면 생성일만, 미완료면 계속 이월
-        return t.created === plannerDate || (!t.done && t.created < plannerDate);
+        return t.created === plannerDate || (carries && t.created < plannerDate);
       }
     }).sort((a,b) => {
       const ao = a.due && a.due < plannerDate ? -1 : 0;
@@ -2129,11 +2151,15 @@
     if(!list.length){el.innerHTML='<div class="empty" style="padding:8px 0;font-size:0.85rem">할일이 없어요</div>'; return;}
     el.innerHTML = list.map(t=>{
       const isOverdue = t.due && t.due < plannerDate && !t.done;
+      const status = getTodoStatus(t);
+      const st = TODO_STATUS_STYLE[status];
+      const textStyle = status==='done'||status==='cancelled' ? 'text-decoration:line-through;color:#9ca3af;' : status==='partial'?'color:#b45309;':'';
+      const rowBg = isOverdue?'#fff5f5': status==='done'?'#f9fafb':'#f5f3ff';
       return `
-      <div class="todo-item ${t.done?'done':''}" style="padding:8px 10px;margin-bottom:6px;box-shadow:none;background:${isOverdue?'#fff5f5':t.done?'#f9fafb':'#f5f3ff'};border-radius:8px;${isOverdue?'border-left:3px solid #ef4444;':''}">
-        <div class="check-circle ${t.done?'on':''}" style="width:18px;height:18px;font-size:0.7rem" onclick="toggleTodo(${t.id});renderPlannerTodos()">${t.done?'✓':''}</div>
+      <div class="todo-item" style="padding:8px 10px;margin-bottom:6px;box-shadow:none;background:${rowBg};border-radius:8px;${isOverdue?'border-left:3px solid #ef4444;':''}">
+        <div onclick="toggleTodo(${t.id});renderPlannerTodos()" style="width:20px;height:20px;border-radius:50%;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;background:${st.bg};border:${st.border};color:${st.color};transition:all 0.15s">${st.icon}</div>
         <div style="flex:1;min-width:0">
-          <div class="item-text" style="font-size:0.87rem">${t.text}</div>
+          <div class="item-text" style="font-size:0.87rem;${textStyle}">${t.text}</div>
           ${isOverdue?`<div style="font-size:0.68rem;color:#ef4444;font-weight:600">⚠️ ${Math.round((new Date(plannerDate)-new Date(t.due))/(1000*60*60*24))}일 지남</div>`:''}
         </div>
         <span class="badge badge-${t.cat}" style="font-size:0.7rem">${t.cat}</span>
