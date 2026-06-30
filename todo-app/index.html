@@ -44,7 +44,26 @@
     .pnav:hover { background: rgba(255,255,255,0.3); }
 
     .pln-grid { display: grid; grid-template-columns: 260px 1fr; gap: 16px; align-items: start; }
-    @media(max-width:680px){ .pln-grid { grid-template-columns: 1fr; } }
+
+    @media(max-width:680px){
+      .pln-grid { grid-template-columns: 1fr; }
+      .container { padding: 0 12px; margin: 12px auto; }
+      header { padding: 12px 14px; flex-wrap: wrap; gap: 8px; }
+      header h1 { font-size: 1.1rem; }
+      #user-name { display: none; }
+      .search-btn { padding: 6px 10px; font-size: 0.8rem; }
+      .tabs { padding: 0 6px; gap: 0; }
+      .tab { padding: 10px 10px; font-size: 0.8rem; }
+      .pln-card { padding: 12px 14px; }
+      .form-row { flex-direction: column; }
+      .form-row input, .form-row select { width: 100%; }
+      .flex1 { min-width: unset; width: 100%; }
+      .card { padding: 14px 14px; }
+      .p-modal { width: calc(100vw - 32px); }
+      .todo-item { padding: 10px 12px; }
+      .cal-grid { font-size: 0.8rem; }
+      .cal-day { min-height: 48px; padding: 4px; }
+    }
 
     .pln-left { background: white; border-radius: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; }
     .pln-right { display: flex; flex-direction: column; gap: 14px; }
