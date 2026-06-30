@@ -2113,11 +2113,15 @@
   function renderPlannerTodos() {
     const el = document.getElementById('ptodo-list');
     if(!el) return;
-    const list = todos.filter(t =>
-      t.due === plannerDate ||
-      (!t.due && t.created === plannerDate) ||
-      (t.due && t.due < plannerDate && !t.done)  // 마감 지난 미완료 항상 표시
-    ).sort((a,b) => {
+    const list = todos.filter(t => {
+      if(t.due) {
+        // 마감일 있는 것: 해당 날짜 OR 지났는데 미완료
+        return t.due === plannerDate || (t.due < plannerDate && !t.done);
+      } else {
+        // 마감일 없는 것: 생성일 이후 → 완료됐으면 생성일만, 미완료면 계속 이월
+        return t.created === plannerDate || (!t.done && t.created < plannerDate);
+      }
+    }).sort((a,b) => {
       const ao = a.due && a.due < plannerDate ? -1 : 0;
       const bo = b.due && b.due < plannerDate ? -1 : 0;
       return ao - bo; // 지난 할일 위로
