@@ -436,9 +436,7 @@
             <span class="pln-section-label" style="margin-bottom:0">✅ 오늘 할일</span>
             <div style="display:flex;gap:6px;flex:1;margin-left:10px">
               <input type="text" id="ptodo-input" placeholder="할일 추가..." style="flex:1;padding:6px 10px;font-size:0.85rem">
-              <select id="ptodo-cat" style="padding:6px 8px;font-size:0.82rem">
-                <option>업무</option><option>개인</option><option>공부</option><option>기타</option>
-              </select>
+              <select id="ptodo-cat" style="padding:6px 8px;font-size:0.82rem"></select>
               <button class="pln-add-btn" onclick="addPlannerTodo()">+</button>
             </div>
           </div>
@@ -517,21 +515,12 @@
       <div class="card-title">새 할일 추가</div>
       <div class="form-row">
         <input type="text" class="flex1" id="todo-input" placeholder="할일을 입력하세요" onkeydown="if(event.key==='Enter')addTodo()">
-        <select id="cat-input">
-          <option>업무</option><option>개인</option><option>공부</option><option>기타</option>
-        </select>
+        <select id="cat-input"></select>
         <input type="date" id="due-input">
         <button class="btn btn-primary" onclick="addTodo()">+ 추가</button>
       </div>
     </div>
-    <div class="pill-group" id="todo-filter-pills">
-      <div class="pill active" onclick="setFilter('all',this)">전체</div>
-      <div class="pill" onclick="setFilter('미완료',this)">미완료</div>
-      <div class="pill" onclick="setFilter('완료',this)">완료</div>
-      <div class="pill" onclick="setFilter('업무',this)">업무</div>
-      <div class="pill" onclick="setFilter('개인',this)">개인</div>
-      <div class="pill" onclick="setFilter('공부',this)">공부</div>
-    </div>
+    <div class="pill-group" id="todo-filter-pills"></div>
     <div id="todo-list"></div>
   </div>
 
@@ -695,6 +684,7 @@
   const todayDate = new Date();
   const todayStr = todayDate.toISOString().slice(0,10);
 
+  let todoCats   = JSON.parse(localStorage.getItem('todoCats')   || '["업무","개인","공부","기타"]');
   let todos      = JSON.parse(localStorage.getItem('todos')      || '[]');
   let events     = JSON.parse(localStorage.getItem('events')     || '[]');
   let goals      = JSON.parse(localStorage.getItem('goals')      || '[]');
@@ -707,6 +697,7 @@
   let dashPeriod = 'today';
 
   function save() {
+    localStorage.setItem('todoCats',   JSON.stringify(todoCats));
     localStorage.setItem('todos',     JSON.stringify(todos));
     localStorage.setItem('events',    JSON.stringify(events));
     localStorage.setItem('goals',     JSON.stringify(goals));
@@ -714,6 +705,80 @@
     localStorage.setItem('habitLogs', JSON.stringify(habitLogs));
     syncToCloud();
   }
+
+  // ─── 카테고리 ───
+  function renderTodoCatSelect() {
+    ['cat-input','ptodo-cat'].forEach(id => {
+      const el = document.getElementById(id);
+      if(!el) return;
+      const cur = el.value;
+      el.innerHTML = todoCats.map(c=>`<option${c===cur?' selected':''}>${c}</option>`).join('');
+    });
+  }
+  function renderTodoCatPills() {
+    const pills = document.getElementById('todo-filter-pills');
+    if(!pills) return;
+    pills.innerHTML = `
+      <div class="pill active" onclick="setFilter('all',this)">전체</div>
+      <div class="pill" onclick="setFilter('미완료',this)">미완료</div>
+      <div class="pill" onclick="setFilter('완료',this)">완료</div>
+      ${todoCats.map(c=>`<div class="pill" onclick="setFilter('${c}',this)">${c}</div>`).join('')}
+      <div class="pill" onclick="openCatEditor()" style="border-style:dashed;color:#aaa">✎ 편집</div>`;
+  }
+  function openCatEditor() {
+    const overlay = document.createElement('div');
+    overlay.id = 'cat-editor-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:9998;display:flex;align-items:center;justify-content:center';
+    const renderList = () => `
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;max-height:220px;overflow-y:auto">
+        ${todoCats.map((c,i)=>`
+          <div style="display:flex;align-items:center;gap:8px;background:#f9f9f9;padding:7px 10px;border-radius:10px">
+            <span style="flex:1;font-size:0.9rem">${c}</span>
+            <button onclick="deleteCat(${i})" style="background:none;border:none;cursor:pointer;color:#bbb;font-size:1rem;padding:0 4px">✕</button>
+          </div>`).join('')}
+      </div>`;
+    overlay.innerHTML = `<div style="background:white;border-radius:18px;padding:20px;width:300px;max-width:90vw;box-shadow:0 8px 40px rgba(0,0,0,0.15)">
+      <div style="font-weight:700;margin-bottom:14px;font-family:'Gowun Dodum',sans-serif">카테고리 편집</div>
+      <div id="cat-list">${renderList()}</div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <input id="cat-new-input" type="text" placeholder="새 카테고리..." style="flex:1;padding:8px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:0.88rem;font-family:inherit">
+        <button onclick="addCat()" style="padding:8px 14px;background:#1a1a1a;color:white;border:none;border-radius:10px;cursor:pointer;font-size:0.88rem">추가</button>
+      </div>
+      <button onclick="document.getElementById('cat-editor-overlay').remove()" style="width:100%;padding:9px;border:1px solid #e5e7eb;border-radius:10px;cursor:pointer;background:white;font-size:0.88rem;font-family:inherit">닫기</button>
+    </div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
+    setTimeout(()=>document.getElementById('cat-new-input')?.focus(), 50);
+  }
+  window.addCat = function() {
+    const inp = document.getElementById('cat-new-input');
+    const val = inp?.value.trim();
+    if(!val || todoCats.includes(val)) return;
+    todoCats.push(val); save();
+    renderTodoCatSelect(); renderTodoCatPills();
+    document.getElementById('cat-list').innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;max-height:220px;overflow-y:auto">
+        ${todoCats.map((c,i)=>`
+          <div style="display:flex;align-items:center;gap:8px;background:#f9f9f9;padding:7px 10px;border-radius:10px">
+            <span style="flex:1;font-size:0.9rem">${c}</span>
+            <button onclick="deleteCat(${i})" style="background:none;border:none;cursor:pointer;color:#bbb;font-size:1rem;padding:0 4px">✕</button>
+          </div>`).join('')}
+      </div>`;
+    if(inp) inp.value='';
+  };
+  window.deleteCat = function(i) {
+    todoCats.splice(i,1); save();
+    renderTodoCatSelect(); renderTodoCatPills();
+    document.getElementById('cat-list').innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;max-height:220px;overflow-y:auto">
+        ${todoCats.map((c,j)=>`
+          <div style="display:flex;align-items:center;gap:8px;background:#f9f9f9;padding:7px 10px;border-radius:10px">
+            <span style="flex:1;font-size:0.9rem">${c}</span>
+            <button onclick="deleteCat(${j})" style="background:none;border:none;cursor:pointer;color:#bbb;font-size:1rem;padding:0 4px">✕</button>
+          </div>`).join('')}
+      </div>`;
+  };
+  window.openCatEditor = openCatEditor;
 
   // ─── 할일 ───
   function addTodo() {
@@ -1778,6 +1843,8 @@
       if(wb) wb.style.display='none';
     });
 
+  renderTodoCatSelect();
+  renderTodoCatPills();
   renderDash();
   renderTodos();
   renderHabits();
