@@ -207,9 +207,14 @@
     .cal-day-name:first-child { color: #888; }
     .cal-day-name:last-child { color: #888; }
     .cal-cells { display: grid; grid-template-columns: repeat(7,1fr); border-radius: 0 0 12px 12px; overflow: hidden; }
-    .cal-cell { border: 1px solid #f0f0f0; min-height: 80px; padding: 7px; cursor: pointer; transition: background 0.15s; }
-    .cal-cell:hover { background: #f5f5f5; }
+    .cal-cell { border: 1px solid #f0f0f0; min-height: 80px; padding: 7px; cursor: pointer; transition: background 0.15s; user-select:none; }
+    .cal-cell:hover { background: #f9f9f9; }
+    .cal-cell:hover .cal-plus-btn { opacity:1; }
     .cal-cell.other-month .cal-date { color: #ccc; }
+    .cal-cell.cal-drag-sel { background: #f0f4ff !important; }
+    .cal-plus-btn { opacity:0; font-size:0.85rem; color:#aaa; cursor:pointer; padding:0 2px; border-radius:4px; transition:opacity 0.15s; line-height:1; }
+    .cal-plus-btn:hover { background:#e5e7eb; color:#555; }
+    .cal-ev-pill { font-size:0.68rem; padding:2px 5px; margin-bottom:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.4; color:#444; }
     .cal-cell.today .cal-date-num { background: #1a1a1a; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
     .cal-date { font-size: 0.82rem; font-weight: 500; margin-bottom: 4px; }
     .cal-dot { font-size: 0.68rem; background: #e8e8e8; color: #444; border-radius: 4px; padding: 1px 4px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -847,11 +852,37 @@
 
 <!-- 일정 추가 모달 -->
 <div class="modal-overlay" id="event-modal" style="display:none" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
+  <div class="modal" style="max-width:380px">
     <h3 id="modal-title">일정 추가</h3>
     <div class="form-col">
       <input type="text" id="ev-title" placeholder="일정 제목">
-      <input type="time" id="ev-time">
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="time" id="ev-time" style="flex:1">
+        <span style="font-size:0.8rem;color:#aaa">~</span>
+        <input type="date" id="ev-end-date" style="flex:1;padding:8px;font-size:0.85rem;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit" title="종료일 (기간 일정)">
+      </div>
+      <div>
+        <div style="font-size:0.75rem;color:#aaa;margin-bottom:6px">색상</div>
+        <div id="ev-color-picker" style="display:flex;gap:7px;flex-wrap:wrap">
+          <div class="ev-color-swatch active" data-color="" style="width:22px;height:22px;border-radius:50%;background:#e5e7eb;border:2px solid #999;cursor:pointer" title="기본"></div>
+          <div class="ev-color-swatch" data-color="#FFD6E0" style="width:22px;height:22px;border-radius:50%;background:#FFD6E0;border:2px solid transparent;cursor:pointer"></div>
+          <div class="ev-color-swatch" data-color="#E8D5F5" style="width:22px;height:22px;border-radius:50%;background:#E8D5F5;border:2px solid transparent;cursor:pointer"></div>
+          <div class="ev-color-swatch" data-color="#C8F0E8" style="width:22px;height:22px;border-radius:50%;background:#C8F0E8;border:2px solid transparent;cursor:pointer"></div>
+          <div class="ev-color-swatch" data-color="#CCE8FF" style="width:22px;height:22px;border-radius:50%;background:#CCE8FF;border:2px solid transparent;cursor:pointer"></div>
+          <div class="ev-color-swatch" data-color="#FFF3CC" style="width:22px;height:22px;border-radius:50%;background:#FFF3CC;border:2px solid transparent;cursor:pointer"></div>
+          <div class="ev-color-swatch" data-color="#FFE5CC" style="width:22px;height:22px;border-radius:50%;background:#FFE5CC;border:2px solid transparent;cursor:pointer"></div>
+          <div class="ev-color-swatch" data-color="#d1fae5" style="width:22px;height:22px;border-radius:50%;background:#d1fae5;border:2px solid transparent;cursor:pointer"></div>
+          <div class="ev-color-swatch" data-color="#fee2e2" style="width:22px;height:22px;border-radius:50%;background:#fee2e2;border:2px solid transparent;cursor:pointer"></div>
+          <div class="ev-color-swatch" data-color="#1a1a1a" style="width:22px;height:22px;border-radius:50%;background:#1a1a1a;border:2px solid transparent;cursor:pointer"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span style="font-size:0.75rem;color:#aaa">이모지</span>
+        <input type="text" id="ev-emoji" placeholder="🎂" maxlength="2" style="width:48px;padding:6px 8px;font-size:1rem;border:1px solid #e5e7eb;border-radius:8px;text-align:center">
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          ${['🎂','🎉','✈️','📚','💊','🏥','💼','🎵','🏋️','☕','🍽️','💕'].map(e=>`<span onclick="document.getElementById('ev-emoji').value='${e}'" style="cursor:pointer;font-size:1rem;padding:2px">${e}</span>`).join('')}
+        </div>
+      </div>
       <textarea id="ev-memo" placeholder="메모 (선택)" rows="2" style="resize:none"></textarea>
     </div>
     <div class="modal-btns">
@@ -1059,22 +1090,54 @@
   }
 
   // ─── 캘린더 / 일정 ───
-  let modalDate = null;
-  function openModal(dateStr) {
+  let modalDate = null, modalEndDate = null, evSelColor = '';
+  function openModal(dateStr, endDateStr) {
     modalDate = dateStr;
-    document.getElementById('modal-title').textContent = dateStr + ' 일정 추가';
+    modalEndDate = endDateStr || '';
+    evSelColor = '';
+    const label = endDateStr && endDateStr !== dateStr ? `${dateStr} ~ ${endDateStr}` : dateStr;
+    document.getElementById('modal-title').textContent = label + ' 일정 추가';
     document.getElementById('ev-title').value='';
     document.getElementById('ev-time').value='';
     document.getElementById('ev-memo').value='';
+    document.getElementById('ev-emoji').value='';
+    document.getElementById('ev-end-date').value = endDateStr||'';
+    document.querySelectorAll('.ev-color-swatch').forEach(s=>{
+      s.style.border = s.dataset.color==='' ? '2px solid #999' : '2px solid transparent';
+    });
     document.getElementById('event-modal').style.display='flex';
+    setTimeout(()=>document.getElementById('ev-title').focus(),50);
   }
-  function closeModal() { document.getElementById('event-modal').style.display='none'; }
+  function closeModal() {
+    document.getElementById('event-modal').style.display='none';
+    clearCalDrag();
+  }
   function saveEvent() {
     const title = document.getElementById('ev-title').value.trim();
     if(!title) return;
-    events.push({ id: Date.now(), date: modalDate, time: document.getElementById('ev-time').value, title, memo: document.getElementById('ev-memo').value });
+    const dateEnd = document.getElementById('ev-end-date').value;
+    events.push({
+      id: Date.now(), date: modalDate,
+      dateEnd: dateEnd && dateEnd > modalDate ? dateEnd : '',
+      time: document.getElementById('ev-time').value,
+      title,
+      emoji: document.getElementById('ev-emoji').value,
+      color: evSelColor,
+      memo: document.getElementById('ev-memo').value
+    });
     save(); closeModal(); renderCalendar(); renderCalDayEvents(modalDate); renderDash();
+    if(typeof renderPlanner==='function') renderPlanner();
   }
+  // 색상 스워치 클릭
+  document.getElementById('ev-color-picker').addEventListener('click', e=>{
+    const swatch = e.target.closest('.ev-color-swatch');
+    if(!swatch) return;
+    evSelColor = swatch.dataset.color;
+    document.querySelectorAll('.ev-color-swatch').forEach(s=>{
+      s.style.border = s===swatch ? '2px solid #555' : '2px solid transparent';
+    });
+    if(swatch.dataset.color==='') swatch.style.border='2px solid #999';
+  });
   function deleteEvent(id) {
     events = events.filter(e=>e.id!==id);
     save(); renderCalendar(); renderCalDayEvents(selectedDate); renderDash();
@@ -1255,6 +1318,41 @@
     if(calMonth>11){calMonth=0;calYear++;} if(calMonth<0){calMonth=11;calYear--;}
     renderCalendar();
   }
+  // ── 캘린더 드래그 선택 ──
+  let calDragStart=null, calDragEnd=null;
+  function calCellDown(e, ds) {
+    if(e.button!==0) return;
+    e.preventDefault();
+    calDragStart = ds; calDragEnd = ds;
+    highlightCalDrag();
+  }
+  function calCellEnter(ds) {
+    if(!calDragStart) return;
+    calDragEnd = ds;
+    highlightCalDrag();
+  }
+  function calCellUp(ds) {
+    if(!calDragStart) return;
+    const s = calDragStart < ds ? calDragStart : ds;
+    const en = calDragStart < ds ? ds : calDragStart;
+    calDragStart = null; calDragEnd = null;
+    openModal(s, en);
+  }
+  function highlightCalDrag() {
+    if(!calDragStart||!calDragEnd) return;
+    const s = calDragStart<calDragEnd?calDragStart:calDragEnd;
+    const en= calDragStart<calDragEnd?calDragEnd:calDragStart;
+    document.querySelectorAll('.cal-cell[data-ds]').forEach(cell=>{
+      const ds=cell.dataset.ds;
+      cell.classList.toggle('cal-drag-sel', ds>=s && ds<=en);
+    });
+  }
+  function clearCalDrag() {
+    calDragStart=null; calDragEnd=null;
+    document.querySelectorAll('.cal-drag-sel').forEach(c=>c.classList.remove('cal-drag-sel'));
+  }
+  document.addEventListener('mouseup', ()=>{ if(calDragStart){ calCellUp(calDragEnd||calDragStart); } });
+
   function renderCalendar() {
     const months=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
     document.getElementById('cal-title').textContent=`${calYear}년 ${months[calMonth]}`;
@@ -1266,11 +1364,26 @@
     for(let d=1;d<=daysInMonth;d++){
       const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const isToday = ds===todayStr;
-      const dayEvents = events.filter(e=>e.date===ds);
-      const dayTodos  = todos.filter(t=>t.due===ds);
-      html+=`<div class="cal-cell ${isToday?'today':''}" onclick="goToPlanner('${ds}')" title="${ds} 플래너 열기">
-        <div class="cal-date"><span class="cal-date-num">${d}</span></div>
-        ${dayEvents.map(e=>`<div class="cal-dot">${e.time?e.time+' ':''} ${e.title}</div>`).join('')}
+      const dayEvents = events.filter(e=>{
+        if(e.dateEnd) return e.date<=ds && e.dateEnd>=ds;
+        return e.date===ds;
+      });
+      const dayTodos = todos.filter(t=>t.due===ds);
+      html+=`<div class="cal-cell ${isToday?'today':''}" data-ds="${ds}"
+        onmousedown="calCellDown(event,'${ds}')"
+        onmouseenter="calCellEnter('${ds}')"
+        onmouseup="calCellUp('${ds}')">
+        <div class="cal-date" style="display:flex;align-items:center;justify-content:space-between">
+          <span class="cal-date-num">${d}</span>
+          <span class="cal-plus-btn" onclick="event.stopPropagation();openModal('${ds}')" title="일정 추가">+</span>
+        </div>
+        ${dayEvents.map(e=>{
+          const bg=e.color||'#e8e8e8';
+          const isStart=e.date===ds, isEnd=e.dateEnd===ds||!e.dateEnd;
+          const isMulti=!!e.dateEnd && e.date!==e.dateEnd;
+          return `<div class="cal-ev-pill" style="background:${bg};border-radius:${isMulti?(isStart?'4px 0 0 4px':isEnd?'0 4px 4px 0':'0'):'4px'};margin-right:${isMulti&&!isEnd?'-7px':''}"
+            title="${e.title}">${isStart?(e.emoji||'')+e.title:''}</div>`;
+        }).join('')}
         ${dayTodos.map(t=>`<div class="cal-dot todo-dot">${t.text}</div>`).join('')}
       </div>`;
     }
@@ -1284,19 +1397,25 @@
   }
   function renderCalDayEvents(ds) {
     document.getElementById('cal-selected-label').textContent = ds + ' 일정';
-    const dayEvents = events.filter(e=>e.date===ds).sort((a,b)=>a.time.localeCompare(b.time));
-    const dayTodos  = todos.filter(t=>t.due===ds);
+    const dayEvents = events.filter(e=>{
+      if(e.dateEnd) return e.date<=ds && e.dateEnd>=ds;
+      return e.date===ds;
+    }).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+    const dayTodos = todos.filter(t=>t.due===ds);
     let html='';
     if(dayEvents.length){
-      html+=dayEvents.map(e=>`
-        <div class="event-item">
+      html+=dayEvents.map(e=>{
+        const bg=e.color||'#f3f4f6';
+        const rangeLabel=e.dateEnd&&e.dateEnd!==e.date?`<span style="font-size:0.72rem;color:#aaa;margin-left:4px">${e.date}~${e.dateEnd}</span>`:'';
+        return `<div class="event-item" style="border-left:4px solid ${e.color||'#e5e7eb'};background:${e.color?e.color+'22':'white'}">
           <div class="event-time">${e.time||'　'}</div>
           <div class="item-info" style="flex:1">
-            <div class="event-title">${e.title}</div>
+            <div class="event-title">${e.emoji||''}${e.title}${rangeLabel}</div>
             ${e.memo?`<div class="item-meta">${e.memo}</div>`:''}
           </div>
           <button class="btn-del" onclick="deleteEvent(${e.id})">🗑</button>
-        </div>`).join('');
+        </div>`;
+      }).join('');
     }
     if(dayTodos.length){
       html+=`<div style="font-size:0.8rem;color:#9ca3af;margin:10px 0 6px">할일</div>`;
@@ -2438,6 +2557,10 @@
   window.deleteEvent = deleteEvent;
   window.openModal = openModal;
   window.openPlannerEventModal = function() { openModal(plannerDate); };
+  window.calCellDown = calCellDown;
+  window.calCellEnter = calCellEnter;
+  window.calCellUp = calCellUp;
+  window.clearCalDrag = clearCalDrag;
   window.deleteGoal = deleteGoal;
   window.updateProgress = updateProgress;
   window.toggleHabit = toggleHabit;
