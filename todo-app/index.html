@@ -690,6 +690,9 @@
   let goals      = JSON.parse(localStorage.getItem('goals')      || '[]');
   let habits     = JSON.parse(localStorage.getItem('habits')     || '[]');
   let habitLogs  = JSON.parse(localStorage.getItem('habitLogs')  || '{}');
+  let ttNotes    = JSON.parse(localStorage.getItem('ttNotes')    || '{}');
+  let ddays      = JSON.parse(localStorage.getItem('ddays')      || '[]');
+  let memos      = JSON.parse(localStorage.getItem('memos')      || '{}');
 
   let todoFilter = 'all';
   let calYear = todayDate.getFullYear(), calMonth = todayDate.getMonth();
@@ -930,12 +933,12 @@
         else ttNotes[date][k] = {text, bg:ttSelBg, textColor:ttSelTextColor};
       });
       localStorage.setItem('ttNotes', JSON.stringify(ttNotes));
-      overlay.remove(); renderPlanner();
+      syncToCloud(); overlay.remove(); renderPlanner();
     };
     document.getElementById('tt-m-del').onclick = () => {
       if(ttNotes[date]) keys.forEach(k => delete ttNotes[date][k]);
       localStorage.setItem('ttNotes', JSON.stringify(ttNotes));
-      overlay.remove(); renderPlanner();
+      syncToCloud(); overlay.remove(); renderPlanner();
     };
     overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
     setTimeout(() => document.getElementById('tt-m-text')?.focus(), 50);
@@ -983,6 +986,7 @@
     if(!name || !date) return;
     ddays.push({id: Date.now(), name, date});
     localStorage.setItem('ddays', JSON.stringify(ddays));
+    syncToCloud();
     document.getElementById('dday-name').value = '';
     document.getElementById('dday-date').value = '';
     renderDdays();
@@ -990,6 +994,7 @@
   window.deleteDday = function(id) {
     ddays = ddays.filter(d => d.id !== id);
     localStorage.setItem('ddays', JSON.stringify(ddays));
+    syncToCloud();
     renderDdays();
   };
   function renderDdays() {
@@ -1369,8 +1374,7 @@
   let blockModalHour = null;
 
   const HOURS = Array.from({length:24}, (_,i)=>i+1); // 01~24시
-  let ttNotes = JSON.parse(localStorage.getItem('ttNotes') || '{}'); // {date: {hour_min: text}}
-  let ddays = JSON.parse(localStorage.getItem('ddays') || '[]'); // [{name, date}]
+  // ttNotes, ddays는 상단에서 선언됨
   const DAYS_KO = ['일','월','화','수','목','금','토'];
   const COLORS = {'color-purple':'color-purple','color-green':'color-green','color-yellow':'color-yellow','color-blue':'color-blue','color-red':'color-red'};
 
@@ -1481,12 +1485,11 @@
 
   // 메모
   function saveMemo() {
-    const memos = JSON.parse(localStorage.getItem('memos')||'{}');
     memos[plannerDate] = document.getElementById('pln-memo').value;
     localStorage.setItem('memos', JSON.stringify(memos));
+    syncToCloud();
   }
   function loadMemo() {
-    const memos = JSON.parse(localStorage.getItem('memos')||'{}');
     const el = document.getElementById('pln-memo');
     if(el) el.value = memos[plannerDate] || '';
   }
@@ -1671,7 +1674,7 @@
   // ─── Firebase 초기화 ───
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDWIWdYOsHyR-UshPleDUntFfrmPmHssKU",
@@ -1689,28 +1692,52 @@
 
   let currentUser = null;
 
+  let isSyncing = false; // 원격 변경 수신 중 save() 루프 방지
   syncToCloud = async function() {
-    if (!currentUser) return;
+    if (!currentUser || isSyncing) return;
     const ref = doc(db, 'users', currentUser.uid);
-    await setDoc(ref, { todos, habits, habitLogs, goals, events, plannerBlocks, plannerLogs }, { merge: true });
+    await setDoc(ref, {
+      todos, habits, habitLogs, goals, events,
+      plannerBlocks, plannerLogs,
+      todoCats, ttNotes, ddays, memos
+    }, { merge: true });
   };
 
-  async function loadFromCloud() {
+  let unsubSnapshot = null;
+  function startCloudSync() {
     if (!currentUser) return;
-    const ref  = doc(db, 'users', currentUser.uid);
-    const snap = await getDoc(ref);
-    if (snap.exists()) {
+    if (unsubSnapshot) unsubSnapshot(); // 기존 리스너 해제
+    const ref = doc(db, 'users', currentUser.uid);
+    unsubSnapshot = onSnapshot(ref, snap => {
+      if (!snap.exists()) return;
+      isSyncing = true;
       const d = snap.data();
-      todos        = d.todos        || [];
-      habits       = d.habits       || [];
-      habitLogs    = d.habitLogs    || {};
-      goals        = d.goals        || [];
-      events       = d.events       || [];
-      plannerBlocks= d.plannerBlocks|| {};
-      plannerLogs  = d.plannerLogs  || {};
-      save();
-    }
-    renderDash(); renderTodos(); renderHabits(); renderGoals(); renderStats();
+      todos         = d.todos         || [];
+      habits        = d.habits        || [];
+      habitLogs     = d.habitLogs     || {};
+      goals         = d.goals         || [];
+      events        = d.events        || [];
+      plannerBlocks = d.plannerBlocks || {};
+      plannerLogs   = d.plannerLogs   || {};
+      todoCats      = d.todoCats      || ['업무','개인','공부','기타'];
+      ttNotes       = d.ttNotes       || {};
+      ddays         = d.ddays         || [];
+      memos         = d.memos         || {};
+      // localStorage 동기화
+      localStorage.setItem('todos',     JSON.stringify(todos));
+      localStorage.setItem('habits',    JSON.stringify(habits));
+      localStorage.setItem('habitLogs', JSON.stringify(habitLogs));
+      localStorage.setItem('goals',     JSON.stringify(goals));
+      localStorage.setItem('events',    JSON.stringify(events));
+      localStorage.setItem('todoCats',  JSON.stringify(todoCats));
+      localStorage.setItem('ttNotes',   JSON.stringify(ttNotes));
+      localStorage.setItem('ddays',     JSON.stringify(ddays));
+      localStorage.setItem('memos',     JSON.stringify(memos));
+      isSyncing = false;
+      renderTodoCatSelect(); renderTodoCatPills();
+      renderDash(); renderTodos(); renderHabits(); renderGoals(); renderStats();
+      renderDdays(); renderPlanner();
+    });
   }
 
   function googleLogin() {
@@ -1727,9 +1754,9 @@
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app-screen').style.display = 'block';
       document.getElementById('user-name').textContent = user.displayName || user.email;
-      await loadFromCloud();
+      startCloudSync();
     } else {
-      // 로그아웃됨 → 로그인 화면 표시
+      if (unsubSnapshot) { unsubSnapshot(); unsubSnapshot = null; }
       document.getElementById('login-screen').style.display = 'flex';
       document.getElementById('app-screen').style.display = 'none';
     }
