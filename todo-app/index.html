@@ -214,6 +214,9 @@
     .cal-cell.cal-drag-sel { background: #f0f4ff !important; }
     .cal-plus-btn { opacity:0; font-size:0.85rem; color:#aaa; cursor:pointer; padding:0 2px; border-radius:4px; transition:opacity 0.15s; line-height:1; }
     .cal-plus-btn:hover { background:#e5e7eb; color:#555; }
+    .banner-pos-btn, .banner-size-btn { padding:7px 4px; border:1px solid #e5e7eb; border-radius:8px; background:white; cursor:pointer; font-size:0.8rem; font-family:inherit; color:#6b7280; transition:all 0.15s; }
+    .banner-pos-btn:hover, .banner-size-btn:hover { border-color:#a3a3a3; color:#111; }
+    .banner-pos-btn.active, .banner-size-btn.active { background:#1a1a1a; color:white; border-color:#1a1a1a; }
     .cal-ev-pill { font-size:0.68rem; padding:2px 5px; margin-bottom:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.4; color:#444; }
     .cal-cell.today .cal-date-num { background: #1a1a1a; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
     .cal-date { font-size: 0.82rem; font-weight: 500; margin-bottom: 4px; }
@@ -798,7 +801,20 @@
     <div class="card" style="margin-bottom:16px">
       <div class="card-title">🖼 배너 사진</div>
       <div id="banner-preview-wrap" style="margin-bottom:12px;border-radius:12px;overflow:hidden;height:80px;background:#f3f4f6;display:none">
-        <img id="banner-preview-img" style="width:100%;height:100%;object-fit:cover">
+        <div id="banner-preview-inner" style="width:100%;height:100%;background-size:cover;background-repeat:no-repeat"></div>
+      </div>
+      <div id="banner-fit-section" style="display:none;margin-bottom:12px">
+        <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:6px">📐 사진 위치</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+          <button onclick="setBannerPos('top')"    class="banner-pos-btn" data-pos="top">↑ 위</button>
+          <button onclick="setBannerPos('center')" class="banner-pos-btn" data-pos="center">· 가운데</button>
+          <button onclick="setBannerPos('bottom')" class="banner-pos-btn" data-pos="bottom">↓ 아래</button>
+        </div>
+        <div style="font-size:0.78rem;color:#9ca3af;margin:10px 0 6px">🔍 사진 크기</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px">
+          <button onclick="setBannerSize('cover')"   class="banner-size-btn" data-size="cover">꽉 채우기</button>
+          <button onclick="setBannerSize('contain')" class="banner-size-btn" data-size="contain">전체 보기</button>
+        </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px">
         <label style="width:100%;padding:12px;border:1px solid #e5e7eb;border-radius:12px;background:white;cursor:pointer;font-size:0.9rem;font-family:inherit;color:#374151;display:flex;align-items:center;gap:10px;box-sizing:border-box">
@@ -2480,31 +2496,48 @@
   // ─── 배너 이미지 ───
   function applyBannerImage(dataUrl) {
     const bg = document.querySelector('.banner-bg');
+    const pos = localStorage.getItem('bannerPos') || 'center';
+    const size = localStorage.getItem('bannerSize') || 'cover';
     if(dataUrl) {
-      bg.style.backgroundImage = `url(${dataUrl})`;
-      bg.style.backgroundSize = 'cover';
-      bg.style.backgroundPosition = 'center';
-      bg.style.background = '';
-      bg.style.backgroundImage = `url(${dataUrl})`;
-      bg.style.backgroundSize = 'cover';
-      bg.style.backgroundPosition = 'center';
+      bg.style.cssText = `position:absolute;inset:0;background-image:url(${dataUrl});background-size:${size};background-position:${pos};background-repeat:no-repeat`;
+      const preview = document.getElementById('banner-preview-inner');
+      if(preview){ preview.style.backgroundImage=`url(${dataUrl})`; preview.style.backgroundSize=size; preview.style.backgroundPosition=pos; }
       const wrap = document.getElementById('banner-preview-wrap');
-      const img = document.getElementById('banner-preview-img');
-      if(wrap && img){ wrap.style.display='block'; img.src=dataUrl; }
+      if(wrap) wrap.style.display='block';
+      const fitSec = document.getElementById('banner-fit-section');
+      if(fitSec) fitSec.style.display='block';
+      updateBannerBtnActive();
     } else {
       bg.style.cssText = '';
       const wrap = document.getElementById('banner-preview-wrap');
       if(wrap) wrap.style.display='none';
+      const fitSec = document.getElementById('banner-fit-section');
+      if(fitSec) fitSec.style.display='none';
     }
   }
+  function updateBannerBtnActive() {
+    const pos = localStorage.getItem('bannerPos') || 'center';
+    const size = localStorage.getItem('bannerSize') || 'cover';
+    document.querySelectorAll('.banner-pos-btn').forEach(b => b.classList.toggle('active', b.dataset.pos===pos));
+    document.querySelectorAll('.banner-size-btn').forEach(b => b.classList.toggle('active', b.dataset.size===size));
+  }
+  window.setBannerPos = function(pos) {
+    localStorage.setItem('bannerPos', pos);
+    const dataUrl = localStorage.getItem('bannerImage');
+    if(dataUrl) applyBannerImage(dataUrl);
+  };
+  window.setBannerSize = function(size) {
+    localStorage.setItem('bannerSize', size);
+    const dataUrl = localStorage.getItem('bannerImage');
+    if(dataUrl) applyBannerImage(dataUrl);
+  };
   window.setBannerImage = function(e) {
     const file = e.target.files[0];
     if(!file) return;
     const reader = new FileReader();
     reader.onload = function(ev) {
-      const dataUrl = ev.target.result;
-      localStorage.setItem('bannerImage', dataUrl);
-      applyBannerImage(dataUrl);
+      localStorage.setItem('bannerImage', ev.target.result);
+      applyBannerImage(ev.target.result);
     };
     reader.readAsDataURL(file);
   };
