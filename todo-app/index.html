@@ -2712,8 +2712,10 @@
     if (!currentUser) return;
     if (unsubSnapshot) unsubSnapshot(); // 기존 리스너 해제
     const ref = doc(db, 'users', currentUser.uid);
-    unsubSnapshot = onSnapshot(ref, snap => {
+    unsubSnapshot = onSnapshot(ref, { includeMetadataChanges: true }, snap => {
       if (!snap.exists()) return;
+      // 내가 쓴 pending 로컬 쓰기 중엔 건너뜀 — 서버 확인 후에만 처리
+      if (snap.metadata.hasPendingWrites) return;
       isSyncing = true;
       const d = snap.data();
       todos         = d.todos         || [];
