@@ -1248,11 +1248,14 @@
     document.getElementById('te-save').onclick = () => {
       const newText = document.getElementById('te-text').value.trim();
       if(!newText) return;
-      t.text = newText;
-      t.cat  = document.getElementById('te-cat').value;
-      t.due  = document.getElementById('te-due').value || null;
+      // onSnapshot으로 todos 배열이 교체됐을 수 있으므로 ID로 다시 찾기
+      const todo = todos.find(x => x.id === id);
+      if(!todo) return;
+      todo.text = newText;
+      todo.cat  = document.getElementById('te-cat').value;
+      todo.due  = document.getElementById('te-due').value || null;
       const selP = ['high','medium','low'].find(p => document.getElementById('te-p-'+p)?.dataset.sel === '1');
-      t.priority = selP || t.priority || 'medium';
+      todo.priority = selP || todo.priority || 'medium';
       save(); renderTodos(); renderDash(); renderStats();
       overlay.remove();
     };
