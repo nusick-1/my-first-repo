@@ -2686,8 +2686,7 @@
   // ─── Firebase 초기화 ───
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getStorage, ref as storageRef, uploadString, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+  import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDWIWdYOsHyR-UshPleDUntFfrmPmHssKU",
@@ -2701,7 +2700,6 @@
   const fbApp   = initializeApp(firebaseConfig);
   const auth    = getAuth(fbApp);
   const db      = getFirestore(fbApp);
-  const storage = getStorage(fbApp);
   const provider = new GoogleAuthProvider();
 
   let currentUser = null;
@@ -2721,7 +2719,6 @@
       bannerPosX:    localStorage.getItem('bannerPosX')    || '50',
       bannerPosY:    localStorage.getItem('bannerPosY')    || '50',
       bannerZoom:    localStorage.getItem('bannerZoom')    || '100',
-      bannerImageUrl:localStorage.getItem('bannerImageUrl')|| '',
     };
     await setDoc(ref, {
       todos, habits, habitLogs, goals, events,
@@ -2778,13 +2775,12 @@
         if(s.bannerPosY)     localStorage.setItem('bannerPosY',     s.bannerPosY);
         if(s.bannerZoom)     localStorage.setItem('bannerZoom',     s.bannerZoom);
         window.renderBannerDeco && renderBannerDeco();
-        // 배너: 로컬 이미지 우선, 없으면 Storage URL로 로드
+        // 배너: 로컬 이미지 우선, 없으면 Firestore bannerImages에서 로드
         const _localBi = localStorage.getItem('bannerImage');
         if(_localBi) {
           applyBannerImage(_localBi);
-        } else if(s.bannerImageUrl) {
-          localStorage.setItem('bannerImageUrl', s.bannerImageUrl);
-          applyBannerImage(s.bannerImageUrl);
+        } else {
+          window.loadBannerFromCloud && window.loadBannerFromCloud();
         }
       }
       // localStorage 동기화
@@ -2829,9 +2825,13 @@
       if(se) se.textContent = user.email || '';
       showView('planner');
       startCloudSync();
-      // 로그인 후 배너 이미지 재적용
+      // 로그인 후 배너 이미지: 로컬 없으면 Firestore에서 로드
       const _savedBanner = localStorage.getItem('bannerImage');
-      if(_savedBanner) applyBannerImage(_savedBanner);
+      if(_savedBanner) {
+        applyBannerImage(_savedBanner);
+      } else {
+        window.loadBannerFromCloud && window.loadBannerFromCloud();
+      }
     } else {
       if (unsubSnapshot) { unsubSnapshot(); unsubSnapshot = null; }
       document.getElementById('login-screen').style.display = 'flex';
@@ -3039,46 +3039,71 @@
     document.querySelector('.banner-bg').style.backgroundSize=size;
     syncToCloud && syncToCloud();
   };
+  // Canvas로 이미지 압축 (최대 1200px, JPEG 0.75) → Firestore 1MB 이내
+  function compressBannerImage(dataUrl) {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1200;
+        let w = img.width, h = img.height;
+        if(w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+        if(h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.75));
+      };
+      img.src = dataUrl;
+    });
+  }
+  async function saveBannerToCloud(dataUrl) {
+    if(!currentUser) return;
+    try {
+      const ref = doc(db, 'bannerImages', currentUser.uid);
+      await setDoc(ref, { img: dataUrl });
+    } catch(err) { console.warn('배너 Firestore 저장 실패:', err); }
+  }
+  window.loadBannerFromCloud = async function() {
+    if(!currentUser) return;
+    try {
+      const ref = doc(db, 'bannerImages', currentUser.uid);
+      const snap = await getDoc(ref);
+      if(snap.exists() && snap.data().img) {
+        const url = snap.data().img;
+        localStorage.setItem('bannerImage', url);
+        applyBannerImage(url);
+      }
+    } catch(err) { console.warn('배너 Firestore 로드 실패:', err); }
+  };
   window.setBannerImage = function(e) {
     const file = e.target.files[0];
     if(!file) return;
     const reader = new FileReader();
     reader.onload = async function(ev) {
-      const dataUrl = ev.target.result;
-      localStorage.setItem('bannerImage', dataUrl);
+      const compressed = await compressBannerImage(ev.target.result);
+      localStorage.setItem('bannerImage', compressed);
       localStorage.setItem('bannerPosX','50');
       localStorage.setItem('bannerPosY','50');
       localStorage.setItem('bannerZoom','100');
-      applyBannerImage(dataUrl);
-      // Firebase Storage에 업로드 후 URL을 Firestore에 저장
-      if(currentUser) {
-        try {
-          const imgRef = storageRef(storage, `banners/${currentUser.uid}`);
-          await uploadString(imgRef, dataUrl, 'data_url');
-          const url = await getDownloadURL(imgRef);
-          localStorage.setItem('bannerImageUrl', url);
-          syncToCloud && syncToCloud();
-        } catch(err) { console.warn('배너 업로드 실패:', err); }
-      }
+      applyBannerImage(compressed);
+      await saveBannerToCloud(compressed);
+      syncToCloud && syncToCloud();
     };
     reader.readAsDataURL(file);
   };
   window.removeBannerImage = async function() {
     localStorage.removeItem('bannerImage');
-    localStorage.removeItem('bannerImageUrl');
     localStorage.removeItem('bannerPosX');
     localStorage.removeItem('bannerPosY');
     localStorage.removeItem('bannerZoom');
     applyBannerImage(null);
     if(currentUser) {
-      try {
-        await deleteObject(storageRef(storage, `banners/${currentUser.uid}`));
-      } catch {}
+      try { await setDoc(doc(db,'bannerImages',currentUser.uid),{img:''}); } catch{}
       syncToCloud && syncToCloud();
     }
   };
-  // 로드 시 적용 (로컬 data 우선, 없으면 Storage URL)
-  const savedBanner = localStorage.getItem('bannerImage') || localStorage.getItem('bannerImageUrl');
+  // 로드 시 적용
+  const savedBanner = localStorage.getItem('bannerImage');
   if(savedBanner) applyBannerImage(savedBanner);
 
   window.exportData = function() {
