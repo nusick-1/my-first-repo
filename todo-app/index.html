@@ -2759,7 +2759,8 @@
         if(s.bannerPosY)     localStorage.setItem('bannerPosY',     s.bannerPosY);
         if(s.bannerZoom)     localStorage.setItem('bannerZoom',     s.bannerZoom);
         window.renderBannerDeco && renderBannerDeco();
-        window.applyBannerBg  && applyBannerBg();
+        const _bi = localStorage.getItem('bannerImage');
+        if(_bi) applyBannerImage(_bi);
       }
       // localStorage 동기화
       localStorage.setItem('todos',     JSON.stringify(todos));
@@ -2803,6 +2804,9 @@
       if(se) se.textContent = user.email || '';
       showView('planner');
       startCloudSync();
+      // 로그인 후 배너 이미지 재적용
+      const _savedBanner = localStorage.getItem('bannerImage');
+      if(_savedBanner) applyBannerImage(_savedBanner);
     } else {
       if (unsubSnapshot) { unsubSnapshot(); unsubSnapshot = null; }
       document.getElementById('login-screen').style.display = 'flex';
