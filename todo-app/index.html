@@ -2206,10 +2206,13 @@
   }
 
   // 메모
+  let _memoTimer = null;
   function saveMemo() {
     memos[plannerDate] = document.getElementById('pln-memo').value;
     localStorage.setItem('memos', JSON.stringify(memos));
-    syncToCloud();
+    lastLocalSave = Date.now();
+    clearTimeout(_memoTimer);
+    _memoTimer = setTimeout(() => syncToCloud && syncToCloud(), 1000);
   }
   function loadMemo() {
     const el = document.getElementById('pln-memo');
@@ -2702,8 +2705,10 @@
   let currentUser = null;
 
   let isSyncing = false; // 원격 변경 수신 중 save() 루프 방지
+  let lastLocalSave = 0; // 로컬 변경 타임스탬프 (onSnapshot 덮어쓰기 방지)
   syncToCloud = async function() {
     if (!currentUser || isSyncing) return;
+    lastLocalSave = Date.now();
     const ref = doc(db, 'users', currentUser.uid);
     const settings = {
       themeAccent:   localStorage.getItem('themeAccent')   || '',
@@ -2746,7 +2751,13 @@
       todoCats      = d.todoCats      || ['업무','개인','공부','기타'];
       ttNotes       = d.ttNotes       || {};
       ddays         = d.ddays         || [];
-      memos         = d.memos         || {};
+      // 로컬 변경 후 3초 이내엔 memos를 덮어쓰지 않음
+      if (Date.now() - lastLocalSave > 3000) {
+        memos = d.memos || {};
+      } else if (d.memos) {
+        // 원격 데이터를 로컬에 병합 (로컬 날짜 우선)
+        Object.keys(d.memos).forEach(k => { if (!memos[k]) memos[k] = d.memos[k]; });
+      }
       diaries       = d.diaries       || {};
       meals         = d.meals         || {};
       studySubjects    = d.studySubjects    || [];
