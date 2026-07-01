@@ -2289,9 +2289,7 @@
     // 그리드형 시간표
     const dateNotes = ttNotes[plannerDate] || {};
     const MINS = [0,10,20,30,40,50];
-    // 개별 셀 유지, 인접 동일 내용끼리 경계선만 제거 → 선 항상 보임
     function sameNote(a,b){ return a&&b&&a.text===b.text&&a.bg===b.bg; }
-    // 블록 크기 계산 (text 가운데 배치용)
     function blockSize(hi,mi,note){
       let cs=1,rs=1;
       while(mi+cs<MINS.length&&sameNote(note,dateNotes[`${HOURS[hi]}_${MINS[mi+cs]}`])) cs++;
@@ -2301,9 +2299,25 @@
       }
       return{cs,rs};
     }
+    // 블록별 텍스트 표시 셀 사전 계산: 중간 행 첫 번째 열에만 표시 (높이 1행으로 제한 → 인접 블록 침범 없음)
+    const textCells = {}; // key → {cs, rs, note}
+    HOURS.forEach((h,hi) => {
+      MINS.forEach((m,mi) => {
+        const key = `${h}_${m}`;
+        const note = dateNotes[key];
+        if(!note?.text) return;
+        const leftNote = mi>0 ? dateNotes[`${h}_${MINS[mi-1]}`] : null;
+        const topNote  = hi>0 ? dateNotes[`${HOURS[hi-1]}_${m}`] : null;
+        if(sameNote(note,leftNote) || sameNote(note,topNote)) return; // top-left 아님
+        const {cs,rs} = blockSize(hi,mi,note);
+        const midHI = hi + Math.floor(rs/2);
+        const midKey = `${HOURS[midHI]}_${MINS[mi]}`;
+        textCells[midKey] = {cs, rs, note};
+      });
+    });
     let ttHtml = `<table class="timetable"><thead><tr>
       <th class="th-hour"></th>
-      ${MINS.map(m=>`<th>${m}</th>`).join('')}
+      ${MINS.map(m=>`<th>${m===0?'00':m}</th>`).join('')}
     </tr></thead><tbody>`;
     HOURS.forEach((h,hi) => {
       ttHtml += `<tr><td class="td-hour">${String(h).padStart(2,'0')}</td>`;
@@ -2314,14 +2328,13 @@
         const topNote  = hi>0 ? dateNotes[`${HOURS[hi-1]}_${m}`] : null;
         const sameL = sameNote(note,leftNote);
         const sameT = sameNote(note,topNote);
-        // 경계선: 같은 내용이 이어지면 그쪽 border 투명
         const bStyle = `${sameL?'border-left-color:transparent;':''}${sameT?'border-top-color:transparent;':''}`;
         const bg = note?.bg ? `background:${note.bg};` : '';
-        // 텍스트는 블록의 top-left 셀에만, absolute로 블록 전체 커버
+        // 텍스트: 블록 중간 행 첫 번째 칸에만, 높이 1행(22px)으로 수평 가운데 정렬
         let textHtml = '';
-        if(note?.text && !sameL && !sameT){
-          const {cs,rs} = blockSize(hi,mi,note);
-          textHtml = `<div style="position:absolute;left:0;top:0;width:${cs*100}%;height:${rs*22}px;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:2;font-size:${rs>2?'0.75':'0.62'}rem;font-weight:${rs>2?'600':'500'};color:${note.textColor||'#333'}">${note.text}</div>`;
+        const ti = textCells[key];
+        if(ti) {
+          textHtml = `<div style="position:absolute;left:0;top:0;width:${ti.cs*100}%;height:22px;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:2;font-size:${ti.rs>2?'0.75':'0.62'}rem;font-weight:${ti.rs>2?'600':'500'};color:${ti.note.textColor||'#333'};overflow:hidden">${ti.note.text}</div>`;
         }
         ttHtml += `<td class="td-cell ${note?'has-note':''}" data-key="${key}" data-hi="${hi}" data-mi="${mi}" data-date="${plannerDate}" style="${bg}${bStyle}">${textHtml}</td>`;
       });
