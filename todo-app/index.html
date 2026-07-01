@@ -1503,18 +1503,17 @@
   let ttPointerDown = false;
   let ttDragStartHI = -1, ttDragStartMI = -1;
   function updateTTRect(hiEnd, miEnd) {
-    // 방향 잠금: 더 많이 움직인 축으로만 확장
-    const dhi = Math.abs(hiEnd - ttDragStartHI);
-    const dmi = Math.abs(miEnd - ttDragStartMI);
-    const hiMin = Math.min(ttDragStartHI, dhi >= dmi ? hiEnd : ttDragStartHI);
-    const hiMax = Math.max(ttDragStartHI, dhi >= dmi ? hiEnd : ttDragStartHI);
-    const miMin = Math.min(ttDragStartMI, dmi > dhi ? miEnd : ttDragStartMI);
-    const miMax = Math.max(ttDragStartMI, dmi > dhi ? miEnd : ttDragStartMI);
+    // 선형(연속) 선택: 시작~끝 사이 모든 셀을 순서대로
+    const NCOLS = 6; // [0,10,20,30,40,50]
+    const startIdx = ttDragStartHI * NCOLS + ttDragStartMI;
+    const endIdx   = hiEnd * NCOLS + miEnd;
+    const lo = Math.min(startIdx, endIdx);
+    const hi_ = Math.max(startIdx, endIdx);
     document.querySelectorAll('.drag-select').forEach(c=>c.classList.remove('drag-select'));
     ttSelKeys = [];
     document.querySelectorAll(`.td-cell[data-date="${ttSelDate}"]`).forEach(cell => {
-      const hi = +cell.dataset.hi, mi = +cell.dataset.mi;
-      if(hi>=hiMin&&hi<=hiMax&&mi>=miMin&&mi<=miMax){
+      const idx = +cell.dataset.hi * NCOLS + +cell.dataset.mi;
+      if(idx >= lo && idx <= hi_){
         cell.classList.add('drag-select');
         ttSelKeys.push(cell.dataset.key);
       }
@@ -2289,7 +2288,7 @@
     // 시간표
     // 그리드형 시간표
     const dateNotes = ttNotes[plannerDate] || {};
-    const MINS = [10,20,30,40,50];
+    const MINS = [0,10,20,30,40,50];
     // 개별 셀 유지, 인접 동일 내용끼리 경계선만 제거 → 선 항상 보임
     function sameNote(a,b){ return a&&b&&a.text===b.text&&a.bg===b.bg; }
     // 블록 크기 계산 (text 가운데 배치용)
@@ -2688,11 +2687,23 @@
   syncToCloud = async function() {
     if (!currentUser || isSyncing) return;
     const ref = doc(db, 'users', currentUser.uid);
+    const settings = {
+      themeAccent:   localStorage.getItem('themeAccent')   || '',
+      themeHover:    localStorage.getItem('themeHover')    || '',
+      decoBigShape:  localStorage.getItem('decoBigShape')  || '♡',
+      decoSmallShape:localStorage.getItem('decoSmallShape')|| '✦',
+      decoColor:     localStorage.getItem('decoColor')     || 'white',
+      bannerPosX:    localStorage.getItem('bannerPosX')    || '50',
+      bannerPosY:    localStorage.getItem('bannerPosY')    || '50',
+      bannerZoom:    localStorage.getItem('bannerZoom')    || '1',
+    };
     await setDoc(ref, {
       todos, habits, habitLogs, goals, events,
       plannerBlocks, plannerLogs,
       todoCats, ttNotes, ddays, memos,
-      diaries, meals, studySubjects, studyLogs
+      diaries, meals, studySubjects, studyLogs,
+      studyAssignments, studyExams,
+      settings,
     }, { merge: true });
   };
 
@@ -2722,6 +2733,19 @@
       studyLogs        = d.studyLogs        || {};
       studyAssignments = d.studyAssignments || [];
       studyExams       = d.studyExams       || [];
+      // 설정 동기화 (색 테마, 배너 데코, 배너 위치)
+      if(d.settings) {
+        const s = d.settings;
+        if(s.themeAccent)    { localStorage.setItem('themeAccent', s.themeAccent); localStorage.setItem('themeHover', s.themeHover||''); window.applyTheme && applyTheme(s.themeAccent, s.themeHover||''); }
+        if(s.decoBigShape)   localStorage.setItem('decoBigShape',   s.decoBigShape);
+        if(s.decoSmallShape) localStorage.setItem('decoSmallShape', s.decoSmallShape);
+        if(s.decoColor)      localStorage.setItem('decoColor',      s.decoColor);
+        if(s.bannerPosX)     localStorage.setItem('bannerPosX',     s.bannerPosX);
+        if(s.bannerPosY)     localStorage.setItem('bannerPosY',     s.bannerPosY);
+        if(s.bannerZoom)     localStorage.setItem('bannerZoom',     s.bannerZoom);
+        window.renderBannerDeco && renderBannerDeco();
+        window.applyBannerBg  && applyBannerBg();
+      }
       // localStorage 동기화
       localStorage.setItem('todos',     JSON.stringify(todos));
       localStorage.setItem('habits',    JSON.stringify(habits));
@@ -2802,6 +2826,7 @@
     );
     const label = document.getElementById('theme-current-label');
     if(label) label.textContent = '현재: ' + (THEMES[accent] || '커스텀 ' + accent);
+    syncToCloud && syncToCloud();
   };
 
   // 로드 시 테마 적용
@@ -2868,10 +2893,12 @@
   window.setDecoShape = function(type, val) {
     localStorage.setItem(type==='big'?'decoBigShape':'decoSmallShape', val);
     renderBannerDeco();
+    syncToCloud && syncToCloud();
   };
   window.setDecoColor = function(color) {
     localStorage.setItem('decoColor', color);
     renderBannerDeco();
+    syncToCloud && syncToCloud();
   };
 
   renderBannerDeco();
@@ -2966,6 +2993,7 @@
     const preview = document.getElementById('banner-preview-inner');
     if(preview){ preview.style.backgroundSize=size; }
     document.querySelector('.banner-bg').style.backgroundSize=size;
+    syncToCloud && syncToCloud();
   };
   window.setBannerImage = function(e) {
     const file = e.target.files[0];
