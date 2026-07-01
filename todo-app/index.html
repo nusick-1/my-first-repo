@@ -2212,8 +2212,10 @@
     localStorage.setItem('memos', JSON.stringify(memos));
     lastLocalSave = Date.now();
     clearTimeout(_memoTimer);
-    _memoTimer = setTimeout(() => syncToCloud && syncToCloud(), 1000);
+    _memoTimer = setTimeout(() => syncToCloud && syncToCloud(), 300);
   }
+  // 새로고침/탭 닫기 전 메모 동기화 (비동기라 보장 안 되지만 빠른 경우 성공)
+  window.addEventListener('beforeunload', () => { syncToCloud && syncToCloud(); });
   function loadMemo() {
     const el = document.getElementById('pln-memo');
     if(el) el.value = memos[plannerDate] || '';
@@ -2751,11 +2753,8 @@
       todoCats      = d.todoCats      || ['업무','개인','공부','기타'];
       ttNotes       = d.ttNotes       || {};
       ddays         = d.ddays         || [];
-      // 로컬 변경 후 3초 이내엔 memos를 덮어쓰지 않음
-      if (Date.now() - lastLocalSave > 3000) {
-        memos = d.memos || {};
-      } else if (d.memos) {
-        // 원격 데이터를 로컬에 병합 (로컬 날짜 우선)
+      // 메모: 항상 병합 (로컬에 값 있으면 유지, 없으면 클라우드 값 사용)
+      if (d.memos) {
         Object.keys(d.memos).forEach(k => { if (!memos[k]) memos[k] = d.memos[k]; });
       }
       diaries       = d.diaries       || {};
