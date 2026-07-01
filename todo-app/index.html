@@ -1202,11 +1202,60 @@
     document.getElementById('due-input').value = '';
     save(); renderTodos(); renderDash(); renderStats();
   }
-  function renameTodo(id) {
+  function openTodoEdit(id) {
     const t = todos.find(t=>t.id===id);
     if(!t) return;
-    const newText = prompt('할일 이름 변경', t.text);
-    if(newText && newText.trim()) { t.text = newText.trim(); save(); renderTodos(); renderDash(); }
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:18px;padding:24px 20px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.18)">
+        <div style="font-weight:700;font-size:1rem;margin-bottom:18px;color:#1a1a1a">✏️ 할일 수정</div>
+        <div style="margin-bottom:14px">
+          <div style="font-size:0.75rem;color:#888;margin-bottom:5px">할일 이름</div>
+          <input id="te-text" value="${t.text.replace(/"/g,'&quot;')}" style="width:100%;border:1px solid #e5e7eb;border-radius:10px;padding:9px 12px;font-size:0.9rem;font-family:inherit;outline:none;box-sizing:border-box">
+        </div>
+        <div style="margin-bottom:14px">
+          <div style="font-size:0.75rem;color:#888;margin-bottom:5px">카테고리</div>
+          <select id="te-cat" style="width:100%;border:1px solid #e5e7eb;border-radius:10px;padding:9px 12px;font-size:0.9rem;font-family:inherit;outline:none;background:#fff;box-sizing:border-box">
+            ${todoCats.map(c=>`<option${c===t.cat?' selected':''}>${c}</option>`).join('')}
+          </select>
+        </div>
+        <div style="margin-bottom:14px">
+          <div style="font-size:0.75rem;color:#888;margin-bottom:5px">우선순위</div>
+          <div style="display:flex;gap:8px">
+            ${['high','medium','low'].map(p=>{
+              const sel = t.priority===p || (!t.priority && p==='medium');
+              return `<button id="te-p-${p}" data-p="${p}"
+                onclick="document.querySelectorAll('[id^=te-p-]').forEach(b=>{b.style.background='#fff';b.style.color='#555';b.dataset.sel=''}); this.style.background='var(--accent)';this.style.color='#fff';this.dataset.sel='1'"
+                style="flex:1;border:1px solid #e5e7eb;border-radius:10px;padding:8px 0;font-size:0.82rem;font-family:inherit;cursor:pointer;background:${sel?'var(--accent)':'#fff'};color:${sel?'#fff':'#555'};transition:all 0.15s"
+                ${sel?'data-sel="1"':''}>${{high:'🔴 높음',medium:'🟡 보통',low:'🟢 낮음'}[p]}</button>`;
+            }).join('')}
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:0.75rem;color:#888;margin-bottom:5px">마감일</div>
+          <input id="te-due" type="date" value="${t.due||''}" style="width:100%;border:1px solid #e5e7eb;border-radius:10px;padding:9px 12px;font-size:0.9rem;font-family:inherit;outline:none;box-sizing:border-box">
+        </div>
+        <div style="display:flex;gap:10px">
+          <button id="te-cancel" style="flex:1;padding:11px 0;border:1px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:inherit;cursor:pointer;background:#fff;color:#555">취소</button>
+          <button id="te-save" style="flex:2;padding:11px 0;border:none;border-radius:12px;font-size:0.9rem;font-weight:600;font-family:inherit;cursor:pointer;background:var(--accent);color:#fff">저장</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('te-text').focus();
+    document.getElementById('te-cancel').onclick = () => overlay.remove();
+    overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
+    document.getElementById('te-save').onclick = () => {
+      const newText = document.getElementById('te-text').value.trim();
+      if(!newText) return;
+      t.text = newText;
+      t.cat  = document.getElementById('te-cat').value;
+      t.due  = document.getElementById('te-due').value || null;
+      const selP = ['high','medium','low'].find(p => document.getElementById('te-p-'+p)?.dataset.sel === '1');
+      t.priority = selP || t.priority || 'medium';
+      save(); renderTodos(); renderDash(); renderStats();
+      overlay.remove();
+    };
   }
   function setTodoPriority(id, p) {
     const t = todos.find(t=>t.id===id);
@@ -1306,7 +1355,7 @@
             ${t.due?'':`<span style="color:#ddd;font-size:0.72rem;cursor:pointer" onclick="this.previousElementSibling.style.display='block';this.style.display='none'">+ 마감일</span>`}
           </div>
         </div>
-        <button onclick="renameTodo(${t.id})" style="background:none;border:none;cursor:pointer;font-size:0.82rem;color:#bbb;padding:2px 4px">✏️</button>
+        <button onclick="openTodoEdit(${t.id})" style="background:none;border:none;cursor:pointer;font-size:0.82rem;color:#bbb;padding:2px 4px">✏️</button>
         <button class="btn-del" onclick="deleteTodo(${t.id})">🗑</button>
       </div>`;
     }).join('');
@@ -3291,7 +3340,7 @@
   window.openBlockModal = openBlockModal;
   window.deleteBlock = deleteBlock;
   window.deleteLog = deleteLog;
-  window.renameTodo = renameTodo;
+  window.openTodoEdit = openTodoEdit;
   window.setTodoPriority = setTodoPriority;
   window.todoDragStart = todoDragStart;
   window.todoDragOver = todoDragOver;
