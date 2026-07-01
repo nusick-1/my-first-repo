@@ -1279,12 +1279,13 @@
     todoDragId = null;
     save(); renderTodos();
   }
-  const TODO_STATUS_CYCLE = ['pending','done','partial','cancelled'];
+  const TODO_STATUS_CYCLE = ['pending','inprogress','done','partial','cancelled'];
   const TODO_STATUS_STYLE = {
-    pending:   { icon:'',  bg:'transparent', border:'2px solid #d1d5db', color:'#9ca3af' },
-    done:      { icon:'✓', bg:'var(--accent)', border:'none', color:'white' },
-    partial:   { icon:'△', bg:'#f59e0b', border:'none', color:'white' },
-    cancelled: { icon:'✕', bg:'#ef4444',  border:'none', color:'white' },
+    pending:    { icon:'',   bg:'transparent',  border:'2px solid #d1d5db', color:'#9ca3af' },
+    inprogress: { icon:'▶', bg:'#3b82f6',      border:'none',              color:'white'   },
+    done:       { icon:'✓', bg:'var(--accent)', border:'none',              color:'white'   },
+    partial:    { icon:'△', bg:'#f59e0b',       border:'none',              color:'white'   },
+    cancelled:  { icon:'✕', bg:'#ef4444',       border:'none',              color:'white'   },
   };
   function getTodoStatus(t) {
     if(t.status) return t.status;
@@ -1326,10 +1327,11 @@
     el.innerHTML = list.map(t=>{
       const status = getTodoStatus(t);
       const st = TODO_STATUS_STYLE[status];
-      const isOverdue = t.due && t.due < todayStr && status==='pending';
+      const isOverdue = t.due && t.due < todayStr && (status==='pending'||status==='inprogress');
       const isDone = status==='done';
       const isCancelled = status==='cancelled';
       const isPartial = status==='partial';
+      const isInProgress = status==='inprogress';
       const dueDiff = t.due ? Math.round((new Date(t.due)-new Date(todayStr))/(1000*60*60*24)) : null;
       let dueLabel = '';
       if(t.due) {
@@ -1339,7 +1341,7 @@
         else dueLabel = `<span style="color:#9ca3af">📅 ${t.due}</span>`;
       }
       const rowBg = isOverdue?'border-left:3px solid #ef4444;background:#fff5f5;' : isCancelled?'opacity:0.45;' : '';
-      const textStyle = (isDone||isCancelled)?'text-decoration:line-through;color:#9ca3af;' : isPartial?'color:#b45309;':'';
+      const textStyle = (isDone||isCancelled)?'text-decoration:line-through;color:#9ca3af;' : isPartial?'color:#b45309;' : isInProgress?'color:#3b82f6;font-weight:600;':'';
       return `
       <div class="todo-item" draggable="true" style="${rowBg}"
         ondragstart="todoDragStart(${t.id})" ondragover="todoDragOver(event)" ondrop="todoDrop(${t.id})">
@@ -2203,7 +2205,7 @@
     if(!el) return;
     const list = todos.filter(t => {
       const st = getTodoStatus(t);
-      const carries = st === 'pending' || st === 'partial'; // 세모도 이월
+      const carries = st === 'pending' || st === 'partial' || st === 'inprogress';
       if(t.due) {
         return t.due === plannerDate || (t.due < plannerDate && carries);
       } else {
@@ -2219,7 +2221,7 @@
       const isOverdue = t.due && t.due < plannerDate && !t.done;
       const status = getTodoStatus(t);
       const st = TODO_STATUS_STYLE[status];
-      const textStyle = status==='done'||status==='cancelled' ? 'text-decoration:line-through;color:#9ca3af;' : status==='partial'?'color:#b45309;':'';
+      const textStyle = status==='done'||status==='cancelled' ? 'text-decoration:line-through;color:#9ca3af;' : status==='partial'?'color:#b45309;' : status==='inprogress'?'color:#3b82f6;font-weight:600;':'';
       const rowBg = isOverdue?'#fff5f5': status==='done'?'#f9fafb':'#f5f3ff';
       return `
       <div class="todo-item" style="padding:8px 10px;margin-bottom:6px;box-shadow:none;background:${rowBg};border-radius:8px;${isOverdue?'border-left:3px solid #ef4444;':''}">
