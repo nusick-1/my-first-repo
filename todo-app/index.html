@@ -2713,7 +2713,7 @@
       decoColor:     localStorage.getItem('decoColor')     || 'white',
       bannerPosX:    localStorage.getItem('bannerPosX')    || '50',
       bannerPosY:    localStorage.getItem('bannerPosY')    || '50',
-      bannerZoom:    localStorage.getItem('bannerZoom')    || '1',
+      bannerZoom:    localStorage.getItem('bannerZoom')    || '100',
     };
     await setDoc(ref, {
       todos, habits, habitLogs, goals, events,
@@ -2981,7 +2981,7 @@
       preview.style.backgroundPosition=pos;
       document.querySelector('.banner-bg').style.backgroundPosition=pos;
     });
-    document.addEventListener('mouseup', ()=>{ dragging=false; preview.style.cursor='grab'; });
+    document.addEventListener('mouseup', ()=>{ dragging=false; preview.style.cursor='grab'; syncToCloud && syncToCloud(); });
     // 터치 지원
     preview.addEventListener('touchstart', e=>{
       const t=e.touches[0];
@@ -3005,7 +3005,7 @@
       document.querySelector('.banner-bg').style.backgroundPosition=pos;
       e.preventDefault();
     },{passive:false});
-    preview.addEventListener('touchend', ()=>{ dragging=false; });
+    preview.addEventListener('touchend', ()=>{ dragging=false; syncToCloud && syncToCloud(); });
   }
   window.updateBannerZoom = function(val) {
     localStorage.setItem('bannerZoom', val);
@@ -3029,6 +3029,7 @@
       localStorage.setItem('bannerPosY','50');
       localStorage.setItem('bannerZoom','100');
       applyBannerImage(ev.target.result);
+      syncToCloud && syncToCloud();
     };
     reader.readAsDataURL(file);
   };
