@@ -2393,8 +2393,10 @@
     save();
   }
   function autoResize(el) {
-    el.style.height = 'auto';
-    el.style.height = el.scrollHeight + 'px';
+    requestAnimationFrame(() => {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    });
   }
   window.autoResize = autoResize;
 
