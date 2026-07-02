@@ -3304,6 +3304,11 @@
       if(sn) sn.textContent = user.displayName || '사용자';
       if(se) se.textContent = user.email || '';
       showView('planner');
+      // 로컬 데이터가 있으면 먼저 Firestore에 올려서 새로고침 손실 방지
+      if(todos.length || Object.keys(memos).length || budget.length) {
+        lastLocalSave = Date.now();
+        syncToCloud();
+      }
       startCloudSync();
       // 로그인 후 배너 이미지: 로컬 없으면 Firestore에서 로드
       const _savedBanner = localStorage.getItem('bannerImage');
