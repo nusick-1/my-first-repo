@@ -2962,13 +2962,15 @@
     const renderCatBar = (elId, entries, emptyMsg) => {
       const el = document.getElementById(elId);
       if(!el) return;
-      const maxV = Math.max(...entries.map(e=>e[1]), 1);
+      const total = entries.reduce((s,e)=>s+e[1], 0) || 1;
+      const maxV  = Math.max(...entries.map(e=>e[1]), 1);
       el.innerHTML = entries.length ? entries.map(([cat,amt])=>`
         <div style="display:flex;align-items:center;gap:6px">
           <div style="width:52px;font-size:0.68rem;color:#555;text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cat}</div>
           <div style="flex:1;background:#f3f4f6;border-radius:6px;height:12px;overflow:hidden">
             <div style="height:100%;width:${Math.round(amt/maxV*100)}%;background:${budgetCatColor(cat)};border-radius:6px;transition:width 0.3s"></div>
           </div>
+          <div style="font-size:0.68rem;color:#aaa;min-width:28px;text-align:right">${Math.round(amt/total*100)}%</div>
           <div style="font-size:0.68rem;color:#888;min-width:48px;text-align:right">${amt.toLocaleString()}원</div>
         </div>`).join('')
         : `<div style="color:#ccc;font-size:0.8rem;text-align:center;padding:8px 0">${emptyMsg}</div>`;
