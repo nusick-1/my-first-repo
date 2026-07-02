@@ -637,7 +637,7 @@
   <div id="view-todo" style="display:none">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char" style="position:relative;display:inline-block;isolation:isolate"><img src="/todo-app/cat2.png" style="height:130px;object-fit:contain;display:block"><div style="position:absolute;inset:0;background:var(--accent);mix-blend-mode:color;pointer-events:none"></div></div>
+      <div class="tab-char"><img src="/todo-app/cat2.png" class="cat-themed" style="height:130px;object-fit:contain;display:block"></div>
       <div class="tab-header-title">✎ TO-DO LIST ✎</div>
       <div class="tab-header-sub">하나씩 해치워 봐요 ˘ᵕ˘</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -773,7 +773,7 @@
   <div id="view-study" style="display:none">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char" style="position:relative;display:inline-block;isolation:isolate"><img src="/todo-app/cat2.png" style="height:130px;object-fit:contain;display:block"><div style="position:absolute;inset:0;background:var(--accent);mix-blend-mode:color;pointer-events:none"></div></div>
+      <div class="tab-char"><img src="/todo-app/cat2.png" class="cat-themed" style="height:130px;object-fit:contain;display:block"></div>
       <div class="tab-header-title">📚 STUDY 📚</div>
       <div class="tab-header-sub">열심히 하는 중 ˘ᵕ˘ ✦</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -1078,7 +1078,7 @@
   <div id="view-budget" style="display:none">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char" style="position:relative;display:inline-block;isolation:isolate"><img src="/todo-app/cat2.png" style="height:130px;object-fit:contain;display:block"><div style="position:absolute;inset:0;background:var(--accent);mix-blend-mode:color;pointer-events:none"></div></div>
+      <div class="tab-char"><img src="/todo-app/cat2.png" class="cat-themed" style="height:130px;object-fit:contain;display:block"></div>
       <div class="tab-header-title">💸 가계부 💸</div>
       <div class="tab-header-sub">알뜰살뜰 돈 관리 ˘ᵕ˘ ✦</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -3345,6 +3345,21 @@
     '#15803d': '💚 그린', '#c2410c': '🧡 코랄', '#475569': '🩶 슬레이트',
   };
 
+  function hexToHue(hex) {
+    hex = hex.replace('#','');
+    const r=parseInt(hex.slice(0,2),16)/255, g=parseInt(hex.slice(2,4),16)/255, b=parseInt(hex.slice(4,6),16)/255;
+    const max=Math.max(r,g,b), min=Math.min(r,g,b); let h=0;
+    if(max!==min){ const d=max-min;
+      if(max===r) h=((g-b)/d+(g<b?6:0))/6;
+      else if(max===g) h=((b-r)/d+2)/6;
+      else h=((r-g)/d+4)/6; }
+    return Math.round(h*360);
+  }
+  function applyCatFilter(accent) {
+    const hue = hexToHue(accent||'#7c3aed');
+    const f = `brightness(0) invert(1) sepia(1) saturate(4) hue-rotate(${hue-30}deg) brightness(0.75)`;
+    document.querySelectorAll('.cat-themed').forEach(img => img.style.filter = f);
+  }
   window.applyTheme = function(accent, hover) {
     document.documentElement.style.setProperty('--accent', accent);
     document.documentElement.style.setProperty('--accent-hover', hover || shadeColor(accent, -20));
@@ -3355,6 +3370,7 @@
     );
     const label = document.getElementById('theme-current-label');
     if(label) label.textContent = '현재: ' + (THEMES[accent] || '커스텀 ' + accent);
+    applyCatFilter(accent);
     syncToCloud && syncToCloud();
   };
 
