@@ -1130,6 +1130,14 @@
       <button class="btn btn-primary" style="width:100%" onclick="addBudget()">+ 추가</button>
     </div>
 
+    <!-- 카테고리 관리 -->
+    <div class="card" style="padding:12px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:0.82rem;color:#888">카테고리를 직접 추가하거나 수정할 수 있어요</div>
+        <button onclick="openBudgetCatManager()" style="padding:6px 14px;border:1px solid var(--accent);border-radius:10px;background:#fff;color:var(--accent);font-size:0.82rem;font-weight:600;font-family:inherit;cursor:pointer">🗂 관리</button>
+      </div>
+    </div>
+
     <!-- 카테고리별 지출 차트 -->
     <div class="card">
       <div class="card-title">📊 카테고리별 지출</div>
@@ -2724,13 +2732,98 @@
   }
 
   // ─── 가계부 ───
-  const BUDGET_EXP_CATS = ['식비','카페','교통','쇼핑','문화/여가','의료','생활용품','기타'];
-  const BUDGET_INC_CATS = ['급여','용돈','부수입','기타'];
-  const BUDGET_CAT_COLOR = {
-    '식비':'#ff6b6b','카페':'#c084fc','교통':'#60a5fa','쇼핑':'#f472b6',
-    '문화/여가':'#34d399','의료':'#f59e0b','생활용품':'#94a3b8','기타':'#a8a29e',
-    '급여':'#4ade80','용돈':'#38bdf8','부수입':'#fb923c',
+  const BUDGET_CAT_DEFAULT_COLORS = ['#ff6b6b','#c084fc','#60a5fa','#f472b6','#34d399','#f59e0b','#94a3b8','#fb923c','#4ade80','#38bdf8','#a8a29e','#e879f9','#2dd4bf','#facc15'];
+  let budgetExpCats = JSON.parse(localStorage.getItem('budgetExpCats') || 'null') ||
+    [{name:'식비',color:'#ff6b6b'},{name:'카페',color:'#c084fc'},{name:'교통',color:'#60a5fa'},
+     {name:'쇼핑',color:'#f472b6'},{name:'문화/여가',color:'#34d399'},{name:'의료',color:'#f59e0b'},
+     {name:'생활용품',color:'#94a3b8'},{name:'기타',color:'#a8a29e'}];
+  let budgetIncCats = JSON.parse(localStorage.getItem('budgetIncCats') || 'null') ||
+    [{name:'급여',color:'#4ade80'},{name:'용돈',color:'#38bdf8'},{name:'부수입',color:'#fb923c'},{name:'기타',color:'#a8a29e'}];
+
+  function budgetCatColor(name) {
+    const all = [...budgetExpCats, ...budgetIncCats];
+    return (all.find(c=>c.name===name)||{}).color || '#94a3b8';
+  }
+  function saveBudgetCats() {
+    localStorage.setItem('budgetExpCats', JSON.stringify(budgetExpCats));
+    localStorage.setItem('budgetIncCats', JSON.stringify(budgetIncCats));
+    syncToCloud();
+  }
+
+  window.openBudgetCatManager = function() {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+    const renderCatList = () => {
+      overlay.innerHTML = `
+        <div style="background:#fff;border-radius:18px;padding:20px;width:100%;max-width:380px;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.18)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div style="font-weight:700;font-size:1rem">🗂 카테고리 관리</div>
+            <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#aaa">✕</button>
+          </div>
+          ${['expense','income'].map(type => {
+            const cats = type==='expense' ? budgetExpCats : budgetIncCats;
+            const label = type==='expense' ? '💸 지출' : '💚 수입';
+            return `
+              <div style="margin-bottom:18px">
+                <div style="font-size:0.78rem;font-weight:700;color:#555;margin-bottom:8px">${label}</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  ${cats.map((c,i)=>`
+                    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f9fafb;border-radius:10px">
+                      <input type="color" value="${c.color}" onchange="(function(el){
+                        const cats=${type==='expense'?'budgetExpCats':'budgetIncCats'};
+                        cats[${i}].color=el.value; saveBudgetCats(); renderBudget();
+                      })(this)" style="width:28px;height:28px;border:none;border-radius:50%;cursor:pointer;padding:0;background:none">
+                      <span id="bcat-name-${type}-${i}" style="flex:1;font-size:0.9rem;color:#1a1a1a">${c.name}</span>
+                      <button onclick="openBudgetCatEdit('${type}',${i})" style="background:none;border:none;font-size:0.8rem;color:#aaa;cursor:pointer">✏️</button>
+                      <button onclick="deleteBudgetCat('${type}',${i})" style="background:none;border:none;font-size:0.8rem;color:#ccc;cursor:pointer">🗑</button>
+                    </div>`).join('')}
+                </div>
+                <div style="display:flex;gap:6px;margin-top:8px">
+                  <input id="bcat-new-${type}" placeholder="새 카테고리" style="flex:1;padding:7px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.85rem;font-family:inherit"
+                    onkeydown="if(event.key==='Enter')addBudgetCat('${type}')">
+                  <button onclick="addBudgetCat('${type}')" style="padding:7px 12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:0.85rem;cursor:pointer">+ 추가</button>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>`;
+    };
+    document.body.appendChild(overlay);
+    renderCatList();
+    window._budgetCatOverlay = overlay;
+    window._budgetCatRender = renderCatList;
+    overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
   };
+
+  window.addBudgetCat = function(type) {
+    const inp = document.getElementById(`bcat-new-${type}`);
+    const name = inp?.value.trim();
+    if(!name) return;
+    const color = BUDGET_CAT_DEFAULT_COLORS[(type==='expense'?budgetExpCats:budgetIncCats).length % BUDGET_CAT_DEFAULT_COLORS.length];
+    (type==='expense' ? budgetExpCats : budgetIncCats).push({name, color});
+    saveBudgetCats(); renderBudget();
+    window._budgetCatRender && window._budgetCatRender();
+  };
+
+  window.deleteBudgetCat = function(type, i) {
+    const arr = type==='expense' ? budgetExpCats : budgetIncCats;
+    arr.splice(i, 1);
+    saveBudgetCats(); renderBudget();
+    window._budgetCatRender && window._budgetCatRender();
+  };
+
+  window.openBudgetCatEdit = function(type, i) {
+    const arr = type==='expense' ? budgetExpCats : budgetIncCats;
+    const cur = arr[i].name;
+    const newName = prompt('카테고리 이름 변경', cur);
+    if(!newName || !newName.trim()) return;
+    // 이 카테고리 이름을 사용하는 기존 내역도 업데이트
+    budget.forEach(b => { if(b.cat===cur && b.type===type) b.cat = newName.trim(); });
+    localStorage.setItem('budget', JSON.stringify(budget));
+    arr[i].name = newName.trim();
+    saveBudgetCats(); renderBudget();
+    window._budgetCatRender && window._budgetCatRender();
+  };
+
   let budgetType = 'expense';
   let budgetMonth = new Date(todayStr.slice(0,7)+'-01');
 
@@ -2741,9 +2834,9 @@
       `flex:1;padding:9px 0;border-radius:10px;border:2px solid #ef4444;background:${isExp?'#ef4444':'#fff'};color:${isExp?'#fff':'#888'};font-size:0.85rem;font-weight:600;font-family:inherit;cursor:pointer`;
     document.getElementById('budget-type-income').style.cssText =
       `flex:1;padding:9px 0;border-radius:10px;border:2px solid #16a34a;background:${isExp?'#fff':'#16a34a'};color:${isExp?'#888':'#fff'};font-size:0.85rem;font-weight:600;font-family:inherit;cursor:pointer`;
-    const cats = isExp ? BUDGET_EXP_CATS : BUDGET_INC_CATS;
+    const cats = isExp ? budgetExpCats : budgetIncCats;
     const sel = document.getElementById('budget-cat');
-    if(sel) sel.innerHTML = cats.map(c=>`<option>${c}</option>`).join('');
+    if(sel) sel.innerHTML = cats.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
   }
   window.setBudgetType = setBudgetType;
 
@@ -2800,7 +2893,7 @@
       <div style="display:flex;align-items:center;gap:8px">
         <div style="width:60px;font-size:0.72rem;color:#555;text-align:right;flex-shrink:0">${cat}</div>
         <div style="flex:1;background:#f3f4f6;border-radius:6px;height:14px;overflow:hidden">
-          <div style="height:100%;width:${Math.round(amt/maxVal*100)}%;background:${BUDGET_CAT_COLOR[cat]||'#94a3b8'};border-radius:6px;transition:width 0.3s"></div>
+          <div style="height:100%;width:${Math.round(amt/maxVal*100)}%;background:${budgetCatColor(cat)};border-radius:6px;transition:width 0.3s"></div>
         </div>
         <div style="font-size:0.72rem;color:#888;min-width:56px;text-align:right">${amt.toLocaleString()}원</div>
       </div>`).join('') || '<div style="color:#ccc;font-size:0.85rem;text-align:center;padding:8px 0">지출 내역이 없어요</div>';
@@ -2990,7 +3083,7 @@
         plannerBlocks, plannerLogs,
         todoCats, ttNotes, ddays, memos,
         diaries, meals, studySubjects, studyLogs,
-        studyAssignments, studyExams, budget,
+        studyAssignments, studyExams, budget, budgetExpCats, budgetIncCats,
         settings,
       }, { merge: true });
     }, 100);
@@ -3038,6 +3131,8 @@
       studyAssignments = d.studyAssignments || [];
       studyExams       = d.studyExams       || [];
       budget           = d.budget           || [];
+      if(d.budgetExpCats) budgetExpCats = d.budgetExpCats;
+      if(d.budgetIncCats) budgetIncCats = d.budgetIncCats;
       // 설정 동기화 (색 테마, 배너 데코, 배너 위치)
       if(d.settings) {
         const s = d.settings;
