@@ -637,7 +637,7 @@
   <div id="view-todo" style="display:none">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char cat-bg" style="border-radius:14px;padding:6px;display:inline-block"><img src="/todo-app/cat2.png" style="height:118px;object-fit:contain;mix-blend-mode:multiply;display:block"></div>
+      <div class="tab-char"><img src="/todo-app/cat2.png" class="cat-themed" style="height:130px;object-fit:contain;display:block"></div>
       <div class="tab-header-title">✎ TO-DO LIST ✎</div>
       <div class="tab-header-sub">하나씩 해치워 봐요 ˘ᵕ˘</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -773,7 +773,7 @@
   <div id="view-study" style="display:none">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char cat-bg" style="border-radius:14px;padding:6px;display:inline-block"><img src="/todo-app/cat2.png" style="height:118px;object-fit:contain;mix-blend-mode:multiply;display:block"></div>
+      <div class="tab-char"><img src="/todo-app/cat2.png" class="cat-themed" style="height:130px;object-fit:contain;display:block"></div>
       <div class="tab-header-title">📚 STUDY 📚</div>
       <div class="tab-header-sub">열심히 하는 중 ˘ᵕ˘ ✦</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -1078,7 +1078,7 @@
   <div id="view-budget" style="display:none">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char cat-bg" style="border-radius:14px;padding:6px;display:inline-block"><img src="/todo-app/cat2.png" style="height:118px;object-fit:contain;mix-blend-mode:multiply;display:block"></div>
+      <div class="tab-char"><img src="/todo-app/cat2.png" class="cat-themed" style="height:130px;object-fit:contain;display:block"></div>
       <div class="tab-header-title">💸 가계부 💸</div>
       <div class="tab-header-sub">알뜰살뜰 돈 관리 ˘ᵕ˘ ✦</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -2540,7 +2540,7 @@
         let textHtml = '';
         const ti = textCells[key];
         if(ti) {
-          textHtml = `<div style="position:absolute;left:0;top:0;width:${ti.cs*100}%;height:22px;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:2;font-size:${ti.rs>2?'0.75':'0.62'}rem;font-weight:${ti.rs>2?'600':'500'};color:${ti.note.textColor||'#333'};overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${ti.note.text}</div>`;
+          textHtml = `<div style="position:absolute;inset:0;width:${ti.cs*100}%;height:${ti.rs*22}px;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:10;font-size:${ti.rs>1?'0.72':'0.62'}rem;font-weight:600;color:${ti.note.textColor||'#333'};overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-shadow:0 0 4px rgba(255,255,255,0.9)">${ti.note.text}</div>`;
         }
         ttHtml += `<td class="td-cell ${note?'has-note':''}" data-key="${key}" data-hi="${hi}" data-mi="${mi}" data-date="${plannerDate}" style="${bg}${bStyle}">${textHtml}</td>`;
       });
@@ -3356,10 +3356,9 @@
     return Math.round(h*360);
   }
   function applyCatFilter(accent) {
-    const hex = (accent||'#7c3aed').replace('#','');
-    const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
-    const bg = `rgba(${r},${g},${b},0.18)`;
-    document.querySelectorAll('.cat-bg').forEach(el => el.style.background = bg);
+    const hue = hexToHue(accent||'#7c3aed');
+    const f = `sepia(1) saturate(6) hue-rotate(${hue - 30}deg)`;
+    document.querySelectorAll('.cat-themed').forEach(img => img.style.filter = f);
   }
   window.applyTheme = function(accent, hover) {
     document.documentElement.style.setProperty('--accent', accent);
