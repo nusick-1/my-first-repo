@@ -1138,10 +1138,18 @@
       </div>
     </div>
 
-    <!-- 카테고리별 지출 차트 -->
+    <!-- 카테고리별 지출/수입 차트 -->
     <div class="card">
-      <div class="card-title">📊 카테고리별 지출</div>
-      <div id="budget-cat-chart" style="display:flex;flex-direction:column;gap:6px"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div style="font-size:0.8rem;font-weight:700;color:#ef4444;margin-bottom:8px">📊 지출</div>
+          <div id="budget-cat-chart" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+        <div>
+          <div style="font-size:0.8rem;font-weight:700;color:#16a34a;margin-bottom:8px">📊 수입</div>
+          <div id="budget-inc-chart" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+      </div>
     </div>
 
     <!-- 내역 목록 -->
@@ -2950,19 +2958,28 @@
     balEl.textContent = (balance >= 0 ? '+' : '') + fmt(balance);
     balEl.style.color = balance >= 0 ? 'var(--accent)' : '#ef4444';
 
-    // 카테고리별 지출 막대
-    const catEl = document.getElementById('budget-cat-chart');
-    const expBycat = {};
-    monthly.filter(b=>b.type==='expense').forEach(b=>{ expBycat[b.cat]=(expBycat[b.cat]||0)+b.amount; });
-    const maxVal = Math.max(...Object.values(expBycat), 1);
-    catEl.innerHTML = Object.entries(expBycat).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>`
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="width:60px;font-size:0.72rem;color:#555;text-align:right;flex-shrink:0">${cat}</div>
-        <div style="flex:1;background:#f3f4f6;border-radius:6px;height:14px;overflow:hidden">
-          <div style="height:100%;width:${Math.round(amt/maxVal*100)}%;background:${budgetCatColor(cat)};border-radius:6px;transition:width 0.3s"></div>
-        </div>
-        <div style="font-size:0.72rem;color:#888;min-width:56px;text-align:right">${amt.toLocaleString()}원</div>
-      </div>`).join('') || '<div style="color:#ccc;font-size:0.85rem;text-align:center;padding:8px 0">지출 내역이 없어요</div>';
+    // 카테고리별 막대 차트 공통 렌더
+    const renderCatBar = (elId, entries, emptyMsg) => {
+      const el = document.getElementById(elId);
+      if(!el) return;
+      const maxV = Math.max(...entries.map(e=>e[1]), 1);
+      el.innerHTML = entries.length ? entries.map(([cat,amt])=>`
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:52px;font-size:0.68rem;color:#555;text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cat}</div>
+          <div style="flex:1;background:#f3f4f6;border-radius:6px;height:12px;overflow:hidden">
+            <div style="height:100%;width:${Math.round(amt/maxV*100)}%;background:${budgetCatColor(cat)};border-radius:6px;transition:width 0.3s"></div>
+          </div>
+          <div style="font-size:0.68rem;color:#888;min-width:48px;text-align:right">${amt.toLocaleString()}원</div>
+        </div>`).join('')
+        : `<div style="color:#ccc;font-size:0.8rem;text-align:center;padding:8px 0">${emptyMsg}</div>`;
+    };
+    const expBycat = {}, incBycat = {};
+    monthly.forEach(b => {
+      if(b.type==='expense') expBycat[b.cat] = (expBycat[b.cat]||0) + b.amount;
+      else                   incBycat[b.cat] = (incBycat[b.cat]||0) + b.amount;
+    });
+    renderCatBar('budget-cat-chart', Object.entries(expBycat).sort((a,b)=>b[1]-a[1]), '지출 없음');
+    renderCatBar('budget-inc-chart', Object.entries(incBycat).sort((a,b)=>b[1]-a[1]), '수입 없음');
 
     // 내역 목록
     const filter = document.getElementById('budget-filter')?.value || 'all';
