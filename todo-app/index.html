@@ -3210,13 +3210,13 @@
       isSyncing = true;
       const d = snap.data();
       const _fresh = Date.now() - lastLocalSave > 3000;
-      if(_fresh) todos = d.todos || [];
+      if(_fresh) todos         = d.todos         || [];
+      if(_fresh) habitLogs     = d.habitLogs     || {};
+      if(_fresh) goals         = d.goals         || [];
+      if(_fresh) events        = d.events        || [];
+      if(_fresh) plannerBlocks = d.plannerBlocks || {};
+      if(_fresh) plannerLogs   = d.plannerLogs   || {};
       habits        = d.habits        || [];
-      habitLogs     = d.habitLogs     || {};
-      goals         = d.goals         || [];
-      events        = d.events        || [];
-      plannerBlocks = d.plannerBlocks || {};
-      plannerLogs   = d.plannerLogs   || {};
       todoCats      = d.todoCats      || ['업무','개인','공부','기타'];
       // ttNotes: 최근 3초 이내 로컬 저장이 있으면 덮어쓰지 않고 병합
       if (Date.now() - lastLocalSave > 3000) {
