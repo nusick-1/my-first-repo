@@ -594,20 +594,20 @@
 
         <div class="tc">
           <div class="tc-label">📌 메모</div>
-          <textarea id="pln-memo" placeholder="자유롭게 메모하세요..." oninput="if(!event.isComposing)saveMemo();autoResize(this)" oncompositionend="saveMemo();autoResize(this)" style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box;overflow:hidden"></textarea>
+          <textarea id="pln-memo" placeholder="자유롭게 메모하세요..." oninput="saveMemo();autoResize(this)" style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box;overflow:hidden"></textarea>
         </div>
 
         <div class="tc">
           <div class="tc-label">🌅 아침 일기</div>
           <textarea id="diary-morning" placeholder="오늘 아침의 기분, 생각을 적어보세요..."
-            oninput="if(!event.isComposing)saveDiary('morning');autoResize(this)" oncompositionend="saveDiary('morning');autoResize(this)"
+            oninput="saveDiary('morning');autoResize(this)"
             style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box;overflow:hidden"></textarea>
         </div>
 
         <div class="tc">
           <div class="tc-label">🌙 저녁 일기</div>
           <textarea id="diary-evening" placeholder="오늘 하루를 돌아보며..."
-            oninput="if(!event.isComposing)saveDiary('evening');autoResize(this)" oncompositionend="saveDiary('evening');autoResize(this)"
+            oninput="saveDiary('evening');autoResize(this)"
             style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box;overflow:hidden"></textarea>
         </div>
       </div>
@@ -2378,7 +2378,7 @@
   function loadMemo() {
     const el = document.getElementById('pln-memo');
     if(!el) return;
-    // 같은 날짜 재렌더 시엔 기존 내용 유지 (onSnapshot 등으로 renderPlanner 재호출돼도 유실 방지)
+    if(document.activeElement === el) return;
     if(_memoLoadedDate === plannerDate && el.value) return;
     _memoLoadedDate = plannerDate;
     el.value = memos[plannerDate] || '';
@@ -2405,8 +2405,8 @@
     const m = document.getElementById('diary-morning');
     const e = document.getElementById('diary-evening');
     const memo = document.getElementById('pln-memo');
-    if(m){ m.value = d.morning || ''; autoResize(m); }
-    if(e){ e.value = d.evening || ''; autoResize(e); }
+    if(m && document.activeElement !== m){ m.value = d.morning || ''; autoResize(m); }
+    if(e && document.activeElement !== e){ e.value = d.evening || ''; autoResize(e); }
     if(memo) autoResize(memo);
   }
 
