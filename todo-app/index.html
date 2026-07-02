@@ -3188,7 +3188,8 @@
       if (snap.metadata.hasPendingWrites) return;
       isSyncing = true;
       const d = snap.data();
-      todos         = d.todos         || [];
+      const _fresh = Date.now() - lastLocalSave > 3000;
+      if(_fresh) todos = d.todos || [];
       habits        = d.habits        || [];
       habitLogs     = d.habitLogs     || {};
       goals         = d.goals         || [];
