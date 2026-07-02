@@ -2365,8 +2365,29 @@
     clearTimeout(_memoTimer);
     _memoTimer = setTimeout(() => syncToCloud && syncToCloud(), 300);
   }
-  // 새로고침/탭 닫기 전 메모 동기화 (비동기라 보장 안 되지만 빠른 경우 성공)
-  window.addEventListener('beforeunload', () => { syncToCloud && syncToCloud(); });
+  window.addEventListener('beforeunload', () => {
+    if(!currentUser) return;
+    clearTimeout(_syncTimer);
+    const ref = doc(db, 'users', currentUser.uid);
+    const settings = {
+      themeAccent:   localStorage.getItem('themeAccent')   || '',
+      themeHover:    localStorage.getItem('themeHover')    || '',
+      decoBigShape:  localStorage.getItem('decoBigShape')  || '♡',
+      decoSmallShape:localStorage.getItem('decoSmallShape')|| '✦',
+      decoColor:     localStorage.getItem('decoColor')     || 'white',
+      bannerPosX:    localStorage.getItem('bannerPosX')    || '50',
+      bannerPosY:    localStorage.getItem('bannerPosY')    || '50',
+      bannerZoom:    localStorage.getItem('bannerZoom')    || '100',
+    };
+    setDoc(ref, {
+      todos, habits, habitLogs, goals, events,
+      plannerBlocks, plannerLogs,
+      todoCats, ttNotes, ddays, memos,
+      diaries, meals, studySubjects, studyLogs,
+      studyAssignments, studyExams, budget, budgetExpCats, budgetIncCats,
+      settings,
+    }, { merge: true });
+  });
   let _memoLoadedDate = ''; // 마지막으로 메모를 로드한 날짜
   function flushMemo() {
     // 현재 textarea 내용을 _memoLoadedDate(이전 날짜)에 저장
