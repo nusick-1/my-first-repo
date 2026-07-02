@@ -637,7 +637,7 @@
   <div id="view-todo" style="display:none">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char"><img src="/todo-app/cat2.png" class="cat-themed" style="height:130px;object-fit:contain;display:block"></div>
+      <div class="tab-char"><img src="/todo-app/cat2.png" style="height:130px;object-fit:contain;mix-blend-mode:darken"></div>
       <div class="tab-header-title">✎ TO-DO LIST ✎</div>
       <div class="tab-header-sub">하나씩 해치워 봐요 ˘ᵕ˘</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -773,7 +773,7 @@
   <div id="view-study" style="display:none">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char"><img src="/todo-app/cat2.png" class="cat-themed" style="height:130px;object-fit:contain;display:block"></div>
+      <div class="tab-char"><img src="/todo-app/cat2.png" style="height:130px;object-fit:contain;mix-blend-mode:darken"></div>
       <div class="tab-header-title">📚 STUDY 📚</div>
       <div class="tab-header-sub">열심히 하는 중 ˘ᵕ˘ ✦</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0;line-height:1.6">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -1078,7 +1078,7 @@
   <div id="view-budget" style="display:none">
     <div class="tab-header">
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
-      <div class="tab-char"><img src="/todo-app/cat2.png" class="cat-themed" style="height:130px;object-fit:contain;display:block"></div>
+      <div class="tab-char"><img src="/todo-app/cat2.png" style="height:130px;object-fit:contain;mix-blend-mode:darken"></div>
       <div class="tab-header-title">💸 가계부 💸</div>
       <div class="tab-header-sub">알뜰살뜰 돈 관리 ˘ᵕ˘ ✦</div>
       <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
@@ -2516,8 +2516,7 @@
         // 바운딩박스 중심에 라벨 배치
         const minHI=Math.min(...blob.map(([r])=>r)), maxHI=Math.max(...blob.map(([r])=>r));
         const minMI=Math.min(...blob.map(([,c])=>c)), maxMI=Math.max(...blob.map(([,c])=>c));
-        const midHI=Math.floor((minHI+maxHI)/2);
-        const midKey=`${HOURS[midHI]}_${MINS[minMI]}`;
+        const midKey=`${HOURS[minHI]}_${MINS[minMI]}`;
         textCells[midKey]={cs:maxMI-minMI+1, rs:maxHI-minHI+1, note};
       });
     });
@@ -2540,7 +2539,7 @@
         let textHtml = '';
         const ti = textCells[key];
         if(ti) {
-          textHtml = `<div style="position:absolute;inset:0;width:${ti.cs*100}%;height:${ti.rs*22}px;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:10;font-size:${ti.rs>1?'0.72':'0.62'}rem;font-weight:600;color:${ti.note.textColor||'#333'};overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-shadow:0 0 4px rgba(255,255,255,0.9)">${ti.note.text}</div>`;
+          textHtml = `<div style="position:absolute;top:0;left:0;width:${ti.cs*100}%;height:${ti.rs*22}px;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:10;font-size:${ti.rs>1?'0.72':'0.62'}rem;font-weight:600;color:${ti.note.textColor||'#333'};overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${ti.note.text}</div>`;
         }
         ttHtml += `<td class="td-cell ${note?'has-note':''}" data-key="${key}" data-hi="${hi}" data-mi="${mi}" data-date="${plannerDate}" style="${bg}${bStyle}">${textHtml}</td>`;
       });
