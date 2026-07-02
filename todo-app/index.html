@@ -2490,23 +2490,23 @@
       }
       return{cs,rs};
     }
-    // 블록별 텍스트 표시 셀 사전 계산
-    // 같은 row에 같은 텍스트가 이미 있으면 건너뜀 → 중복 방지
+    // 블록별 텍스트 표시 셀 사전 계산 — covered Set으로 중복 완전 방지
     const textCells = {};
-    const usedRowText = new Set();
+    const covered = new Set();
     HOURS.forEach((h,hi) => {
       MINS.forEach((m,mi) => {
         const key = `${h}_${m}`;
         const note = dateNotes[key];
         if(!note?.text) return;
+        if(covered.has(key)) return; // 이미 다른 블록 라벨이 커버한 셀
         const leftNote = mi>0 ? dateNotes[`${h}_${MINS[mi-1]}`] : null;
         const topNote  = hi>0 ? dateNotes[`${HOURS[hi-1]}_${m}`] : null;
         if(sameNote(note,leftNote) || sameNote(note,topNote)) return;
         const {cs,rs} = blockSize(hi,mi,note);
+        // 이 블록이 차지하는 모든 셀을 covered에 등록
+        for(let r=0;r<rs;r++) for(let c=0;c<cs;c++)
+          covered.add(`${HOURS[hi+r]}_${MINS[mi+c]}`);
         const midHI = hi + Math.floor(rs/2);
-        const rowTextKey = `${midHI}|${note.text}`;
-        if(usedRowText.has(rowTextKey)) return; // 같은 행에 같은 텍스트 이미 있음
-        usedRowText.add(rowTextKey);
         const midKey = `${HOURS[midHI]}_${MINS[mi]}`;
         textCells[midKey] = {cs, rs, note};
       });
