@@ -2768,9 +2768,14 @@
 
   let isSyncing = false; // 원격 변경 수신 중 save() 루프 방지
   let lastLocalSave = 0; // 로컬 변경 타임스탬프 (onSnapshot 덮어쓰기 방지)
-  syncToCloud = async function() {
-    if (!currentUser || isSyncing) return;
+  let _syncTimer = null;
+  syncToCloud = function() {
+    if (!currentUser) return;
     lastLocalSave = Date.now();
+    clearTimeout(_syncTimer);
+    // 100ms 디바운스: 연속 호출 시 마지막 상태만 한 번 전송 (race condition 방지)
+    _syncTimer = setTimeout(async () => {
+      if (!currentUser || isSyncing) return;
     const ref = doc(db, 'users', currentUser.uid);
     const settings = {
       themeAccent:   localStorage.getItem('themeAccent')   || '',
@@ -2783,13 +2788,14 @@
       bannerZoom:    localStorage.getItem('bannerZoom')    || '100',
     };
     await setDoc(ref, {
-      todos, habits, habitLogs, goals, events,
-      plannerBlocks, plannerLogs,
-      todoCats, ttNotes, ddays, memos,
-      diaries, meals, studySubjects, studyLogs,
-      studyAssignments, studyExams,
-      settings,
-    }, { merge: true });
+        todos, habits, habitLogs, goals, events,
+        plannerBlocks, plannerLogs,
+        todoCats, ttNotes, ddays, memos,
+        diaries, meals, studySubjects, studyLogs,
+        studyAssignments, studyExams,
+        settings,
+      }, { merge: true });
+    }, 100);
   };
 
   let unsubSnapshot = null;
@@ -2811,7 +2817,17 @@
       plannerBlocks = d.plannerBlocks || {};
       plannerLogs   = d.plannerLogs   || {};
       todoCats      = d.todoCats      || ['업무','개인','공부','기타'];
-      ttNotes       = d.ttNotes       || {};
+      // ttNotes: 최근 3초 이내 로컬 저장이 있으면 덮어쓰지 않고 병합
+      if (Date.now() - lastLocalSave > 3000) {
+        ttNotes = d.ttNotes || {};
+      } else if (d.ttNotes) {
+        Object.keys(d.ttNotes).forEach(date => {
+          if (!ttNotes[date]) ttNotes[date] = {};
+          Object.keys(d.ttNotes[date]).forEach(key => {
+            if (!ttNotes[date][key]) ttNotes[date][key] = d.ttNotes[date][key];
+          });
+        });
+      }
       ddays         = d.ddays         || [];
       // 메모: 항상 병합 (로컬에 값 있으면 유지, 없으면 클라우드 값 사용)
       if (d.memos) {
