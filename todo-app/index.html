@@ -1644,6 +1644,7 @@
 
   // 미니 캘린더 날짜 클릭 → 플래너 날짜 이동
   window.changePlannerToDate = function(dateStr) {
+    flushMemo();
     plannerDate = dateStr;
     showView('planner');
     renderPlanner();
@@ -2138,6 +2139,7 @@
   }
 
   function changePlannerDay(d) {
+    flushMemo();
     const dt = new Date(plannerDate);
     dt.setDate(dt.getDate() + d);
     plannerDate = dt.toISOString().slice(0,10);
@@ -2270,14 +2272,20 @@
   }
   // 새로고침/탭 닫기 전 메모 동기화 (비동기라 보장 안 되지만 빠른 경우 성공)
   window.addEventListener('beforeunload', () => { syncToCloud && syncToCloud(); });
+  let _memoLoadedDate = ''; // 마지막으로 메모를 로드한 날짜
+  function flushMemo() {
+    // 현재 textarea 내용을 _memoLoadedDate(이전 날짜)에 저장
+    const el = document.getElementById('pln-memo');
+    if(!el || !_memoLoadedDate) return;
+    memos[_memoLoadedDate] = el.value;
+    localStorage.setItem('memos', JSON.stringify(memos));
+  }
   function loadMemo() {
     const el = document.getElementById('pln-memo');
     if(!el) return;
-    // textarea에 이미 값이 있으면 먼저 저장 (클릭 등으로 renderPlanner가 호출돼도 유실 방지)
-    if(el.value) {
-      memos[plannerDate] = el.value;
-      localStorage.setItem('memos', JSON.stringify(memos));
-    }
+    // 같은 날짜 재렌더 시엔 기존 내용 유지 (onSnapshot 등으로 renderPlanner 재호출돼도 유실 방지)
+    if(_memoLoadedDate === plannerDate && el.value) return;
+    _memoLoadedDate = plannerDate;
     el.value = memos[plannerDate] || '';
   }
 
@@ -2740,6 +2748,7 @@
 
   // 캘린더 → 플래너 이동
   function goToPlanner(dateStr) {
+    flushMemo();
     plannerDate = dateStr;
     showView('planner');
   }
