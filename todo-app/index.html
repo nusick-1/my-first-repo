@@ -2423,7 +2423,7 @@
   }
   function loadMeal() {
     const m = meals[plannerDate] || {};
-    const set = (id, val) => { const el=document.getElementById(id); if(el) el.value=val||''; };
+    const set = (id, val) => { const el=document.getElementById(id); if(el && document.activeElement !== el) el.value=val||''; };
     set('meal-breakfast', m.breakfast);
     set('meal-lunch',     m.lunch);
     set('meal-dinner',    m.dinner);
