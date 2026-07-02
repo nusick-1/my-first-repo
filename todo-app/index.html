@@ -594,20 +594,20 @@
 
         <div class="tc">
           <div class="tc-label">📌 메모</div>
-          <textarea id="pln-memo" placeholder="자유롭게 메모하세요..." oninput="saveMemo();autoResize(this)" style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box;overflow:hidden"></textarea>
+          <textarea id="pln-memo" placeholder="자유롭게 메모하세요..." oninput="if(!event.isComposing)saveMemo();autoResize(this)" oncompositionend="saveMemo();autoResize(this)" style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box;overflow:hidden"></textarea>
         </div>
 
         <div class="tc">
           <div class="tc-label">🌅 아침 일기</div>
           <textarea id="diary-morning" placeholder="오늘 아침의 기분, 생각을 적어보세요..."
-            oninput="saveDiary('morning');autoResize(this)"
+            oninput="if(!event.isComposing)saveDiary('morning');autoResize(this)" oncompositionend="saveDiary('morning');autoResize(this)"
             style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box;overflow:hidden"></textarea>
         </div>
 
         <div class="tc">
           <div class="tc-label">🌙 저녁 일기</div>
           <textarea id="diary-evening" placeholder="오늘 하루를 돌아보며..."
-            oninput="saveDiary('evening');autoResize(this)"
+            oninput="if(!event.isComposing)saveDiary('evening');autoResize(this)" oncompositionend="saveDiary('evening');autoResize(this)"
             style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px;font-size:0.85rem;font-family:inherit;resize:none;outline:none;color:#374151;line-height:1.8;min-height:80px;box-sizing:border-box;overflow:hidden"></textarea>
         </div>
       </div>
