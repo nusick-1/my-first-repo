@@ -3154,7 +3154,7 @@
     clearTimeout(_syncTimer);
     // 100ms 디바운스: 연속 호출 시 마지막 상태만 한 번 전송 (race condition 방지)
     _syncTimer = setTimeout(async () => {
-      if (!currentUser || isSyncing) return;
+      if (!currentUser) return;
     const ref = doc(db, 'users', currentUser.uid);
     const settings = {
       themeAccent:   localStorage.getItem('themeAccent')   || '',
