@@ -2905,7 +2905,7 @@
     const listEl = document.getElementById('budget-list');
     listEl.innerHTML = list.length ? list.map(b => {
       const isExp = b.type === 'expense';
-      const color = BUDGET_CAT_COLOR[b.cat] || '#94a3b8';
+      const color = budgetCatColor(b.cat);
       return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f3f4f6">
         <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div>
         <div style="flex:1;min-width:0">
