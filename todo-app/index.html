@@ -424,6 +424,7 @@
   <div class="tab" onclick="showView('stats')">통계</div>
   <div class="tab" onclick="showView('dash')">대시보드</div>
   <div class="tab" onclick="showView('study')">공부</div>
+  <div class="tab" onclick="showView('budget')">가계부</div>
   <div class="tab" onclick="showView('settings')">⚙ 설정</div>
 </div>
 <img src="/todo-app/frill.png" style="width:100%;height:48px;object-fit:cover;display:block;opacity:0.85">
@@ -1073,6 +1074,82 @@
   </div>
 </div>
 
+  <!-- 가계부 탭 -->
+  <div id="view-budget" style="display:none">
+    <div class="tab-header">
+      <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
+      <div class="tab-char">💰</div>
+      <div class="tab-header-title">💸 가계부 💸</div>
+      <div class="tab-header-sub">알뜰살뜰 돈 관리 ˘ᵕ˘ ✦</div>
+      <div style="text-align:center;font-size:0.85rem;color:#bbb;letter-spacing:0.05em;margin:8px 0">⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹︶︶⊹︶︶୨୧︶︶⊹</div>
+    </div>
+
+    <!-- 월 네비게이션 + 요약 -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <button onclick="budgetMonthNav(-1)" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#aaa">‹</button>
+        <div id="budget-month-label" style="font-weight:700;font-size:1rem;color:#1a1a1a"></div>
+        <button onclick="budgetMonthNav(1)" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#aaa">›</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center">
+        <div style="background:#f0fdf4;border-radius:12px;padding:12px 6px">
+          <div style="font-size:0.7rem;color:#16a34a;font-weight:600;margin-bottom:4px">💚 수입</div>
+          <div id="budget-income-total" style="font-size:1rem;font-weight:800;color:#16a34a">0원</div>
+        </div>
+        <div style="background:#fef2f2;border-radius:12px;padding:12px 6px">
+          <div style="font-size:0.7rem;color:#dc2626;font-weight:600;margin-bottom:4px">❤️ 지출</div>
+          <div id="budget-expense-total" style="font-size:1rem;font-weight:800;color:#dc2626">0원</div>
+        </div>
+        <div style="background:#f5f3ff;border-radius:12px;padding:12px 6px">
+          <div style="font-size:0.7rem;color:var(--accent);font-weight:600;margin-bottom:4px">💜 잔액</div>
+          <div id="budget-balance" style="font-size:1rem;font-weight:800;color:var(--accent)">0원</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 내역 추가 -->
+    <div class="card">
+      <div class="card-title">✏️ 내역 추가</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button id="budget-type-expense" onclick="setBudgetType('expense')"
+          style="flex:1;padding:9px 0;border-radius:10px;border:2px solid #ef4444;background:#ef4444;color:#fff;font-size:0.85rem;font-weight:600;font-family:inherit;cursor:pointer">지출</button>
+        <button id="budget-type-income" onclick="setBudgetType('income')"
+          style="flex:1;padding:9px 0;border-radius:10px;border:2px solid #e5e7eb;background:#fff;color:#888;font-size:0.85rem;font-weight:600;font-family:inherit;cursor:pointer">수입</button>
+      </div>
+      <div class="form-row" style="margin-bottom:8px">
+        <input type="date" id="budget-date" style="flex:1;padding:9px 10px;border:1px solid #e5e7eb;border-radius:10px;font-size:0.85rem;font-family:inherit">
+        <input type="number" id="budget-amount" placeholder="금액 (원)" min="0"
+          style="flex:2;padding:9px 10px;border:1px solid #e5e7eb;border-radius:10px;font-size:0.85rem;font-family:inherit"
+          onkeydown="if(event.key==='Enter')addBudget()">
+      </div>
+      <div class="form-row" style="margin-bottom:8px">
+        <select id="budget-cat" style="flex:1;padding:9px 10px;border:1px solid #e5e7eb;border-radius:10px;font-size:0.85rem;font-family:inherit;background:#fff"></select>
+        <input type="text" id="budget-desc" placeholder="메모 (선택)" style="flex:2;padding:9px 10px;border:1px solid #e5e7eb;border-radius:10px;font-size:0.85rem;font-family:inherit"
+          onkeydown="if(event.key==='Enter')addBudget()">
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="addBudget()">+ 추가</button>
+    </div>
+
+    <!-- 카테고리별 지출 차트 -->
+    <div class="card">
+      <div class="card-title">📊 카테고리별 지출</div>
+      <div id="budget-cat-chart" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+
+    <!-- 내역 목록 -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="card-title" style="margin:0">📋 내역</div>
+        <select id="budget-filter" onchange="renderBudget()" style="font-size:0.78rem;padding:4px 8px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;background:#fff">
+          <option value="all">전체</option>
+          <option value="expense">지출만</option>
+          <option value="income">수입만</option>
+        </select>
+      </div>
+      <div id="budget-list"></div>
+    </div>
+  </div>
+
 </div><!-- /app-screen -->
 
 <script type="module">
@@ -1096,6 +1173,7 @@
   let studyLogs         = JSON.parse(localStorage.getItem('studyLogs')         || '{}');
   let studyAssignments  = JSON.parse(localStorage.getItem('studyAssignments')  || '[]');
   let studyExams        = JSON.parse(localStorage.getItem('studyExams')        || '[]');
+  let budget            = JSON.parse(localStorage.getItem('budget')            || '[]');
 
   let todoFilter = 'all';
   let calYear = todayDate.getFullYear(), calMonth = todayDate.getMonth();
@@ -1115,6 +1193,7 @@
     localStorage.setItem('studyLogs',        JSON.stringify(studyLogs));
     localStorage.setItem('studyAssignments', JSON.stringify(studyAssignments));
     localStorage.setItem('studyExams',       JSON.stringify(studyExams));
+    localStorage.setItem('budget',           JSON.stringify(budget));
     syncToCloud();
   }
 
@@ -2644,9 +2723,118 @@
     renderStudyWeekly();
   }
 
+  // ─── 가계부 ───
+  const BUDGET_EXP_CATS = ['식비','카페','교통','쇼핑','문화/여가','의료','생활용품','기타'];
+  const BUDGET_INC_CATS = ['급여','용돈','부수입','기타'];
+  const BUDGET_CAT_COLOR = {
+    '식비':'#ff6b6b','카페':'#c084fc','교통':'#60a5fa','쇼핑':'#f472b6',
+    '문화/여가':'#34d399','의료':'#f59e0b','생활용품':'#94a3b8','기타':'#a8a29e',
+    '급여':'#4ade80','용돈':'#38bdf8','부수입':'#fb923c',
+  };
+  let budgetType = 'expense';
+  let budgetMonth = new Date(todayStr.slice(0,7)+'-01');
+
+  function setBudgetType(type) {
+    budgetType = type;
+    const isExp = type === 'expense';
+    document.getElementById('budget-type-expense').style.cssText =
+      `flex:1;padding:9px 0;border-radius:10px;border:2px solid #ef4444;background:${isExp?'#ef4444':'#fff'};color:${isExp?'#fff':'#888'};font-size:0.85rem;font-weight:600;font-family:inherit;cursor:pointer`;
+    document.getElementById('budget-type-income').style.cssText =
+      `flex:1;padding:9px 0;border-radius:10px;border:2px solid #16a34a;background:${isExp?'#fff':'#16a34a'};color:${isExp?'#888':'#fff'};font-size:0.85rem;font-weight:600;font-family:inherit;cursor:pointer`;
+    const cats = isExp ? BUDGET_EXP_CATS : BUDGET_INC_CATS;
+    const sel = document.getElementById('budget-cat');
+    if(sel) sel.innerHTML = cats.map(c=>`<option>${c}</option>`).join('');
+  }
+  window.setBudgetType = setBudgetType;
+
+  window.addBudget = function() {
+    const date   = document.getElementById('budget-date').value;
+    const amount = parseInt(document.getElementById('budget-amount').value);
+    const cat    = document.getElementById('budget-cat').value;
+    const desc   = document.getElementById('budget-desc').value.trim();
+    if(!date || !amount || amount <= 0) return;
+    budget.push({ id: Date.now(), date, type: budgetType, amount, cat, desc });
+    budget.sort((a,b) => b.date.localeCompare(a.date));
+    localStorage.setItem('budget', JSON.stringify(budget));
+    syncToCloud();
+    document.getElementById('budget-amount').value = '';
+    document.getElementById('budget-desc').value = '';
+    renderBudget();
+  };
+
+  window.deleteBudget = function(id) {
+    budget = budget.filter(b => b.id !== id);
+    localStorage.setItem('budget', JSON.stringify(budget));
+    syncToCloud();
+    renderBudget();
+  };
+
+  window.budgetMonthNav = function(d) {
+    budgetMonth.setMonth(budgetMonth.getMonth() + d);
+    renderBudget();
+  };
+
+  function renderBudget() {
+    const y = budgetMonth.getFullYear();
+    const m = String(budgetMonth.getMonth()+1).padStart(2,'0');
+    const prefix = `${y}-${m}`;
+    document.getElementById('budget-month-label').textContent = `${y}년 ${budgetMonth.getMonth()+1}월`;
+
+    const monthly = budget.filter(b => b.date.startsWith(prefix));
+    const income  = monthly.filter(b=>b.type==='income').reduce((s,b)=>s+b.amount, 0);
+    const expense = monthly.filter(b=>b.type==='expense').reduce((s,b)=>s+b.amount, 0);
+    const balance = income - expense;
+    const fmt = n => n.toLocaleString()+'원';
+    document.getElementById('budget-income-total').textContent  = fmt(income);
+    document.getElementById('budget-expense-total').textContent = fmt(expense);
+    const balEl = document.getElementById('budget-balance');
+    balEl.textContent = (balance >= 0 ? '+' : '') + fmt(balance);
+    balEl.style.color = balance >= 0 ? 'var(--accent)' : '#ef4444';
+
+    // 카테고리별 지출 막대
+    const catEl = document.getElementById('budget-cat-chart');
+    const expBycat = {};
+    monthly.filter(b=>b.type==='expense').forEach(b=>{ expBycat[b.cat]=(expBycat[b.cat]||0)+b.amount; });
+    const maxVal = Math.max(...Object.values(expBycat), 1);
+    catEl.innerHTML = Object.entries(expBycat).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>`
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:60px;font-size:0.72rem;color:#555;text-align:right;flex-shrink:0">${cat}</div>
+        <div style="flex:1;background:#f3f4f6;border-radius:6px;height:14px;overflow:hidden">
+          <div style="height:100%;width:${Math.round(amt/maxVal*100)}%;background:${BUDGET_CAT_COLOR[cat]||'#94a3b8'};border-radius:6px;transition:width 0.3s"></div>
+        </div>
+        <div style="font-size:0.72rem;color:#888;min-width:56px;text-align:right">${amt.toLocaleString()}원</div>
+      </div>`).join('') || '<div style="color:#ccc;font-size:0.85rem;text-align:center;padding:8px 0">지출 내역이 없어요</div>';
+
+    // 내역 목록
+    const filter = document.getElementById('budget-filter')?.value || 'all';
+    const list = monthly.filter(b => filter==='all' || b.type===filter)
+                        .sort((a,b) => b.date.localeCompare(a.date) || b.id-a.id);
+    const listEl = document.getElementById('budget-list');
+    listEl.innerHTML = list.length ? list.map(b => {
+      const isExp = b.type === 'expense';
+      const color = BUDGET_CAT_COLOR[b.cat] || '#94a3b8';
+      return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f3f4f6">
+        <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.87rem;font-weight:600;color:#1a1a1a">${b.desc||b.cat}
+            <span style="font-size:0.7rem;font-weight:400;color:#aaa;margin-left:4px">${b.cat}</span></div>
+          <div style="font-size:0.72rem;color:#bbb">${b.date}</div>
+        </div>
+        <div style="font-size:0.92rem;font-weight:700;color:${isExp?'#ef4444':'#16a34a'};flex-shrink:0">
+          ${isExp?'-':'+'}${b.amount.toLocaleString()}원</div>
+        <button onclick="deleteBudget(${b.id})" style="background:none;border:none;color:#ddd;cursor:pointer;font-size:0.9rem;padding:2px 4px">✕</button>
+      </div>`;
+    }).join('') : '<div style="color:#ccc;font-size:0.85rem;text-align:center;padding:12px 0">내역이 없어요 🪙</div>';
+
+    // 날짜 기본값 + 카테고리 초기화
+    const dateEl = document.getElementById('budget-date');
+    if(dateEl && !dateEl.value) dateEl.value = todayStr;
+    setBudgetType(budgetType);
+  }
+
   // ─── 탭 전환 ───
   function showView(v) {
-    ['dash','planner','todo','cal','goal','habit','stats','study','settings'].forEach(n=>{
+    ['dash','planner','todo','cal','goal','habit','stats','study','budget','settings'].forEach(n=>{
       document.getElementById('view-'+n).style.display=n===v?'':'none';
     });
     document.querySelectorAll('.tab').forEach(t=>{
@@ -2661,6 +2849,7 @@
     if(v==='dash') renderDash();
     if(v==='planner') { renderPlanner(); renderMiniCal(); }
     if(v==='study') renderStudy();
+    if(v==='budget') renderBudget();
   }
 
   // ─── 검색 ───
@@ -2801,7 +2990,7 @@
         plannerBlocks, plannerLogs,
         todoCats, ttNotes, ddays, memos,
         diaries, meals, studySubjects, studyLogs,
-        studyAssignments, studyExams,
+        studyAssignments, studyExams, budget,
         settings,
       }, { merge: true });
     }, 100);
@@ -2848,6 +3037,7 @@
       studyLogs        = d.studyLogs        || {};
       studyAssignments = d.studyAssignments || [];
       studyExams       = d.studyExams       || [];
+      budget           = d.budget           || [];
       // 설정 동기화 (색 테마, 배너 데코, 배너 위치)
       if(d.settings) {
         const s = d.settings;
@@ -2883,6 +3073,7 @@
       localStorage.setItem('studyLogs',        JSON.stringify(studyLogs));
       localStorage.setItem('studyAssignments', JSON.stringify(studyAssignments));
       localStorage.setItem('studyExams',       JSON.stringify(studyExams));
+      localStorage.setItem('budget',           JSON.stringify(budget));
       isSyncing = false;
       renderTodoCatSelect(); renderTodoCatPills();
       renderDash(); renderTodos(); renderHabits(); renderGoals(); renderStats();
